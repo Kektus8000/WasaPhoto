@@ -3,7 +3,7 @@ info:
   title: WasaPhoto 2023/2024
   description: |
     Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! You can upload your photos directly from your PC, and they will be visible to everyone following you
-  version: "3"
+  version: "4"
 
 components:
   schemas:
@@ -18,22 +18,32 @@ components:
           description: The name of an user registered in the system
           type: string
           example: Simone
+          minLength: 6
+          maxLength: 20
         following:
           description: Users followed by the user
           type: array
           items: {$ref: "#/components/schemas/user"}
+          minItems: 0
+          maxItems: 9999999999
         followers:
           description: Users following the user
           type: array
           items: {$ref: "#/components/schemas/user"}
+          minItems: 0
+          maxItems: 9999999999
         banList:
           description: Users banned by the user
           type: array 
           items: {$ref: "#/components/schemas/user"}
+          minItems: 0
+          maxItems: 9999999999
         publishedPhotos:
           description: The photos uploaded by the user
           type: array 
           items: {$ref: "#/components/schemas/photos"}
+          minItems: 0
+          maxItems: 9999999999
     
     photos:
       description: A photo uploaded on WasaPhoto by a registered user
@@ -49,11 +59,15 @@ components:
         comments:
           description: The comments left by the users
           schema: {$ref: "#/components/schemas/comments"}
+          minItems: 0
+          maxItems: 1000
         pubblicationDate:
           description: The date when the photo as been published
           type: string
           format: dd/mm/yyyy
           example: 25/12/2023
+          minLength: 10
+          maxLength: 10
         
     
     comments:
@@ -66,6 +80,8 @@ components:
         comment:
           description: The comment itself
           type: string
+          minLength: 1
+          maxLength: 160
         userPublisher:
           description: The id of the user who wrote the comment
           type: integer
@@ -109,10 +125,12 @@ paths:
   /user/{userId}/username:
     parameters:
     - name : userId
-      in : query
+      in : path
+      required: true
       schema:
         type: integer
     get:
+      tags: ["getUserProfile"]
       summary: Get user profile
       description: |
         Get the profile of an user with that username. If not found, return an error.
@@ -128,7 +146,8 @@ paths:
         '404':
           description: The user isn't registered in the system.
   
-    put:
+    post:
+      tags: ["setMyUsername"]
       summary: Modify previous user name
       description: |
         Modify the old username of the user with the new one asked as parameter.
@@ -144,18 +163,21 @@ paths:
         '200':
           description: The username has been updated.
 
-  /user/{userId}/following/{followerId}:
+  /user/{userId}/following/user/{followerId}:
     parameters:
     - name : userId
-      in : query
+      in : path
+      required: true
       schema:
         type: integer
     - name: followerId
-      in : query
+      in : path
+      required: true
       schema:
         type: integer
 
-    put:
+    post:
+      tags: ["followUser"]
       summary: Follow an user
       description: Add an user on your following list
       operationId: followUser
@@ -166,6 +188,7 @@ paths:
           description: The user wasn't in the system
 
     delete:
+      tags: ["unfollowUser"]
       summary: Un-Follow an user
       description: Remove an user from your following list
       operationId: unfollowUser
@@ -178,10 +201,12 @@ paths:
   /user/{userId}:
     parameters:
     - name : userId
-      in : query
+      in : path
+      required: true
       schema:
         type: integer
     get:
+      tags: ["getMyStream"]
       summary: Get stream
       description: Get the user's stream by collecting the photo
       operationId: getMyStream
@@ -197,13 +222,21 @@ paths:
   /user/{userId}/banList:
     parameters:
     - name : userId
-      in : query
+      in : path
+      required: true
       schema:
         type: integer
-    put:
+    post:
+      tags: ["banUser"]
       summary: Ban an user
       description: Add an user in the banlist. This way, the user cannot view the photos uploaded by you.
       operationId: banUser
+      parameters: 
+      - name: bannedId
+        in : query
+        required : true
+        schema:
+          type: integer
       responses:
         '201':
           description: The user has been added to the banList
@@ -211,11 +244,18 @@ paths:
           description: The user was already in the banlist
         '404':
           description: The user doesn't exist in the system
-    
+  
     delete:
+      tags: ["unbanUser"]
       summary: Un-ban an user
       description: Remove an user from your banlist. This way, your profile can be viewed by the user.
       operationId: unbanUser
+      parameters: 
+      - name: bannedId
+        in : query
+        required : true
+        schema:
+          type: integer
       responses:
         '200':
           description: The user has been removed from the banlist.
@@ -225,11 +265,13 @@ paths:
   /user/{userId}/publishedPhotos:
     parameters:
     - name : userId
-      in : query
+      in : path
+      required: true
       schema:
         type: integer
 
-    put:
+    post:
+      tags: ["uploadPhoto"]
       summary: Add a photo
       description: Add a photo to user's list of published photos.
       operationId: uploadPhoto 
@@ -242,34 +284,33 @@ paths:
         '201':
           description: The photo has been added to the list of published photos.
 
-  /user/{userId}/publishedPhotos/{photoId}:
-    parameters:
-    - name : userId
-      in : query
-      schema:
-        type: integer
-    - name: photoId
-      in : query
-      schema:
-        type: integer
     delete:
+      tags: ["deletePhoto"]
       summary: Remove published photo
       description: Remove a photo published by the user
       operationId: deletePhoto
+      parameters:
+      - name: photoId
+        in : query
+        required: true
+        schema:
+          type: integer
       responses: 
         '201':
           description: The photo has been removed from the list of published photos
         '404':
           description: There isn't a photo with that Id, so it can't be removed.
   
-  /photo/{photoId}/likes:
+  /photos/{photoId}/likes:
     parameters:
     - name : photoId
-      in : query
+      in : path
+      required: true
       schema:
         type: integer
 
     post:
+        tags: ["likePhoto"]
         summary: Add like to photo
         description: Add a like to the photo, updating the like counter
         operationId: likePhoto 
@@ -282,6 +323,7 @@ paths:
               description: The photo hasn't been found, so the like cannot be added
 
     delete:
+          tags: ["unlikePhoto"]
           summary: Remove like from photo
           description: Remove like from photo, decreasing the like counter.
           operationId: unlikePhoto 
@@ -291,16 +333,18 @@ paths:
             '404':
               description: The photo hasn't been found, so the like cannot be removed.
 
-  /photo/{photoId}/comments:
+  /photos/{photoId}/comments:
     parameters:
     - name : photoId
-      in : query
+      in : path
+      required: true
       schema:
         type: integer
 
     post:
+      tags: ["commentPhoto"]
       summary: Add a comment on a photo
-      description: The user add a comment on a following's uploaded photo
+      description: Add a comment to the collection of comment
       operationId: commentPhoto
       requestBody:
         description: The comment to add to the photo
@@ -317,21 +361,17 @@ paths:
         '403':
           description: The comment hasn't been added because you are in user's banned list
 
-  /photos/{photoId}/comments/{commentId}:
-    parameters:
-    - name : photoId
-      in : query
-      schema:
-        type: integer
-    - name: commentId
-      in : query
-      schema:
-        type: integer
-
     delete:
+      tags: ["uncommentPhoto"]
       summary: Remove a comment from a photo
-      description: Remove the comment left by the user from the photo
+      description: Remove the comment from the collection of comments
       operationId: uncommentPhoto
+      parameters:
+        - name: commentId
+          in : query
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
           description: The comment has been removed from the photo
