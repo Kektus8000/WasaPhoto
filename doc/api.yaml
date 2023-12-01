@@ -3,12 +3,13 @@ info:
   title: WasaPhoto 2023/2024
   description: |
     Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! You can upload your photos directly from your PC, and they will be visible to everyone following you
-  version: "4"
+  version: "5"
 
 components:
   schemas:
     user:
       description: An user registered on WasaPhoto
+      tags: ["User"]
       type: object
       properties:
         userId:
@@ -23,19 +24,16 @@ components:
         following:
           description: Users followed by the user
           type: array
-          items: {$ref: "#/components/schemas/user"}
           minItems: 0
           maxItems: 9999999999
         followers:
           description: Users following the user
           type: array
-          items: {$ref: "#/components/schemas/user"}
           minItems: 0
           maxItems: 9999999999
         banList:
           description: Users banned by the user
           type: array 
-          items: {$ref: "#/components/schemas/user"}
           minItems: 0
           maxItems: 9999999999
         publishedPhotos:
@@ -47,6 +45,7 @@ components:
     
     photos:
       description: A photo uploaded on WasaPhoto by a registered user
+      tags: ["Photo"]
       type: object
       properties:
         photoId:
@@ -72,6 +71,7 @@ components:
     
     comments:
       description: A comment left by an user in a photo published on WasaPhoto
+      tags: ["Comment"]
       type: object
       properties:
         commentId:
@@ -116,11 +116,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  identifier:
-                    type: integer
-                    example: 101293
+                description: The userId 
+                type: integer
+                example: 101293
   
   /user/{userId}/username:
     parameters:
@@ -128,6 +126,7 @@ paths:
       in : path
       required: true
       schema:
+        description: User's id to get the profile
         type: integer
     get:
       tags: ["getUserProfile"]
@@ -158,9 +157,11 @@ paths:
           application/json:
             schema:
               type: string
+              minLength: 6
+              maxLength: 20
               example: Maria
       responses:
-        '200':
+        '204':
           description: The username has been updated.
 
   /user/{userId}/following/user/{followerId}:
@@ -169,11 +170,13 @@ paths:
       in : path
       required: true
       schema:
+        description: User's Id
         type: integer
     - name: followerId
       in : path
       required: true
       schema:
+        description: Follower's Id
         type: integer
 
     post:
@@ -182,7 +185,7 @@ paths:
       description: Add an user on your following list
       operationId: followUser
       responses:
-        '200':
+        '204':
           description: The user has been added to the following list
         '404':
           description: The user wasn't in the system
@@ -193,7 +196,7 @@ paths:
       description: Remove an user from your following list
       operationId: unfollowUser
       responses:
-        '200':
+        '204':
           description: The user has been removed from the following list
         '400':
           description: The user wasn't in the following list
@@ -204,6 +207,7 @@ paths:
       in : path
       required: true
       schema:
+        description: User's Id
         type: integer
     get:
       tags: ["getMyStream"]
@@ -216,8 +220,11 @@ paths:
           content:
             image/jpeg:
               schema:
+                description: Photos published by followed users
                 type: array
                 items: {$ref: '#/components/schemas/photos'}
+                minItems: 0
+                maxItems: 9999999999
 
   /user/{userId}/banList:
     parameters:
@@ -225,6 +232,7 @@ paths:
       in : path
       required: true
       schema:
+        description: User's id
         type: integer
     post:
       tags: ["banUser"]
@@ -236,9 +244,10 @@ paths:
         in : query
         required : true
         schema:
+          description: User's id to ban
           type: integer
       responses:
-        '201':
+        '204':
           description: The user has been added to the banList
         '400':
           description: The user was already in the banlist
@@ -255,9 +264,10 @@ paths:
         in : query
         required : true
         schema:
+          description: Banned user's id
           type: integer
       responses:
-        '200':
+        '204':
           description: The user has been removed from the banlist.
         '400':
           description: The user wasn't in the banlist, so he can't be removed.
@@ -268,6 +278,7 @@ paths:
       in : path
       required: true
       schema:
+        description: User's id
         type: integer
 
     post:
@@ -281,7 +292,7 @@ paths:
           image/jpeg:
               schema: {$ref: "#/components/schemas/photos"}
       responses:
-        '201':
+        '204':
           description: The photo has been added to the list of published photos.
 
     delete:
@@ -294,9 +305,10 @@ paths:
         in : query
         required: true
         schema:
+          description: Photo's id
           type: integer
       responses: 
-        '201':
+        '204':
           description: The photo has been removed from the list of published photos
         '404':
           description: There isn't a photo with that Id, so it can't be removed.
@@ -307,6 +319,7 @@ paths:
       in : path
       required: true
       schema:
+        description: Photo's id
         type: integer
 
     post:
@@ -315,7 +328,7 @@ paths:
         description: Add a like to the photo, updating the like counter
         operationId: likePhoto 
         responses:
-            '200':
+            '204':
               description: The photo has been liked.
             '403':
               description: Cannot like the photo because you've been banned by the user.
@@ -328,7 +341,7 @@ paths:
           description: Remove like from photo, decreasing the like counter.
           operationId: unlikePhoto 
           responses:
-            '200':
+            '204':
               description: The like has been removed from the photo.
             '404':
               description: The photo hasn't been found, so the like cannot be removed.
@@ -339,6 +352,7 @@ paths:
       in : path
       required: true
       schema:
+        description: Photo's id
         type: integer
 
     post:
@@ -352,12 +366,10 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/comments"}
       responses:
-        '201':
+        '204':
           description: The comment has been added to the photo
-
         '400':
           description: The comment hasn't been added to the photo due to an error
-
         '403':
           description: The comment hasn't been added because you are in user's banned list
 
@@ -371,10 +383,10 @@ paths:
           in : query
           required: true
           schema:
+            description: Photo's id
             type: integer
       responses:
-        '200':
+        '204':
           description: The comment has been removed from the photo
-
         '404':
           description: The comment hasn't been found in photo's comments
