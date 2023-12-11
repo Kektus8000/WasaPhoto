@@ -3,53 +3,68 @@ info:
   title: WasaPhoto 2023/2024
   description: |
     Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! You can upload your photos directly from your PC, and they will be visible to everyone following you
-  version: "5"
+  version: "6"
 
 components:
   schemas:
     user:
       description: An user registered on WasaPhoto
-      tags: ["User"]
       type: object
       properties:
-        userId:
+        userID:
           description: The user identifier in the system
           type: integer
         username:
           description: The name of an user registered in the system
           type: string
           example: Simone
+          pattern: '^.*?$'
           minLength: 6
           maxLength: 20
+    
+    userProfile:
+      desciption: The profile of an user on WasaPhoto
+      type: object
+      properties:
+        owner:
+          desciption: Profile's owner
+          type: integer
+          schema: {$ref: "#/components/schemas/user/properties/userID"}
         following:
           description: Users followed by the user
           type: array
+          items: {$ref: "#/components/schemas/user"}
           minItems: 0
           maxItems: 9999999999
         followers:
           description: Users following the user
           type: array
+          items: {$ref: "#/components/schemas/user"}
           minItems: 0
           maxItems: 9999999999
         banList:
           description: Users banned by the user
-          type: array 
+          type: array
+          items: {$ref: "#/components/schemas/user"}
           minItems: 0
           maxItems: 9999999999
         publishedPhotos:
           description: The photos uploaded by the user
           type: array 
-          items: {$ref: "#/components/schemas/photos"}
+          items: {$ref: "#/components/schemas/photo"}
           minItems: 0
           maxItems: 9999999999
-    
-    photos:
+
+    photo:
       description: A photo uploaded on WasaPhoto by a registered user
-      tags: ["Photo"]
       type: object
       properties:
-        photoId:
-          description: The photo's identifier
+        publisherID:
+          description: Publisher's identifier
+          type: integer
+          schema: {$ref: "#/components/schemas/user/properties/userID"}
+        photoID:
+          description: Photo's identifier
           type: integer
         likes:
           description: The number of like the photo received by the users
@@ -57,7 +72,7 @@ components:
           minimum: 0
         comments:
           description: The comments left by the users
-          schema: {$ref: "#/components/schemas/comments"}
+          schema: {$ref: "#/components/schemas/comment"}
           minItems: 0
           maxItems: 1000
         pubblicationDate:
@@ -67,24 +82,26 @@ components:
           example: 25/12/2023
           minLength: 10
           maxLength: 10
-        
-    
-    comments:
+
+    comment:
       description: A comment left by an user in a photo published on WasaPhoto
       tags: ["Comment"]
       type: object
       properties:
-        commentId:
+        publisherID:
+          description: Publisher's identifier
+          type: integer
+          schema: {$ref: "#/components/schemas/user/properties/userID"}
+        commentID:
           description: The comment identifier
           type: integer
         comment:
           description: The comment itself
           type: string
-          minLength: 1
+          example: Nice Work
+          pattern: '^.*?$'
+          minLength: 6
           maxLength: 160
-        userPublisher:
-          description: The id of the user who wrote the comment
-          type: integer
         
 paths:
   /session:
@@ -116,13 +133,13 @@ paths:
           content:
             application/json:
               schema:
-                description: The userId 
+                description: The userID 
                 type: integer
                 example: 101293
   
-  /user/{userId}/username:
+  /userProfile/{userID}:
     parameters:
-    - name : userId
+    - name : userID
       in : path
       required: true
       schema:
@@ -139,40 +156,53 @@ paths:
           description: The user is in the system and you can visit his/her profile.
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/user"}
+              schema: {$ref: "#/components/schemas/userProfile"}
         '403':
           description: You are in the user banlist, so you can't visit user's profile.
         '404':
           description: The user isn't registered in the system.
   
+  /user/{userID}/username:
+    parameters:
+    - name : userID
+      in : path
+      required: true
+      schema:
+        description: User's id to get the profile
+        type: integer
+  
     post:
       tags: ["setMyUsername"]
-      summary: Modify previous user name
+      summary: Modify previous username
       description: |
         Modify the old username of the user with the new one asked as parameter.
       operationId: setMyUserName
       requestBody:
-        description: The new username
         content:
           application/json:
             schema:
+              description: New username for the user
               type: string
+              pattern: '^.*?$'
               minLength: 6
               maxLength: 20
-              example: Maria
+              example: Miriam
       responses:
-        '204':
+        '201':
           description: The username has been updated.
+        '404':  
+          description: The user wasn't in the system
 
-  /user/{userId}/following/user/{followerId}:
+  /userProfile/{userID}/following{followerID}:
     parameters:
-    - name : userId
+    - name : userID
       in : path
       required: true
       schema:
         description: User's Id
         type: integer
-    - name: followerId
+
+    - name: followerID
       in : path
       required: true
       schema:
@@ -185,8 +215,10 @@ paths:
       description: Add an user on your following list
       operationId: followUser
       responses:
-        '204':
+        '202':
           description: The user has been added to the following list
+        '403':
+          description: You can't add the user in you following list because you are in its banList
         '404':
           description: The user wasn't in the system
 
@@ -196,14 +228,14 @@ paths:
       description: Remove an user from your following list
       operationId: unfollowUser
       responses:
-        '204':
+        '202':
           description: The user has been removed from the following list
         '400':
           description: The user wasn't in the following list
 
-  /user/{userId}:
+  /userProfile/{userID}/following/:
     parameters:
-    - name : userId
+    - name : userID
       in : path
       required: true
       schema:
@@ -222,13 +254,13 @@ paths:
               schema:
                 description: Photos published by followed users
                 type: array
-                items: {$ref: '#/components/schemas/photos'}
+                items: {$ref: '#/components/schemas/photo'}
                 minItems: 0
                 maxItems: 9999999999
 
-  /user/{userId}/banList:
+  /userProfile/{userID}/banList:
     parameters:
-    - name : userId
+    - name : userID
       in : path
       required: true
       schema:
@@ -247,7 +279,7 @@ paths:
           description: User's id to ban
           type: integer
       responses:
-        '204':
+        '202':
           description: The user has been added to the banList
         '400':
           description: The user was already in the banlist
@@ -267,14 +299,14 @@ paths:
           description: Banned user's id
           type: integer
       responses:
-        '204':
+        '202':
           description: The user has been removed from the banlist.
         '400':
           description: The user wasn't in the banlist, so he can't be removed.
         
-  /user/{userId}/publishedPhotos:
+  /userProfile/{userID}/publishedPhotos:
     parameters:
-    - name : userId
+    - name : userID
       in : path
       required: true
       schema:
@@ -290,9 +322,9 @@ paths:
         description: The photo to add
         content:
           image/jpeg:
-              schema: {$ref: "#/components/schemas/photos"}
+              schema: {$ref: "#/components/schemas/photo"}
       responses:
-        '204':
+        '202':
           description: The photo has been added to the list of published photos.
 
     delete:
@@ -308,12 +340,12 @@ paths:
           description: Photo's id
           type: integer
       responses: 
-        '204':
+        '202':
           description: The photo has been removed from the list of published photos
         '404':
           description: There isn't a photo with that Id, so it can't be removed.
   
-  /photos/{photoId}/likes:
+  /photo/{photoId}/likes:
     parameters:
     - name : photoId
       in : path
@@ -328,7 +360,7 @@ paths:
         description: Add a like to the photo, updating the like counter
         operationId: likePhoto 
         responses:
-            '204':
+            '202':
               description: The photo has been liked.
             '403':
               description: Cannot like the photo because you've been banned by the user.
@@ -346,9 +378,9 @@ paths:
             '404':
               description: The photo hasn't been found, so the like cannot be removed.
 
-  /photos/{photoId}/comments:
+  /photo/{photoID}/comments:
     parameters:
-    - name : photoId
+    - name : photoID
       in : path
       required: true
       schema:
@@ -364,29 +396,36 @@ paths:
         description: The comment to add to the photo
         content:
           application/json:
-            schema: {$ref: "#/components/schemas/comments"}
+            schema: {$ref: "#/components/schemas/comment"}
       responses:
-        '204':
+        '201':
           description: The comment has been added to the photo
         '400':
           description: The comment hasn't been added to the photo due to an error
         '403':
           description: The comment hasn't been added because you are in user's banned list
-
+  
+  /photo/{photoID}/comments/{commentID}:
+    parameters:
+    - name : photoID
+      in : path
+      required: true
+      schema:
+        description: Photo's id
+        type: integer
+    - name: commentID
+      in : query
+      required: true
+      schema:
+        description: Comment'ID
+        type: integer
     delete:
       tags: ["uncommentPhoto"]
       summary: Remove a comment from a photo
       description: Remove the comment from the collection of comments
       operationId: uncommentPhoto
-      parameters:
-        - name: commentId
-          in : query
-          required: true
-          schema:
-            description: Photo's id
-            type: integer
       responses:
-        '204':
+        '202':
           description: The comment has been removed from the photo
         '404':
           description: The comment hasn't been found in photo's comments
