@@ -3,7 +3,7 @@ info:
   title: WasaPhoto 2023/2024
   description: |
     Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! You can upload your photos directly from your PC, and they will be visible to everyone following you
-  version: "6"
+  version: "7"
 
 components:
   schemas:
@@ -54,6 +54,12 @@ components:
           items: {$ref: "#/components/schemas/photo"}
           minItems: 0
           maxItems: 9999999999
+        stream:
+          description: A collection of photos published by following users
+          type: array
+          items: {$ref: "#/components/schemas/photo"}
+          minItems: 0
+          maxItems: 9999999999
 
     photo:
       description: A photo uploaded on WasaPhoto by a registered user
@@ -67,9 +73,11 @@ components:
           description: Photo's identifier
           type: integer
         likes:
-          description: The number of like the photo received by the users
-          type: integer
-          minimum: 0
+          description: A collection of users who left a like on the photo
+          type: array
+          items: {$ref: "#/components/schemas/user"}
+          minItems: 0
+          maxItems: 99999999999
         comments:
           description: The comments left by the users
           schema: {$ref: "#/components/schemas/comment"}
@@ -82,10 +90,15 @@ components:
           example: 25/12/2023
           minLength: 10
           maxLength: 10
+        stream:
+          description: The collection of photos which are showed to the user by WasaPhoto
+          type: array
+          items: {$ref: "#/components/schemas/photo"}
+          minItems: 0
+          maxItems: 999999999
 
     comment:
       description: A comment left by an user in a photo published on WasaPhoto
-      tags: ["Comment"]
       type: object
       properties:
         publisherID:
@@ -193,7 +206,7 @@ paths:
         '404':  
           description: The user wasn't in the system
 
-  /userProfile/{userID}/following{followerID}:
+  /userProfile/{userID}/following/{followerID}:
     parameters:
     - name : userID
       in : path
@@ -251,14 +264,9 @@ paths:
           description: The stream has been collected
           content:
             image/jpeg:
-              schema:
-                description: Photos published by followed users
-                type: array
-                items: {$ref: '#/components/schemas/photo'}
-                minItems: 0
-                maxItems: 9999999999
+              schema: {$ref: '#/components/schemas/photo/properties/stream'}
 
-  /userProfile/{userID}/banList:
+  /userProfile/{userID}/banList/{bannedID}:
     parameters:
     - name : userID
       in : path
@@ -266,18 +274,17 @@ paths:
       schema:
         description: User's id
         type: integer
+    - name: bannedId
+      in : path
+      required : true
+      schema:
+        description: User's id to ban
+        type: integer
     post:
       tags: ["banUser"]
       summary: Ban an user
       description: Add an user in the banlist. This way, the user cannot view the photos uploaded by you.
       operationId: banUser
-      parameters: 
-      - name: bannedId
-        in : query
-        required : true
-        schema:
-          description: User's id to ban
-          type: integer
       responses:
         '202':
           description: The user has been added to the banList
@@ -291,13 +298,6 @@ paths:
       summary: Un-ban an user
       description: Remove an user from your banlist. This way, your profile can be viewed by the user.
       operationId: unbanUser
-      parameters: 
-      - name: bannedId
-        in : query
-        required : true
-        schema:
-          description: Banned user's id
-          type: integer
       responses:
         '202':
           description: The user has been removed from the banlist.
@@ -326,59 +326,74 @@ paths:
       responses:
         '202':
           description: The photo has been added to the list of published photos.
-
+        '400':
+          description: The photo couldn't be uploaded due to a client error
+          
+  /userProfile/{userID}/publishedPhotos/{photoID}:
+    parameters:
+    - name : userID
+      in : path
+      required: true
+      schema:
+        description: User's id
+        type: integer
+    - name : photoID
+      in : path
+      required: true
+      schema:
+          description: The ID of the photo to remove
+          type: integer
     delete:
       tags: ["deletePhoto"]
       summary: Remove published photo
       description: Remove a photo published by the user
       operationId: deletePhoto
-      parameters:
-      - name: photoId
-        in : query
-        required: true
-        schema:
-          description: Photo's id
-          type: integer
       responses: 
         '202':
           description: The photo has been removed from the list of published photos
         '404':
           description: There isn't a photo with that Id, so it can't be removed.
   
-  /photo/{photoId}/likes:
+  /userProfile/{userID}/stream/{photoID}:
     parameters:
-    - name : photoId
+    - name : userID
       in : path
       required: true
       schema:
-        description: Photo's id
+        description: User's ID
+        type: integer
+    - name : photoID
+      in : path
+      required: true
+      schema:
+        description: Photo's ID
         type: integer
 
     post:
         tags: ["likePhoto"]
         summary: Add like to photo
         description: Add a like to the photo, updating the like counter
-        operationId: likePhoto 
+        operationId: likePhoto
         responses:
-            '202':
+            '204':
               description: The photo has been liked.
             '403':
               description: Cannot like the photo because you've been banned by the user.
             '404':
               description: The photo hasn't been found, so the like cannot be added
-
+    
     delete:
           tags: ["unlikePhoto"]
           summary: Remove like from photo
           description: Remove like from photo, decreasing the like counter.
-          operationId: unlikePhoto 
+          operationId: unlikePhoto
           responses:
             '204':
               description: The like has been removed from the photo.
             '404':
               description: The photo hasn't been found, so the like cannot be removed.
-
-  /photo/{photoID}/comments:
+  
+  /userProfile/{userID}/stream/{photoID}/comments/:
     parameters:
     - name : photoID
       in : path
@@ -386,7 +401,12 @@ paths:
       schema:
         description: Photo's id
         type: integer
-
+    - name: userID
+      in : path
+      required: true
+      schema:
+        description: Publisher's user ID
+        type: integer
     post:
       tags: ["commentPhoto"]
       summary: Add a comment on a photo
@@ -403,9 +423,9 @@ paths:
         '400':
           description: The comment hasn't been added to the photo due to an error
         '403':
-          description: The comment hasn't been added because you are in user's banned list
+          description: The comment hasn't been added because you are in user banned list
   
-  /photo/{photoID}/comments/{commentID}:
+  /userProfile/{userID}/stream/{photoID}/comments/{commentID}:
     parameters:
     - name : photoID
       in : path
@@ -418,6 +438,12 @@ paths:
       required: true
       schema:
         description: Comment'ID
+        type: integer
+    - name: userID
+      in : path
+      required: true
+      schema:
+        description: Publisher's user ID
         type: integer
     delete:
       tags: ["uncommentPhoto"]
