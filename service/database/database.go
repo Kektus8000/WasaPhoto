@@ -1,76 +1,118 @@
-/*
-Package database is the middleware between the app database and the code. All data (de)serialization (save/load) from a
-persistent database are handled here. Database specific logic should never escape this package.
-
-To use this package you need to apply migrations to the database if needed/wanted, connect to it (using the database
-data source name from config), and then initialize an instance of AppDatabase from the DB connection.
-
-For example, this code adds a parameter in `webapi` executable for the database data source name (add it to the
-main.WebAPIConfiguration structure):
-
-	DB struct {
-		Filename string `conf:""`
-	}
-
-This is an example on how to migrate the DB and connect to it:
-
-	// Start Database
-	logger.Println("initializing database support")
-	db, err := sql.Open("sqlite3", "./foo.db")
-	if err != nil {
-		logger.WithError(err).Error("error opening SQLite DB")
-		return fmt.Errorf("opening SQLite: %w", err)
-	}
-	defer func() {
-		logger.Debug("database stopping")
-		_ = db.Close()
-	}()
-
-Then you can initialize the AppDatabase and pass it to the api package.
-*/
 package database
 
 import (
+	"fmt"
 	"database/sql"
 	"errors"
-	"fmt"
 )
 
-// AppDatabase is the high level interface for the DB
-type AppDatabase interface {
-	GetName() (string, error)
-	SetName(name string) error
+type AppDatabase interface{
+	doLogin(username string) (User, error)
 
-	Ping() error
+	getUserProfile(username string) (User, error)
+
+	setMyUserName(oldUsername string, newUsername string) error
+
+	followUser(followerId int) error
+
+	unFollowUser(followerId int) error
+
+	getMyStream() (Photo, error)
+
+	banUser(bannedId int) error
+
+	unBanUser(bannedId int) error
+
+	addPhoto(photo *Photo) error
+
+	removePhoto(photo *Photo) error
+
+	likePhoto(photoId int) error
+
+	unlikePhoto(photoId int) error
+
+	commentPhoto(comment Comment, photoId int) error
+
+	uncommentPhoto(commentId int, photoId int) error
 }
 
-type appdbimpl struct {
+type appdbimpl struct{
 	c *sql.DB
 }
 
-// New returns a new instance of AppDatabase based on the SQLite connection `db`.
-// `db` is required - an error will be returned if `db` is `nil`.
 func New(db *sql.DB) (AppDatabase, error) {
-	if db == nil {
-		return nil, errors.New("database is required when building a AppDatabase")
+	if db == nil{
+		return nil, errors.New("A database is required when building a AppDatabase")
 	}
 
-	// Check if table exists. If not, the database is empty, and we need to create the structure
+	db.Exec("PRAGMA foreign_keys = ON")
+
 	var tableName string
-	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='example_table';`).Scan(&tableName)
+
+	err := db.QueryRow("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'user';").Scan((&tableName))
 	if errors.Is(err, sql.ErrNoRows) {
-		sqlStmt := `CREATE TABLE example_table (id INTEGER NOT NULL PRIMARY KEY, name TEXT);`
-		_, err = db.Exec(sqlStmt)
-		if err != nil {
-			return nil, fmt.Errorf("error creating database structure: %w", err)
+		var errors []error
+		_, err1 := db.Exec("CREATE TABLE IF NOT EXISTS User (
+			userID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			username TEXT NOT NULL
+			);")
+		errors = append(errors, err1)
+		
+		_, err2 := db.Exec("CREATE TABLE IF NOT EXISTS Photo (
+			file TEXT NOT NULL,
+			photoID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			publisherID INTEGER NOT NULL,
+			publicationDate DATE NOT NULL,
+			FOREIGN KEY(publisherID) references User (userID)
+			);")
+		errors = append(errors, err2)
+
+		_,err3 := db.Exec("CREATE TABLE IF NOT EXISTS Banned (
+			bannerID INTEGER NOT NULL PRIMARY KEY,
+			bannedID INTEGER NOT NULL KEY,
+			CHECK bannerID != bannedID,
+			FOREIGN KEY(bannerID) references User(userID),
+			FOREIGN KEY(bannedID) references UseR(userID)
+			);")
+
+		errors = append(errors, err3)
+
+		_,err4 := db.Exec("CREATE TABLE IF NOT EXISTS Following (
+			followerID INTEGER NOT NULL PRIMARY KEY,
+			followingID INTEGER NOT NULL KEY,
+			CHECK followerID != followingID,
+			FOREIGN KEY(followerID) references User(userID),
+			FOREIGN KEY(followingID) references UseR(userID)
+			);")
+
+		errors = append(errors, err4)
+
+		_, err5 = db.Exec("CREATE TABLE IF NOT EXISTS Comment (
+			commentID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			comment TEXT NOT NULL, 
+			publisherID INTEGER NOT NULL,
+			photoID INTEGER NOT NULL KEY,
+			FOREIGN KEY(publisherID) references User(userID),
+			FOREIGN KEY(photoID) references Photo(photoID)
+			);")
+		
+		errors = append(errors, err5)
+
+		_, err6 = db.Exec("CREATE TABLE IF NOT EXISTS Like (
+			likedPhotoID INTEGER NOT NULL,
+			likerUserID INTEGER NOT NULL,
+			FOREIGN KEY(likePhotoID) references Photo(photoID)
+			FOREIGN KEY(likerUserID) references User(userID)
+			);")
+		errors = append(errors, err6)
+
+		for i:=1; i <= len(errors); i++ {
+			if errors[i] != nil {
+				return err
+			}
 		}
 	}
-
 	return &appdbimpl{
 		c: db,
 	}, nil
-}
-
-func (db *appdbimpl) Ping() error {
-	return db.c.Ping()
 }
