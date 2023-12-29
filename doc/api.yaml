@@ -3,7 +3,7 @@ info:
   title: WasaPhoto 2023/2024
   description: |
     Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! You can upload your photos directly from your PC, and they will be visible to everyone following you
-  version: "8"
+  version: "9"
 
 components:
   schemas:
@@ -98,12 +98,6 @@ components:
           example: 25/12/2023
           minLength: 10
           maxLength: 10
-        stream:
-          description: The collection of photos which are showed to the user by WasaPhoto
-          type: array
-          items: {$ref: "#/components/schemas/photo"}
-          minItems: 0
-          maxItems: 999999999
 
     comment:
       description: A comment left by an user in a photo published on WasaPhoto
@@ -125,6 +119,7 @@ components:
           pattern: '^.*?$'
           minLength: 6
           maxLength: 160
+
   securitySchemes:
     bearerAuth:            
       type: http

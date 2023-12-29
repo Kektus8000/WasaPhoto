@@ -4,10 +4,11 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Kektus8000/WasaPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) DeletePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "text/plain")
 
 	userID, errConv := strconv.Atoi(ps.ByName("userID"))
@@ -17,7 +18,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	publisherID, errFetch := rt.db.getPhotoPublisher(photoID)
+	publisherID, errFetch := rt.db.GetPhotoPublisher(photoID)
 	if errFetch != nil || publisherID == -1 {
 		http.Error(w, "An error has occurred while fetching the user who published the photo", 404)
 		return
@@ -28,7 +29,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	result, errQuery := rt.db.deletePhoto(photoID)
+	result, errQuery := rt.db.DeletePhoto(photoID)
 	if errQuery != nil || result == false {
 		http.Error(w, "There isn't a photo with that Id, so it can't be removed", 404)
 		return

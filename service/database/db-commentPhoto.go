@@ -1,6 +1,6 @@
 package database
 
-func (db *appdbimpl) commentPhoto(photoID int, comment string, publisherID int) (int, error) {
+func (db *appdbimpl) commentPhoto(photoID int, comment string, publisherID int) (int64, error) {
 	query, errExec := db.c.Exec("INSERT INTO Comment(comment, publisherID, photoID) VALUES (?,?,?));", comment, publisherID, photoID)
 	if errExec != nil {
 		return -1, errExec
@@ -11,5 +11,4 @@ func (db *appdbimpl) commentPhoto(photoID int, comment string, publisherID int) 
 		return -1, errQuery
 	}
 	return commentID, nil
-
 }

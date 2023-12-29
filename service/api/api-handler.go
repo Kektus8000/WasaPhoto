@@ -10,13 +10,13 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/userProfile/:userID", rt.getUserProfile)
 
 	//Call the function that handle the Set Username
-	rt.router.POST("/user/:userID/username", rt.setMyUsername)
+	rt.router.POST("/user/:userID/username", rt.wrap(rt.setMyUsername))
 
 	//Call the function that handle the followUser
-	rt.router.POST("/user/:userID/following", rt.followUser)
+	rt.router.POST("/user/:userID/following", rt.wrap(rt.followUser))
 
 	//Call the function that handle the unFollowUser
-	rt.router.DELETE("/userProfile/:userID/following/user/:followerID", rt.unFollowUser)
+	rt.router.DELETE("/userProfile/:userID/following/user/:followerID", rt.wrap(rt.unfollowUser))
 
 	//Call the function that handle the getMyStream
 	rt.router.GET("/userProfile/:userID/stream", rt.getMyStream)

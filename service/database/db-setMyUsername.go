@@ -1,19 +1,13 @@
 package database
 
-import(	
-	"fmt"
-	"database/sql"
-	"errors"
-)
+func (db *appdbimpl) setMyUsername(userID int, newUsername string) (bool, error) {
 
-func (db *appdbimpl) setMyUsername(userID int, newUsername string) (bool,error) {
-	
-	_, err := db.c.Exec("UPDATE table User
+	_, err := db.c.Query(`UPDATE table User
 	SET username = ?
-	WHERE userID == ?
-	);", userID, newUsername)
+	WHERE userID = ?
+	);`, userID, newUsername)
 
-	if err != nil{
+	if err != nil {
 		return false, err
 	}
 	return true, err

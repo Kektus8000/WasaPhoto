@@ -40,7 +40,7 @@ import (
 	"errors"
 	"net/http"
 
-	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/database"
+	"github.com/Kektus8000/WasaPhoto/service/database"
 	"github.com/julienschmidt/httprouter"
 	"github.com/sirupsen/logrus"
 )

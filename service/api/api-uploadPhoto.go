@@ -9,7 +9,7 @@ import (
 )
 
 // getHelloWorld is an example of HTTP endpoint that returns "Hello world!" as a plain text
-func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) Comment {
+func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("content-type", "text/plain")
 
 	//Check utente
@@ -17,34 +17,34 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	photoID, errConv2 := strconv.Atoi(ps.ByName("photoID"))
 	if errConv != nil || errConv2 != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		return nil
+		return
 	}
 
 	publisherID, errFetch := rt.db.getPhotoPublisher(photoID)
 	if errFetch != nil || publisherID == -1 {
 		http.Error(w, "An error has occurred while fetching the user who published the photo", 404)
-		return nil
+		return
 	}
 
 	banned, _ := rt.db.checkBanned(publisherID, userID)
 	if banned {
 		http.Error(w, "You have been banned by the user who published the photo", 403)
-		return nil
+		return
 	}
 	var comm string
 	photo, errPhoto := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "An error has occurred while decoding the Request Body", 400)
-		return nil
+		return
 	}
 
 	commentID, errComm := rt.db.commentPhoto(photoID, comm, userID)
 	if errComm != nil {
 		http.Error(w, "An error has occurred while publishing the comment on the photo", 400)
-		return nil
+		return
 	}
 
 	comment := Comment{CommentID: commentID, Comment: comm, PublisherID: userID, PhotoID: photoID}
 	w.WriteHeader(http.StatusCreated)
-	return comment
+	return
 }

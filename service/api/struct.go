@@ -18,7 +18,6 @@ type Follower struct {
 type Photo struct {
 	File            string
 	PhotoID         int
-	Likes           []Like
 	PublicationDate string
 	PublisherID     int
 }
