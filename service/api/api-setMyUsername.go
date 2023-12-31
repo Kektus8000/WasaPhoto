@@ -10,7 +10,7 @@ import (
 )
 
 // getHelloWorld is an example of HTTP endpoint that returns "Hello world!" as a plain text
-func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+func (rt *_router) SetMyUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "text/plain")
 
 	//Check utente
@@ -27,7 +27,7 @@ func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	errUpdate := rt.db.setMyUserName(userID, newUsername)
+	errUpdate := rt.db.SetMyUsername(userID, newUsername)
 	if errUpdate != nil {
 		w.WriteHeader(http.StatusBadGateway)
 		return

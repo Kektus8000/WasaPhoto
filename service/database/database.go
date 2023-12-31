@@ -5,34 +5,78 @@ import (
 	"errors"
 )
 
+type User struct {
+	UserID   int
+	Username string
+}
+
+type Banned struct {
+	BannerID int
+	BannedID int
+}
+
+type Follower struct {
+	FollowerID  int
+	FollowingID int
+}
+
+type Photo struct {
+	File            string
+	PhotoID         int
+	PublicationDate string
+	PublisherID     int
+}
+
+type Comment struct {
+	CommentID   int
+	Comment     string
+	PublisherID int
+	PhotoID     int
+}
+
+type Like struct {
+	LikerID      int
+	LikedPhotoID int
+}
+
 type AppDatabase interface {
-	doLogin(username string) (User, error)
+	GetUser(userID int) (User, error)
 
-	getUserProfile(username string) (User, error)
+	GetFollowers(userID int) ([]int, error)
 
-	setMyUserName(oldUsername string, newUsername string) error
+	GetFollowings(userID int) ([]int, error)
 
-	followUser(followerId int) error
+	GetBanList(userID int) ([]int, error)
 
-	unFollowUser(followerId int) error
+	CheckBanned(bannerID int, bannedID int) (bool, error)
 
-	getMyStream() (Photo, error)
+	SetMyUsername(userID int, newUsername string) error
 
-	banUser(bannedId int) error
+	FollowUser(followerID int, tofollowID int) error
 
-	unBanUser(bannedId int) error
+	UnFollowUser(followerID int, followingID int) error
 
-	addPhoto(photo *Photo) error
+	GetMyStream(userID int) error
 
-	removePhoto(photo *Photo) error
+	GetPublishedPhotos(userID int) ([]int, error)
 
-	likePhoto(photoId int) error
+	GetPhotoPublisher(photoID int) (int, error)
 
-	unlikePhoto(photoId int) error
+	BanUser(bannerID int, bannedId int) error
 
-	commentPhoto(comment Comment, photoId int) error
+	UnbanUser(bannerID int, bannedID int) error
 
-	uncommentPhoto(commentId int, photoId int) error
+	UploadPhoto(filename string, userID int) (int, error)
+
+	DeletePhoto(photoID int) (string, error)
+
+	LikePhoto(userID int, photoID int) error
+
+	UnlikePhoto(userID int, photoID int) error
+
+	CommentPhoto(commentorID int, comment string, photoID int) (int, error)
+
+	UncommentPhoto(commentID int) error
 }
 
 type appdbimpl struct {
@@ -62,7 +106,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 			file TEXT NOT NULL,
 			photoID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 			publisherID INTEGER NOT NULL,
-			publicationDate DATE NOT NULL,
+			publicationDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 			FOREIGN KEY(publisherID) references User (userID)
 			);`)
 		errors = append(errors, err2)

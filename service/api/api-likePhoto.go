@@ -4,11 +4,12 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Kektus8000/WasaPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 )
 
 // getHelloWorld is an example of HTTP endpoint that returns "Hello world!" as a plain text
-func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) LikePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "text/plain")
 
 	//Check Utente
@@ -24,18 +25,22 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	publisherID, errQuery := rt.db.getPhotoPublisher(photoID)
+	publisherID, errQuery := rt.db.GetPhotoPublisher(photoID)
 	if errQuery != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	if rt.db.checkBanned(publisherID, userID)[0] {
+	banned, errQuery2 := rt.db.CheckBanned(publisherID, userID)
+	if errQuery2 != nil {
 		w.WriteHeader(http.StatusForbidden)
+		return
+	} else if banned == true {
+		http.Error(w, "You have been banned by the user who published the photo", 403)
 		return
 	}
 
-	errUpdate := rt.db.likePhoto(userID, photoID)
+	errUpdate := rt.db.LikePhoto(userID, photoID)
 	if errUpdate != nil {
 		w.WriteHeader(http.StatusBadGateway)
 		return

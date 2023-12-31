@@ -9,7 +9,7 @@ import (
 )
 
 // getHelloWorld is an example of HTTP endpoint that returns "Hello world!" as a plain text
-func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+func (rt *_router) UnfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "text/plain")
 
 	//Check utente
@@ -20,8 +20,8 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	result, errUpdate := rt.db.followUser(userID, followerID)
-	if errUpdate != nil || result == false {
+	errUpdate := rt.db.UnFollowUser(userID, followerID)
+	if errUpdate != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

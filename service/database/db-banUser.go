@@ -1,11 +1,7 @@
 package database
 
-func (db *appdbimpl) banUser(bannerID int, bannedID int) (bool, error) {
+func (db *appdbimpl) BanUser(bannerID int, bannedID int) error {
 
-	flag := true
 	_, err := db.c.Exec("INSERT INTO Banned(bannerID, bannedID) VALUE (?,?)", bannerID, bannedID)
-	if err != nil {
-		flag = false
-	}
-	return flag, err
+	return err
 }

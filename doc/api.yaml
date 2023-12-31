@@ -165,13 +165,19 @@ paths:
                 example: 101293
 
   
-  /userProfile/{userID}:
+  /user/{userID}/userProfile/{checkID}:
     parameters:
     - name : userID
       in : path
       required: true
       schema:
         description: User's id to get the profile
+        type: integer
+    - name : checkID
+      in : path
+      required: true
+      schema:
+        description: The ID of the user to get the profile
         type: integer
     get:
       tags: ["getUserProfile"]
@@ -257,7 +263,7 @@ paths:
       security:
       - bearerAuth: [] 
 
-  /userProfile/{userID}/following/user/{followerID}:
+  /userProfile/{userID}/following/{followerID}:
     parameters:
     - name : userID
       in : path
@@ -308,7 +314,7 @@ paths:
       security:
       - bearerAuth: [] 
 
-  /userProfile/{userID}/banList:
+  /userProfile/{userID}/banList/:
     parameters:
     - name : userID
       in : path
@@ -362,7 +368,7 @@ paths:
       security:
       - bearerAuth: [] 
         
-  /userProfile/{userID}/publishedPhotos:
+  /userProfile/{userID}/publishedPhotos/:
     parameters:
     - name : userID
       in : path
@@ -379,11 +385,15 @@ paths:
       requestBody:
         description: The photo to add
         content:
-          image/jpeg:
-              schema:
-                description: The photo to upload on WasaPhoto
-                type: string
-                format: binary
+          multipart/form-data:
+            schema:
+              description: The content of the photo to upload
+              type: object
+              properties:
+                file:
+                  description: The photo to upload on WasaPhoto
+                  type: string
+                  format: binary
         required: true
       responses:
         '201':
@@ -396,7 +406,7 @@ paths:
       security:
       - bearerAuth: [] 
           
-  /userProfile/{userID}/publishedPhotos/photo/{photoID}:
+  /userProfile/{userID}/publishedPhotos/{photoID}:
     parameters:
     - name : userID
       in : path
@@ -425,7 +435,7 @@ paths:
       security:
       - bearerAuth: [] 
   
-  /userProfile/{userID}/stream/photo/{photoID}/likes/:
+  /userProfile/{userID}/stream/{photoID}/likes/:
     parameters:
     - name : userID
       in : path
@@ -470,7 +480,7 @@ paths:
           security:
           - bearerAuth: [] 
   
-  /userProfile/{userID}/stream/photo/{photoID}/comments:
+  /userProfile/{userID}/stream/photo/{photoID}/comments/:
     parameters:
     - name : photoID
       in : path

@@ -1,11 +1,7 @@
 package database
 
-func (db *appdbimpl) likePhoto(userID int, photoID int) (bool, error) {
-	flag := true
-	_, err := db.c.Exec(`INSERT INTO Like(likedPhotoID, likerUserID) VALUES(?,?);`, photoID, userID)
+func (db *appdbimpl) LikePhoto(userID int, photoID int) error {
 
-	if err != nil {
-		flag = false
-	}
-	return flag, err
+	_, err := db.c.Exec(`INSERT INTO Like(likedPhotoID, likerUserID) VALUES(?,?);`, photoID, userID)
+	return err
 }

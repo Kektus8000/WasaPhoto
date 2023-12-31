@@ -3,48 +3,51 @@ package api
 import (
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 
+	"github.com/Kektus8000/WasaPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 )
 
 // getHelloWorld is an example of HTTP endpoint that returns "Hello world!" as a plain text
-func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "text/plain")
 
 	//Check utente
 	userID, errConv := strconv.Atoi(ps.ByName("userID"))
-	photoID, errConv2 := strconv.Atoi(ps.ByName("photoID"))
-	if errConv != nil || errConv2 != nil {
+	if errConv != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	publisherID, errFetch := rt.db.getPhotoPublisher(photoID)
-	if errFetch != nil || publisherID == -1 {
-		http.Error(w, "An error has occurred while fetching the user who published the photo", 404)
+	multipart, errMulti := r.MultipartReader()
+	if errMulti != nil {
+		http.Error(w, "An error has occurred while decoding the photo", 400)
 		return
 	}
 
-	banned, _ := rt.db.checkBanned(publisherID, userID)
-	if banned {
-		http.Error(w, "You have been banned by the user who published the photo", 403)
+	photoFile, errFile := multipart.NextPart()
+	defer photoFile.Close()
+	if errFile != nil {
+		http.Error(w, "An error has occurred while decoding the photo", 400)
 		return
 	}
-	var comm string
-	photo, errPhoto := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "An error has occurred while decoding the Request Body", 400)
+	photoID, errQuery := rt.db.UploadPhoto(photoFile.FileName(), userID)
+	if errQuery != nil || photoID == -1 {
+		http.Error(w, "An error has occurred while uploading the photo", 400)
 		return
 	}
-
-	commentID, errComm := rt.db.commentPhoto(photoID, comm, userID)
-	if errComm != nil {
-		http.Error(w, "An error has occurred while publishing the comment on the photo", 400)
+	path, errOS := os.Create("/userProfile/" + strconv.Itoa(userID) + "/publishedPhotos/" + strconv.Itoa(photoID))
+	if errOS != nil {
+		http.Error(w, "An error has occurred while uploading the photo", 400)
 		return
 	}
-
-	comment := Comment{CommentID: commentID, Comment: comm, PublisherID: userID, PhotoID: photoID}
+	_, errIO := io.Copy(path, photoFile)
+	if errIO != nil {
+		http.Error(w, "An error has occurred while uploading the photo", 400)
+		return
+	}
 	w.WriteHeader(http.StatusCreated)
 	return
 }

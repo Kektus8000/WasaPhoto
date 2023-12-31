@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/Kektus8000/WasaPhoto/service/api/reqcontext"
@@ -29,12 +30,17 @@ func (rt *_router) DeletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	result, errQuery := rt.db.DeletePhoto(photoID)
-	if errQuery != nil || result == false {
+	photoFile, errQuery := rt.db.DeletePhoto(photoID)
+	if errQuery != nil {
 		http.Error(w, "There isn't a photo with that Id, so it can't be removed", 404)
 		return
 	}
 
+	errOS := os.Remove("/userProfile/" + strconv.Itoa(userID) + "/publishedPhotos/" + strconv.Itoa(photoID) + photoFile)
+	if errOS != nil {
+		http.Error(w, "An error has occurred while uploading the photo", 400)
+		return
+	}
 	w.WriteHeader(http.StatusNoContent)
 	return
 

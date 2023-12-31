@@ -1,11 +1,21 @@
 package database
 
-func (db *appdbimpl) getPublishedPhotos(userID int) ([]Photo, error) {
+func (db *appdbimpl) GetPublishedPhotos(userID int) ([]int, error) {
 
-	var photos []Photo
-	var errors error
-	errors = nil
-	_, err := db.c.Query(`SELECT * FROM Photo WHERE publisherID = ?);`, userID).Scan(&photos)
+	var photos []int
+	rows, err := db.c.Query(`SELECT photoID FROM Photo WHERE publisherID = ?`, userID)
+	if err != nil {
+		return nil, err
+	}
 
-	errors = err
-	return photos, errors
+	for rows.Next() {
+		var photo int
+		rows.Scan(&photo)
+		photos = append(photos, photo)
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+	return photos, nil
+}

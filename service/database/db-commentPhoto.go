@@ -1,14 +1,14 @@
 package database
 
-func (db *appdbimpl) commentPhoto(photoID int, comment string, publisherID int) (int64, error) {
-	query, errExec := db.c.Exec("INSERT INTO Comment(comment, publisherID, photoID) VALUES (?,?,?));", comment, publisherID, photoID)
+func (db *appdbimpl) CommentPhoto(commentorID int, comment string, photoID int) (int, error) {
+	update, errExec := db.c.Exec(`INSERT INTO Comment(comment, publisherID, photoID) VALUES (?,?,?));`, comment, commentorID, photoID)
 	if errExec != nil {
 		return -1, errExec
-	}
-	commentID, errQuery := query.LastInsertId()
 
-	if errQuery != nil {
-		return -1, errQuery
 	}
-	return commentID, nil
+	ID, errFetch := update.LastInsertId()
+	if errFetch != nil {
+		return -1, errFetch
+	}
+	return int(ID), errExec
 }

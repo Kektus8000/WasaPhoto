@@ -1,28 +1,29 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
+	"github.com/Kektus8000/WasaPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 )
 
 // getHelloWorld is an example of HTTP endpoint that returns "Hello world!" as a plain text
-func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) GetMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "text/plain")
 
-	//Check Utente
 	userID, errConv := strconv.Atoi(ps.ByName("userID"))
-	errConv != nil {
+	if errConv != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	photos, err := rt.db.getMyStream(userID)
-	if err != nil{
-		
+	photos, errQuery := rt.db.GetPublishedPhotos(userID)
+	if errQuery != nil {
+		http.Error(w, "An error has occurred during the query from the database", 400)
+		return
 	}
-
-
-
+	json.NewEncoder(w).Encode(photos)
+	w.WriteHeader(http.StatusFound)
 }

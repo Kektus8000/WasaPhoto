@@ -4,11 +4,12 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Kektus8000/WasaPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 )
 
 // getHelloWorld is an example of HTTP endpoint that returns "Hello world!" as a plain text
-func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) FollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "text/plain")
 
 	//Check utente
@@ -19,7 +20,7 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	banned, errQuery := rt.db.checkBanned(toFollowID, userID)
+	banned, errQuery := rt.db.CheckBanned(toFollowID, userID)
 	if errQuery != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -28,7 +29,7 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	errUpdate := rt.db.followUser(userID, toFollowID)
+	errUpdate := rt.db.FollowUser(userID, toFollowID)
 	if errUpdate != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

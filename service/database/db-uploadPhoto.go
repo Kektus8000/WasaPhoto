@@ -1,11 +1,15 @@
 package database
 
-func (db *appdbimpl) uploadPhoto(filename string, userID int) (bool, error) {
-	flag := true
-	_, err := db.c.Exec("INSERT INTO Photo(file, publicationDate, publisherID) VALUE (?,NOW, ?));",
+func (db *appdbimpl) UploadPhoto(filename string, userID int) (int, error) {
+	query, errInsert := db.c.Exec("INSERT INTO Photo(file, publicationDate, publisherID) VALUE (?,NOW,?));",
 		filename, userID)
-	if err != nil {
-		flag = false
+	if errInsert != nil {
+		return -1, errInsert
 	}
-	return flag, err
+
+	ID, errID := query.LastInsertId()
+	if errID != nil {
+		return -1, errID
+	}
+	return int(ID), nil
 }

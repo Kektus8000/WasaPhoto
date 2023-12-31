@@ -4,11 +4,12 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Kektus8000/WasaPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 )
 
 // getHelloWorld is an example of HTTP endpoint that returns "Hello world!" as a plain text
-func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) UnlikePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "text/plain")
 
 	//Check Utente
@@ -19,8 +20,8 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	result, errUpdate := rt.db.unlikePhoto(userID, photoID)
-	if errUpdate != nil || result == false {
+	errUpdate := rt.db.UnlikePhoto(userID, photoID)
+	if errUpdate != nil {
 		http.Error(w, "You didn't like the photo, so you can't unlike it", 403)
 		return
 	}
