@@ -231,7 +231,7 @@ paths:
       security:
       - bearerAuth: [] 
 
-  /userProfile/{userID}/following:
+  /userProfile/{userID}/following/:
     parameters:
     - name : userID
       in : path
@@ -341,7 +341,7 @@ paths:
       security:
       - bearerAuth: [] 
 
-  /userProfile/{userID}/banList/user/{bannedID}:
+  /userProfile/{userID}/banList/{bannedID}:
     parameters:
     - name : userID
       in : path
@@ -480,7 +480,7 @@ paths:
           security:
           - bearerAuth: [] 
   
-  /userProfile/{userID}/stream/photo/{photoID}/comments/:
+  /userProfile/{userID}/stream/{photoID}/comments/:
     parameters:
     - name : photoID
       in : path
@@ -524,7 +524,7 @@ paths:
       security:
       - bearerAuth: [] 
   
-  /userProfile/{userID}/stream/photo/{photoID}/comments/{commentID}:
+  /userProfile/{userID}/stream/{photoID}/comments/{commentID}:
     parameters:
     - name : photoID
       in : path

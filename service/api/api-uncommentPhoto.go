@@ -13,9 +13,14 @@ func (rt *_router) UncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 	w.Header().Set("content-type", "text/plain")
 
 	//Check utente
+	userID, errConv := strconv.Atoi(ps.ByName("userID"))
 	commentID, errConv := strconv.Atoi(ps.ByName("commentID"))
 	if errConv != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !DoLogin(userID, r.Header.Get("Authorization")) {
+		http.Error(w, "Authentification went wrong", 401)
 		return
 	}
 	errQuery := rt.db.UncommentPhoto(commentID)

@@ -20,7 +20,10 @@ func (rt *_router) SetMyUsername(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 	var newUsername string
-
+	if !DoLogin(userID, r.Header.Get("Authorization")) {
+		http.Error(w, "Authentification went wrong", 401)
+		return
+	}
 	err := json.NewDecoder(r.Body).Decode(&newUsername)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

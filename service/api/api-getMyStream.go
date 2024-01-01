@@ -18,7 +18,10 @@ func (rt *_router) GetMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
+	if !DoLogin(userID, r.Header.Get("Authorization")) {
+		http.Error(w, "Authentification went wrong", 401)
+		return
+	}
 	photos, errQuery := rt.db.GetPublishedPhotos(userID)
 	if errQuery != nil {
 		http.Error(w, "An error has occurred during the query from the database", 400)

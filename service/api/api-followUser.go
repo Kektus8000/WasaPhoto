@@ -19,7 +19,10 @@ func (rt *_router) FollowUser(w http.ResponseWriter, r *http.Request, ps httprou
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
+	if !DoLogin(userID, r.Header.Get("Authorization")) {
+		http.Error(w, "Authentification went wrong", 401)
+		return
+	}
 	banned, errQuery := rt.db.CheckBanned(toFollowID, userID)
 	if errQuery != nil {
 		w.WriteHeader(http.StatusBadRequest)

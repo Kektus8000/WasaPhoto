@@ -19,7 +19,10 @@ func (rt *_router) UnfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
+	if !DoLogin(userID, r.Header.Get("Authorization")) {
+		http.Error(w, "Authentification went wrong", 401)
+		return
+	}
 	errUpdate := rt.db.UnFollowUser(userID, followerID)
 	if errUpdate != nil {
 		w.WriteHeader(http.StatusBadRequest)

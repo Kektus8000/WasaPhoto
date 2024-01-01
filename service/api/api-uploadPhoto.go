@@ -20,7 +20,10 @@ func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
+	if !DoLogin(userID, r.Header.Get("Authorization")) {
+		http.Error(w, "Authentification went wrong", 401)
+		return
+	}
 	multipart, errMulti := r.MultipartReader()
 	if errMulti != nil {
 		http.Error(w, "An error has occurred while decoding the photo", 400)

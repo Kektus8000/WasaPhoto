@@ -19,6 +19,10 @@ func (rt *_router) DeletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
+	if !DoLogin(userID, r.Header.Get("Authorization")) {
+		http.Error(w, "Authentification went wrong", 401)
+		return
+	}
 	publisherID, errFetch := rt.db.GetPhotoPublisher(photoID)
 	if errFetch != nil || publisherID == -1 {
 		http.Error(w, "An error has occurred while fetching the user who published the photo", 404)

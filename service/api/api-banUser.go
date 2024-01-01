@@ -20,6 +20,10 @@ func (rt *_router) BanUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
+	if !DoLogin(userID, r.Header.Get("Authorization")) {
+		http.Error(w, "Authentification went wrong", 401)
+		return
+	}
 	var banned string
 	errDecode := json.NewDecoder(r.Body).Decode(&banned)
 	if errDecode != nil {
