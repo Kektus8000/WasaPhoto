@@ -40,7 +40,11 @@ type Like struct {
 }
 
 type AppDatabase interface {
-	GetUser(userID int) (User, error)
+	AddUser(username string) (int, error)
+
+	GetUserByID(userID int) (User, error)
+
+	GetUserByUsername(username string) (User, error)
 
 	GetFollowers(userID int) ([]int, error)
 
@@ -77,6 +81,8 @@ type AppDatabase interface {
 	CommentPhoto(commentorID int, comment string, photoID int) (int, error)
 
 	UncommentPhoto(commentID int) error
+
+	UserExists(username string) (bool, error)
 }
 
 type appdbimpl struct {

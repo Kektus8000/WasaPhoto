@@ -19,7 +19,7 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if !DoLogin(userID, r.Header.Get("Authorization")) {
+	if !Authenticate(userID, r.Header.Get("Authorization")) {
 		http.Error(w, "Authentification went wrong", 401)
 		return
 	}
@@ -32,7 +32,7 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	user, errUser := rt.db.GetUser(checkID)
+	user, errUser := rt.db.GetUserByID(checkID)
 	if errUser != nil {
 		http.Error(w, "An error has occurred during the query", 400)
 		return

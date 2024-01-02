@@ -19,7 +19,7 @@ func (rt *_router) UncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if !DoLogin(userID, r.Header.Get("Authorization")) {
+	if !Authenticate(userID, r.Header.Get("Authorization")) {
 		http.Error(w, "Authentification went wrong", 401)
 		return
 	}

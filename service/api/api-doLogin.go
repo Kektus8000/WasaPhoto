@@ -1,18 +1,46 @@
 package api
 
 import (
-	"strconv"
-	"strings"
+	"encoding/json"
+	"net/http"
+
+	"github.com/Kektus8000/WasaPhoto/service/api/reqcontext"
+	"github.com/julienschmidt/httprouter"
 )
 
-func DoLogin(userID int, auth string) bool {
-	elements := strings.Split(auth, " ")
-	if len(elements) == 2 {
-		identifier, errConv := strconv.Atoi(elements[1])
-		if errConv != nil {
-			return false
-		}
-		return userID == identifier
+func (rt *_router) DoLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	w.Header().Set("content-type", "text/plain")
+
+	var username string
+	errDecode := json.NewDecoder(r.Body).Decode(&username)
+	if errDecode != nil {
+		http.Error(w, "An error has occurred while decoding the Request Body", 400)
+		return
 	}
-	return false
+
+	if len(username) < 3 || len(username) > 16 {
+		http.Error(w, "Invalid length for the username, use another one", 403)
+		return
+	}
+	exist, errQuery := rt.db.UserExists(username)
+	if errQuery != nil {
+		http.Error(w, "An error has occurred during a query in the database", 400)
+		return
+	} else if !exist {
+		ID, errQuery := rt.db.AddUser(username)
+		if ID == -1 || errQuery != nil {
+			http.Error(w, "An error has occurred during a query in the database", 400)
+			return
+		}
+		var newUser User = User{UserID: ID, Username: username}
+		json.NewEncoder(w).Encode(newUser)
+	} else if exist {
+		user, errQuery := rt.db.GetUserByUsername(username)
+		if errQuery != nil {
+			http.Error(w, "An error has occurred during a query in the database", 400)
+			return
+		}
+		json.NewEncoder(w).Encode(user)
+	}
+	return
 }

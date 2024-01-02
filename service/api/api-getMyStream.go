@@ -18,7 +18,7 @@ func (rt *_router) GetMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if !DoLogin(userID, r.Header.Get("Authorization")) {
+	if !Authenticate(userID, r.Header.Get("Authorization")) {
 		http.Error(w, "Authentification went wrong", 401)
 		return
 	}
