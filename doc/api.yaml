@@ -37,31 +37,31 @@ components:
           type: array
           items: {$ref: "#/components/schemas/user"}
           minItems: 0
-          maxItems: 9999999999
+          maxItems: 1000
         followers:
           description: Users following the user
           type: array
           items: {$ref: "#/components/schemas/user"}
           minItems: 0
-          maxItems: 9999999999
+          maxItems: 1000
         banList:
           description: Users banned by the user
           type: array
           items: {$ref: "#/components/schemas/user"}
           minItems: 0
-          maxItems: 9999999999
+          maxItems: 1000
         publishedPhotos:
           description: The photos uploaded by the user
           type: array 
           items: {$ref: "#/components/schemas/photo"}
           minItems: 0
-          maxItems: 9999999999
+          maxItems: 1000
         stream:
           description: A collection of photos published by following users
           type: array
           items: {$ref: "#/components/schemas/photo"}
           minItems: 0
-          maxItems: 9999999999
+          maxItems: 1000
 
     photo:
       description: A photo uploaded on WasaPhoto by a registered user
@@ -85,7 +85,7 @@ components:
           type: array
           items: {$ref: "#/components/schemas/user"}
           minItems: 0
-          maxItems: 99999999999
+          maxItems: 1000
         comments:
           description: The comments left by the users
           schema: {$ref: "#/components/schemas/comment"}
@@ -119,7 +119,6 @@ components:
           pattern: '^.*?$'
           minLength: 6
           maxLength: 160
-
   securitySchemes:
     bearerAuth:            
       type: http
@@ -165,19 +164,13 @@ paths:
                 example: 101293
 
   
-  /user/{userID}/userProfile/{checkID}:
+  /userProfile/{userID}:
     parameters:
     - name : userID
       in : path
       required: true
       schema:
         description: User's id to get the profile
-        type: integer
-    - name : checkID
-      in : path
-      required: true
-      schema:
-        description: The ID of the user to get the profile
         type: integer
     get:
       tags: ["getUserProfile"]
@@ -310,7 +303,7 @@ paths:
           description: The stream has been collected
           content:
             image/jpeg:
-              schema: {$ref: '#/components/schemas/photo/properties/stream'}
+              schema: {$ref: '#/components/schemas/userProfile/properties/stream'}
       security:
       - bearerAuth: [] 
 
@@ -385,15 +378,11 @@ paths:
       requestBody:
         description: The photo to add
         content:
-          multipart/form-data:
-            schema:
-              description: The content of the photo to upload
-              type: object
-              properties:
-                file:
-                  description: The photo to upload on WasaPhoto
-                  type: string
-                  format: binary
+          image/jpeg:
+              schema:
+                description: The photo to upload on WasaPhoto
+                type: string
+                format: binary
         required: true
       responses:
         '201':
@@ -555,4 +544,4 @@ paths:
         '404':
           description: The comment hasn't been found in photo's comments
       security:
-      - bearerAuth: [] 
+      - bearerAuth: []
