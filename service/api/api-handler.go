@@ -20,7 +20,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.POST("/userProfile/:userID/following/", rt.wrap(rt.FollowUser))
 
 	//Call the function that handle the unFollowUser
-	rt.router.DELETE("/userProfile/:userID/following/user/:followerID", rt.wrap(rt.UnfollowUser))
+	rt.router.DELETE("/userProfile/:userID/following/:followerID", rt.wrap(rt.UnfollowUser))
 
 	//Call the function that handle the getMyStream
 	rt.router.GET("/userProfile/:userID/stream/", rt.wrap(rt.GetMyStream))
@@ -29,7 +29,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.POST("/userProfile/:userID/banList/", rt.wrap(rt.BanUser))
 
 	//Call the function that handle the unbanUser
-	rt.router.DELETE("/userProfile/:userID/banList/user/:bannedID", rt.wrap(rt.UnBanUser))
+	rt.router.DELETE("/userProfile/:userID/banList/:bannedID", rt.wrap(rt.UnBanUser))
 
 	//Call the function that handle the uploadPhoto
 	rt.router.POST("/userProfile/:userID/publishedPhotos/", rt.wrap(rt.UploadPhoto))
@@ -38,10 +38,10 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.DELETE("/userProfile/:userID/publishedPhotos/:photoID", rt.wrap(rt.DeletePhoto))
 
 	//Call the function that handle the likePhoto
-	rt.router.POST("/userProfile/:userID/stream/:photoID/like/", rt.wrap(rt.LikePhoto))
+	rt.router.POST("/userProfile/:userID/stream/:photoID/likes/", rt.wrap(rt.LikePhoto))
 
 	//Call the function that handle the unlikePhoto
-	rt.router.DELETE("/userProfile/:userID/stream/:photoID/like/", rt.wrap(rt.UnlikePhoto))
+	rt.router.DELETE("/userProfile/:userID/stream/:photoID/likes/", rt.wrap(rt.UnlikePhoto))
 
 	//Call the function that handle the commentPhoto
 	rt.router.POST("/userProfile/:userID/stream/:photoID/comments/", rt.wrap(rt.CommentPhoto))
