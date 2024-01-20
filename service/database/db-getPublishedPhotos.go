@@ -10,7 +10,10 @@ func (db *appdbimpl) GetPublishedPhotos(userID int) ([]int, error) {
 
 	for rows.Next() {
 		var photo int
-		rows.Scan(&photo)
+		errScan := rows.Scan(&photo)
+		if errScan != nil {
+			return nil, errScan
+		}
 		photos = append(photos, photo)
 	}
 

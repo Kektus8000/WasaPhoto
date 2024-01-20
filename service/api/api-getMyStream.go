@@ -27,6 +27,11 @@ func (rt *_router) GetMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, "An error has occurred during the query from the database", 400)
 		return
 	}
-	json.NewEncoder(w).Encode(photos)
+	errEncode := json.NewEncoder(w).Encode(photos)
+	if errEncode != nil {
+		http.Error(w, "An error has occurred while encoding the photos", 400)
+		return
+	}
 	w.WriteHeader(http.StatusFound)
+	return
 }

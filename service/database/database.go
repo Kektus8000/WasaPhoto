@@ -60,8 +60,6 @@ type AppDatabase interface {
 
 	UnFollowUser(followerID int, followingID int) error
 
-	GetMyStream(userID int) error
-
 	GetPublishedPhotos(userID int) ([]int, error)
 
 	GetPhotoPublisher(photoID int) (int, error)

@@ -6,6 +6,8 @@ func (db *appdbimpl) SetMyUsername(userID int, newUsername string) error {
 	SET username = ?
 	WHERE userID = ?
 	);`, userID, newUsername)
-
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }

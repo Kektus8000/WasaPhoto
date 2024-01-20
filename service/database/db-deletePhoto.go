@@ -7,5 +7,8 @@ func (db *appdbimpl) DeletePhoto(photoID int) (string, error) {
 		return "", errQuery
 	}
 	_, errDelete := db.c.Exec("DELETE FROM Photo WHERE PhotoID = ?);", photoID)
-	return filename, errDelete
+	if errDelete != nil {
+		return "", errDelete
+	}
+	return filename, nil
 }

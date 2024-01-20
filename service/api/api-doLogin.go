@@ -23,6 +23,7 @@ func (rt *_router) DoLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 	exist, errQuery := rt.db.UserExists(username)
+	encoder := json.NewEncoder(w)
 	if errQuery != nil {
 		http.Error(w, "An error has occurred during a query in the database", 400)
 		return
@@ -33,14 +34,21 @@ func (rt *_router) DoLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			return
 		}
 		var newUser User = User{UserID: ID, Username: username}
-		json.NewEncoder(w).Encode(newUser)
+		errEncode := encoder.Encode(newUser)
+		if errEncode != nil {
+			http.Error(w, "An error has occurred while encoding the user infos", 400)
+			return
+		}
 	} else if exist {
 		user, errQuery := rt.db.GetUserByUsername(username)
 		if errQuery != nil {
 			http.Error(w, "An error has occurred during a query in the database", 400)
 			return
 		}
-		json.NewEncoder(w).Encode(user)
+		errEncode := encoder.Encode(user)
+		if errEncode != nil {
+			http.Error(w, "An error has occurred while encoding the user infos", 400)
+			return
+		}
 	}
-	return
 }

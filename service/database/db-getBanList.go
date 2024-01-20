@@ -10,7 +10,10 @@ func (db *appdbimpl) GetBanList(userID int) ([]int, error) {
 
 	for rows.Next() {
 		var ID int
-		rows.Scan(&ID)
+		errScan := rows.Scan(&ID)
+		if errScan != nil {
+			return nil, errScan
+		}
 		bannedIDs = append(bannedIDs, ID)
 	}
 

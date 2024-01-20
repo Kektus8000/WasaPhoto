@@ -59,7 +59,11 @@ func (rt *_router) CommentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	var comment Comment = Comment{CommentID: commentID, Comment: comm, PublisherID: userID, PhotoID: photoID}
-	json.NewEncoder(w).Encode(comment)
+	errEncode := json.NewEncoder(w).Encode(comment)
+	if errEncode != nil {
+		http.Error(w, "An error has occurred while encoding comment's info", 400)
+		return
+	}
 	w.WriteHeader(http.StatusCreated)
 	return
 }

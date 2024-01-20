@@ -56,8 +56,29 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	json.NewEncoder(w).Encode(user)
-	json.NewEncoder(w).Encode(followers)
-	json.NewEncoder(w).Encode(followings)
-	json.NewEncoder(w).Encode(banneds)
+	// Viene creato un nuovo Encoder per trasformare i dati delle query in Json
+	encoder := json.NewEncoder(w)
+	errEncode1 := encoder.Encode(user)
+	if errEncode1 != nil {
+		http.Error(w, "An error has occurred while encoding the user infos", 400)
+		return
+	}
+
+	errEncode2 := encoder.Encode(followers)
+	if errEncode2 != nil {
+		http.Error(w, "An error has occurred while encoding the follower list", 400)
+		return
+	}
+
+	errEncode3 := encoder.Encode(followings)
+	if errEncode3 != nil {
+		http.Error(w, "An error has occurred while encoding the following list", 400)
+		return
+	}
+
+	errEncode4 := encoder.Encode(banneds)
+	if errEncode4 != nil {
+		http.Error(w, "An error has occurred while encoding the banList", 400)
+		return
+	}
 }

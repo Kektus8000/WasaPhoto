@@ -6,6 +6,8 @@ func (db *appdbimpl) CheckBanned(bannerID int, bannedID int) (bool, error) {
 	banned, err := db.c.Query("COUNT (*) FROM Banned WHERE bannerID = ? AND bannedID = ?);", bannerID, bannedID)
 	if banned != nil {
 		flag = true
+	} else if err != nil {
+		return flag, err
 	}
-	return flag, err
+	return flag, nil
 }
