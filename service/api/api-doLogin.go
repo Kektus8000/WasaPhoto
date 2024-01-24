@@ -39,6 +39,8 @@ func (rt *_router) DoLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			http.Error(w, "An error has occurred while encoding the user infos", 400)
 			return
 		}
+		w.WriteHeader(http.StatusOK)
+		return
 	} else if exist {
 		user, errQuery := rt.db.GetUserByUsername(username)
 		if errQuery != nil {
@@ -50,5 +52,6 @@ func (rt *_router) DoLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			http.Error(w, "An error has occurred while encoding the user infos", 400)
 			return
 		}
+		w.WriteHeader(http.StatusCreated)
 	}
 }

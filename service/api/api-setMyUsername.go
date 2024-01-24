@@ -17,7 +17,6 @@ func (rt *_router) SetMyUsername(w http.ResponseWriter, r *http.Request, ps http
 	userID, errConv := strconv.Atoi(ps.ByName("userID"))
 	if errConv != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		return
 	}
 	var newUsername string
 	if !Authenticate(userID, r.Header.Get("Authorization")) {
@@ -27,15 +26,12 @@ func (rt *_router) SetMyUsername(w http.ResponseWriter, r *http.Request, ps http
 	err := json.NewDecoder(r.Body).Decode(&newUsername)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		return
 	}
 
 	errUpdate := rt.db.SetMyUsername(userID, newUsername)
 	if errUpdate != nil {
 		w.WriteHeader(http.StatusBadGateway)
-		return
 	}
 
 	w.WriteHeader(http.StatusNoContent)
-	return
 }

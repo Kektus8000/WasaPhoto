@@ -50,6 +50,4 @@ func (rt *_router) LikePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 
 	w.WriteHeader(http.StatusNoContent)
-	return
-
 }

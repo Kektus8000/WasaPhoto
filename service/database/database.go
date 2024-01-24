@@ -100,7 +100,6 @@ func New(db *sql.DB) (AppDatabase, error) {
 	var tableName string
 
 	err := db.QueryRow("SELECT name FROM sqlite_master WHERE type = table AND name = user;").Scan((&tableName))
-	var errAny error = nil
 
 	if errors.Is(err, sql.ErrNoRows) {
 		_, err1 := db.Exec(`CREATE TABLE IF NOT EXISTS User (
@@ -170,5 +169,5 @@ func New(db *sql.DB) (AppDatabase, error) {
 	}
 	return &appdbimpl{
 		c: db,
-	}, errAny
+	}, nil
 }

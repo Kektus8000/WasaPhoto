@@ -81,4 +81,6 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		http.Error(w, "An error has occurred while encoding the banList", 400)
 		return
 	}
+
+	w.WriteHeader(http.StatusFound)
 }
