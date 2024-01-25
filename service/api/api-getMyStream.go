@@ -35,7 +35,7 @@ func (rt *_router) GetMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		photos, errQuery := rt.db.GetPublishedPhotos(follower)
 		if errQuery == nil {
 			for j := 0; j < len(photos); j++ {
-				photoIDs = append(photoIDs, photos[i])
+				photoIDs = append(photoIDs, photos[j])
 			}
 		}
 	}
