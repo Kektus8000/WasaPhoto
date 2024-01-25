@@ -9,9 +9,9 @@
 
       <h3 v-show= "username.length < 6 || username.length > 20"> L'username non è della lunghezza adatta </h3>
     </body>
-  </template>
+</template>
   
-  <script>
+<script>
   export default{
     data() {
       return {
@@ -22,11 +22,13 @@
     methods: {
       cercaUtente(){
         try{
-            let response = this.$axios.get("/session");
+            let response = this.$axios.post("/session", this.username);
+            router.push()
         }
         catch(e)
         {
             this.errormsg = e.toString();
+            console.log(this.errormsg)
         }
         
       }

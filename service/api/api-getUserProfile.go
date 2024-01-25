@@ -56,6 +56,12 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
+	photos, errPhotos := rt.db.GetPublishedPhotos(checkID)
+	if errPhotos != nil {
+		http.Error(w, "An error has occurred during a query in the database", 400)
+		return
+	}
+
 	// Viene creato un nuovo Encoder per trasformare i dati delle query in Json
 	encoder := json.NewEncoder(w)
 	errEncode1 := encoder.Encode(user)
@@ -82,5 +88,11 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
+	errEncode5 := encoder.Encode(photos)
+	if errEncode5 != nil {
+		http.Error(w, "An error has occurred while encoding the photos", 400)
+		return
+	}
 	w.WriteHeader(http.StatusFound)
+	return
 }

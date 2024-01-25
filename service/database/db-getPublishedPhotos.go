@@ -1,24 +1,26 @@
 package database
 
+import "errors"
+
 func (db *appdbimpl) GetPublishedPhotos(userID int) ([]int, error) {
 
 	var photos []int
-	rows, err := db.c.Query(`SELECT photoID FROM Photo WHERE publisherID = ?`, userID)
-	if err != nil {
-		return nil, err
+	rows, errQuery := db.c.Query(`SELECT photoID FROM Photo WHERE publisherID = ?`, userID)
+	if errQuery != nil {
+		return nil, errQuery
 	}
 
 	for rows.Next() {
-		var photo int
-		errScan := rows.Scan(&photo)
+		var photoID int
+		errScan := rows.Scan(&photoID)
 		if errScan != nil {
 			return nil, errScan
 		}
-		photos = append(photos, photo)
+		photos = append(photos, photoID)
 	}
 
 	if rows.Err() != nil {
-		return nil, rows.Err()
+		return nil, errors.New("An error has occurred while reading the rows of the query")
 	}
 	return photos, nil
 }

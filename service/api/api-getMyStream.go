@@ -22,14 +22,26 @@ func (rt *_router) GetMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, "Authentification went wrong", 401)
 		return
 	}
-	photos, errQuery := rt.db.GetPublishedPhotos(userID)
-	if errQuery != nil {
+
+	followers, errFoll := rt.db.GetFollowers(userID)
+	if errFoll != nil {
 		http.Error(w, "An error has occurred during the query from the database", 400)
 		return
 	}
-	errEncode := json.NewEncoder(w).Encode(photos)
+
+	var photoIDs []int
+	for i := 0; i < len(followers); i++ {
+		follower := followers[i]
+		photos, errQuery := rt.db.GetPublishedPhotos(follower)
+		if errQuery == nil {
+			for j := 0; j < len(photos); j++ {
+				photoIDs = append(photoIDs, photos[i])
+			}
+		}
+	}
+	errEncode := json.NewEncoder(w).Encode(photoIDs)
 	if errEncode != nil {
-		http.Error(w, "An error has occurred while encoding the photos", 400)
+		http.Error(w, "An error has occurred while encoding photo's infos", 400)
 		return
 	}
 	w.WriteHeader(http.StatusFound)
