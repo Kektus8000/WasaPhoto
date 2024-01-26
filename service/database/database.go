@@ -42,6 +42,8 @@ type AppDatabase interface {
 
 	GetPhotoPublisher(photoID int) (int, error)
 
+	GetStream(userID int) ([]int, error)
+
 	BanUser(bannerID int, bannedId int) error
 
 	UnbanUser(bannerID int, bannedID int) error
@@ -70,9 +72,9 @@ func New(db *sql.DB) (AppDatabase, error) {
 		return nil, errors.New("A database is required when building a AppDatabase")
 	}
 
-	_, errKey := db.Exec("PRAGMA foreign_keys = ON")
-	if errKey != nil {
-		return nil, errors.New("An error has occurred while building the database")
+	_, errEx := db.Exec("PRAGMA foreign_keys = ON;")
+	if errEx != nil {
+		return nil, errors.New("An error has occurred while turning the Foreign Keys ON")
 	}
 
 	var tableName string
@@ -85,7 +87,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 			Username TEXT NOT NULL
 			);`)
 		if err1 != nil {
-			return nil, errors.New("An error has occurred while building the database")
+			return nil, errors.New("An error has occurred while building User table")
 		}
 
 		_, err2 := db.Exec(`CREATE TABLE IF NOT EXISTS Photo (
@@ -97,7 +99,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 			);`)
 
 		if err2 != nil {
-			return nil, errors.New("An error has occurred while building the database")
+			return nil, errors.New("An error has occurred while building the Photo table")
 		}
 
 		_, err3 := db.Exec(`CREATE TABLE IF NOT EXISTS Banned (
@@ -109,7 +111,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 			);`)
 
 		if err3 != nil {
-			return nil, errors.New("An error has occurred while building the database")
+			return nil, errors.New("An error has occurred while building the Banned table")
 		}
 
 		_, err4 := db.Exec(`CREATE TABLE IF NOT EXISTS Following (
@@ -121,7 +123,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 			);`)
 
 		if err4 != nil {
-			return nil, errors.New("An error has occurred while building the database")
+			return nil, errors.New("An error has occurred while building the Following table")
 		}
 		_, err5 := db.Exec(`CREATE TABLE IF NOT EXISTS Comment (
 			commentID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -133,7 +135,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 			);`)
 
 		if err5 != nil {
-			return nil, errors.New("An error has occurred while building the database")
+			return nil, errors.New("An error has occurred while building the Comment table")
 		}
 		_, err6 := db.Exec(`CREATE TABLE IF NOT EXISTS Like (
 			likedPhotoID INTEGER NOT NULL,
@@ -142,9 +144,10 @@ func New(db *sql.DB) (AppDatabase, error) {
 			FOREIGN KEY(likerUserID) references User(userID)
 			);`)
 		if err6 != nil {
-			return nil, errors.New("An error has occurred while building the database")
+			return nil, errors.New("An error has occurred while building the Like table")
 		}
 	}
+
 	return &appdbimpl{
 		c: db,
 	}, nil

@@ -23,23 +23,13 @@ func (rt *_router) GetMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	followers, errFoll := rt.db.GetFollowers(userID)
+	photos, errFoll := rt.db.GetStream(userID)
 	if errFoll != nil {
 		http.Error(w, "An error has occurred during the query from the database", 400)
 		return
 	}
 
-	var photoIDs []int
-	for i := 0; i < len(followers); i++ {
-		follower := followers[i]
-		photos, errQuery := rt.db.GetPublishedPhotos(follower)
-		if errQuery == nil {
-			for j := 0; j < len(photos); j++ {
-				photoIDs = append(photoIDs, photos[i])
-			}
-		}
-	}
-	errEncode := json.NewEncoder(w).Encode(photoIDs)
+	errEncode := json.NewEncoder(w).Encode(photos)
 	if errEncode != nil {
 		http.Error(w, "An error has occurred while encoding photo's infos", 400)
 		return
