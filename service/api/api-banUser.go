@@ -13,7 +13,7 @@ import (
 func (rt *_router) BanUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "text/plain")
 
-	//Check utente
+	// Check ID dell'Utente
 	userID, errConv := strconv.Atoi(ps.ByName("userID"))
 	if errConv != nil {
 		w.WriteHeader(http.StatusBadRequest)

@@ -10,20 +10,21 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// getHelloWorld is an example of HTTP endpoint that returns "Hello world!" as a plain text
 func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "text/plain")
 
-	//Check utente
+	// Check dell'ID dell'Utente
 	userID, errConv := strconv.Atoi(ps.ByName("userID"))
 	if errConv != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	if !Authenticate(userID, r.Header.Get("Authorization")) {
 		http.Error(w, "Authentification went wrong", 401)
 		return
 	}
+
 	multipart, errMulti := r.MultipartReader()
 	if errMulti != nil {
 		http.Error(w, "An error has occurred while decoding the photo", 400)
@@ -46,6 +47,8 @@ func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, "An error has occurred while uploading the photo", 400)
 		return
 	}
+
+	// Aggiunge la foto nella cartella appena creata, sotto l'ID richiesto
 	_, errIO := io.Copy(path, photoFile)
 	if errIO != nil {
 		http.Error(w, "An error has occurred while uploading the photo", 400)

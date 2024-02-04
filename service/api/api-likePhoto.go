@@ -8,23 +8,25 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// getHelloWorld is an example of HTTP endpoint that returns "Hello world!" as a plain text
 func (rt *_router) LikePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "text/plain")
 
-	//Check Utente
+	// Check dell'ID dell'Utente
 	userID, errConv1 := strconv.Atoi(ps.ByName("userID"))
 	if errConv1 != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if !Authenticate(userID, r.Header.Get("Authorization")) {
-		http.Error(w, "Authentification went wrong", 401)
-		return
-	}
+
+	// Check dell'ID della Foto
 	photoID, errConv2 := strconv.Atoi(ps.ByName("photoID"))
 	if errConv2 != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if !Authenticate(userID, r.Header.Get("Authorization")) {
+		http.Error(w, "Authentification went wrong", 401)
 		return
 	}
 

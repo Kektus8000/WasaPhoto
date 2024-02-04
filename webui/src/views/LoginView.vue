@@ -1,47 +1,69 @@
 <template>
-    <body>
-      <h1> Effettua il Login</h1>
+  <title>Schermata Login</title>
 
-      <input type = "text" placeholder="Inserisci il tuo username" v-model = "username">
-
-      <button :disabled="username.length < 6 || username.length > 20"
-      @click = "cercaUtente"> Login </button>
-
-      <h3 v-show= "username.length < 6 || username.length > 20"> L'username non è della lunghezza adatta </h3>
-    </body>
-</template>
+  <header>
+    <h2>Effettua il Login</h2>
+  </header>
   
+  <hr>
+
+  <main>
+    <body class="principale">
+      <input placeholder="username" v-model="username">
+      <button class = "conferma" 
+      :disabled= "username.length > 16 || username.length < 3"
+      @click = "trovaUtente"> Effettua Login </button>
+    </body>
+    
+
+    <div class="fondo">
+      {{this.username}}
+    </div>
+  </main>
+
+
+</template>
+
 <script>
-  export default{
-    data() {
-      return {
-        username : null,
-        errormsg : null,
-      }
-    },
-    methods: {
-      cercaUtente(){
+export default{
+  data(){
+    return{
+      username: "",
+      errormsg: ""
+    }
+  },
+  methods:{
+    async trovaUtente(){
         try{
             let response = this.$axios.post("/session", this.username);
-            router.push()
+            var dati = response.data;
+            alert(dati.toString);
         }
         catch(e)
         {
             this.errormsg = e.toString();
             console.log(this.errormsg)
         }
-        
-      }
     }
   }
-  </script>
-  
-  <style>
-    
-    body {
-      justify-content: center;
-      height: 200%;
-      display: grid;
-      place-items: center;
-    }
-  </style>
+}
+</script>
+
+<style>
+  header{
+    text-align: center;
+    top:0;
+  }
+
+  .principale{
+    display: grid;
+    align-items:center;
+    justify-content: center;
+    width: 100%;
+  }
+  .fondo{
+    bottom:0;
+    border-top: 1px solid black;
+  }
+
+</style>

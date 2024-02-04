@@ -14,9 +14,16 @@ import (
 func (rt *_router) CommentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "text/plain")
 
-	userID, errConv := strconv.Atoi(ps.ByName("userID"))
+	// Check dell'ID dell'Utente
+	userID, errConv1 := strconv.Atoi(ps.ByName("userID"))
+	if errConv1 != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Check dell'ID della Foto
 	photoID, errConv2 := strconv.Atoi(ps.ByName("photoID"))
-	if errConv != nil || errConv2 != nil {
+	if errConv2 != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -25,6 +32,7 @@ func (rt *_router) CommentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		http.Error(w, "Authentification went wrong", 401)
 		return
 	}
+
 	publisherID, errFetch := rt.db.GetPhotoPublisher(photoID)
 	if errFetch != nil || publisherID == -1 {
 		http.Error(w, "An error has occurred while fetching the user who published the photo", 404)

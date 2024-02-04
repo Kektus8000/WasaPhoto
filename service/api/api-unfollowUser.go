@@ -12,17 +12,25 @@ import (
 func (rt *_router) UnfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "text/plain")
 
-	//Check utente
+	// Check ID dell'Utente
 	userID, errConv := strconv.Atoi(ps.ByName("userID"))
-	followerID, errConv2 := strconv.Atoi(ps.ByName("followerID"))
-	if errConv != nil || errConv2 != nil || userID == followerID {
+	if errConv != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	// Check ID dell'Utente interessato
+	followerID, errConv2 := strconv.Atoi(ps.ByName("followerID"))
+	if errConv2 != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	if !Authenticate(userID, r.Header.Get("Authorization")) {
 		http.Error(w, "Authentification went wrong", 401)
 		return
 	}
+
 	errUpdate := rt.db.UnFollowUser(userID, followerID)
 	if errUpdate != nil {
 		w.WriteHeader(http.StatusBadRequest)

@@ -8,21 +8,30 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// getHelloWorld is an example of HTTP endpoint that returns "Hello world!" as a plain text
+// FollowUser si occupa di effettuare il follow di un utente ad un altro
+// Come parametri, prende l'ID dell'utente e quello dell'utente che si intende seguire
 func (rt *_router) FollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "text/plain")
 
-	//Check utente
+	// Check ID dell'Utente
 	userID, errConv := strconv.Atoi(ps.ByName("userID"))
-	toFollowID, errConv2 := strconv.Atoi(ps.ByName("toFollowID"))
-	if errConv != nil || errConv2 != nil || userID == toFollowID {
+	if errConv != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	// Check ID dell'Utente interessato
+	toFollowID, errConv2 := strconv.Atoi(ps.ByName("toFollowID"))
+	if errConv2 != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	if !Authenticate(userID, r.Header.Get("Authorization")) {
 		http.Error(w, "Authentification went wrong", 401)
 		return
 	}
+
 	banned, errQuery := rt.db.CheckBanned(toFollowID, userID)
 	if errQuery != nil {
 		w.WriteHeader(http.StatusBadRequest)
