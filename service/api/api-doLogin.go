@@ -35,7 +35,7 @@ func (rt *_router) DoLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			http.Error(w, "An error has occurred during a query in the database", 400)
 			return
 		}
-		_, errOS := os.Create("/user/" + username + strconv.Itoa(ID))
+		_, errOS := os.Create("main/user/" + username + strconv.Itoa(ID))
 		if errOS != nil {
 			http.Error(w, "An error has occurred while adding the user to the user list", 400)
 			return

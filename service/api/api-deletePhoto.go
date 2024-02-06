@@ -40,13 +40,13 @@ func (rt *_router) DeletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	photoFile, errQuery := rt.db.DeletePhoto(photoID)
+	_, errQuery := rt.db.DeletePhoto(photoID)
 	if errQuery != nil {
 		http.Error(w, "There isn't a photo with that Id, so it can't be removed", 404)
 		return
 	}
 
-	errOS := os.Remove("/userProfile/" + strconv.Itoa(userID) + "/publishedPhotos/" + strconv.Itoa(photoID) + photoFile)
+	errOS := os.Remove("main/userProfile/" + strconv.Itoa(userID) + "/publishedPhotos/" + strconv.Itoa(photoID))
 	if errOS != nil {
 		http.Error(w, "An error has occurred while uploading the photo", 400)
 		return

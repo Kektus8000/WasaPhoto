@@ -35,14 +35,15 @@ export default{
   methods:{
     async trovaUtente(){
         try{
-            let response = this.$axios.post("/session", this.username);
-            var dati = response.data;
-            alert(dati.toString);
+            let response = await this.$axios.post("/session", this.username);
+            localStorage.setItem('identifier', response);
+            this.$router.replace('/userProfile/:userID')
+            alert("Success");
         }
         catch(e)
         {
             this.errormsg = e.toString();
-            console.log(this.errormsg)
+            alert("Failure");
         }
     }
   }

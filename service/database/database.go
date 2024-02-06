@@ -42,7 +42,7 @@ type AppDatabase interface {
 
 	GetPhotoPublisher(photoID int) (int, error)
 
-	GetStream(userID int) ([]int, error)
+	GetStream(userID int) ([]int, []int, error)
 
 	BanUser(bannerID int, bannedId int) error
 

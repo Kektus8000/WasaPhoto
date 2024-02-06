@@ -19,6 +19,10 @@ func (rt *_router) Handler() http.Handler {
 	//Call the function that handle the followUser
 	rt.router.POST("/userProfile/:userID/following/", rt.wrap(rt.FollowUser))
 
+	rt.router.GET("/userProfile/:userID/following/", rt.wrap(rt.GetFollowings))
+
+	rt.router.GET("/userProfile/:userID/followers/", rt.wrap(rt.GetFollowers))
+
 	//Call the function that handle the unFollowUser
 	rt.router.DELETE("/userProfile/:userID/following/:followerID", rt.wrap(rt.UnfollowUser))
 
