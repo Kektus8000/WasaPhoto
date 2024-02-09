@@ -10,9 +10,9 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// CommentPhoto si occupa del commento di una foto da parte di un utente
+// CommentPhoto si occupa di pubblicare un commento sotto la foto da parte di un utente
 func (rt *_router) CommentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	w.Header().Set("content-type", "text/plain")
+	w.Header().Set("content-type", "application/json")
 
 	// Check dell'ID dell'Utente
 	userID, errConv1 := strconv.Atoi(ps.ByName("userID"))

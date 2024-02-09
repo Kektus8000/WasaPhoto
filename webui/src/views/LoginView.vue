@@ -1,3 +1,4 @@
+catch(e)
 <template>
   <title>Schermata Login</title>
 
@@ -9,7 +10,7 @@
 
   <main>
     <body class="principale">
-      <input placeholder="username" v-model="username">
+      <input type ="text" placeholder="Inserisci il tuo username" v-model="username">
       <button class = "conferma" 
       :disabled= "username.length > 16 || username.length < 3"
       @click = "trovaUtente"> Effettua Login </button>
@@ -34,16 +35,20 @@ export default{
   },
   methods:{
     async trovaUtente(){
+        console.log(this.username);
         try{
-            let response = await this.$axios.post("/session", this.username);
-            localStorage.setItem('identifier', response);
-            this.$router.replace('/userProfile/:userID')
+            let response = await this.$axios.post("/session",{username: this.username});
+            var profilo = response.data;
+            console.log(profilo);
+            localStorage.setItem('identifier', profilo.UserID);
+            localStorage.setItem('username', profilo.Username);
+            this.$router.replace('/session', '/userprofile/' + profilo.UserID);
             alert("Success");
         }
         catch(e)
         {
             this.errormsg = e.toString();
-            alert("Failure");
+            alert(this.errormsg);
         }
     }
   }

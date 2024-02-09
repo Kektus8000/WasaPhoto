@@ -11,7 +11,7 @@ import (
 // FollowUser si occupa di effettuare il follow di un utente ad un altro
 // Come parametri, prende l'ID dell'utente e quello dell'utente che si intende seguire
 func (rt *_router) FollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	w.Header().Set("content-type", "text/plain")
+	w.Header().Set("content-type", "application/json")
 
 	// Check ID dell'Utente
 	userID, errConv := strconv.Atoi(ps.ByName("userID"))

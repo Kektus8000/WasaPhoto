@@ -2,12 +2,10 @@ package database
 
 func (db *appdbimpl) CheckBanned(bannerID int, bannedID int) (bool, error) {
 
-	flag := false
-	banned, err := db.c.Query("COUNT (*) FROM Banned WHERE bannerID = ? AND bannedID = ?);", bannerID, bannedID)
-	if banned != nil {
-		flag = true
-	} else if err != nil {
-		return flag, err
+	var count int
+	err := db.c.QueryRow("COUNT (*) FROM Banned WHERE bannerID = ? AND bannedID = ?;", bannerID, bannedID).Scan(&count)
+	if err != nil {
+		return false, err
 	}
-	return flag, nil
+	return (count == 1), nil
 }

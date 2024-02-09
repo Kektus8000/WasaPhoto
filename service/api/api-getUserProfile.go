@@ -10,7 +10,7 @@ import (
 )
 
 func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	w.Header().Set("content-type", "text/plain")
+	w.Header().Set("content-type", "application/json")
 
 	// Check ID dell'Utente
 	userID, errConv := strconv.Atoi(ps.ByName("userID"))
@@ -25,10 +25,12 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	if !Authenticate(userID, r.Header.Get("Authorization")) {
 		http.Error(w, "Authentification went wrong", 401)
 		return
 	}
+
 	banned, errBan := rt.db.CheckBanned(checkID, userID)
 	if errBan != nil {
 		http.Error(w, "An error has occurred while fetching the request", 400)

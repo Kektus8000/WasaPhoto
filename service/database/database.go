@@ -72,14 +72,14 @@ func New(db *sql.DB) (AppDatabase, error) {
 		return nil, errors.New("A database is required when building a AppDatabase")
 	}
 
-	_, errEx := db.Exec("PRAGMA foreign_keys = ON;")
+	_, errEx := db.Exec("PRAGMA foreign_keys = ON")
 	if errEx != nil {
 		return nil, errors.New("An error has occurred while turning the Foreign Keys ON")
 	}
 
 	var tableName string
 
-	err := db.QueryRow("SELECT name FROM sqlite_master WHERE type = table AND name = user;").Scan((&tableName))
+	err := db.QueryRow("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'User' ").Scan(&tableName)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		_, err1 := db.Exec(`CREATE TABLE IF NOT EXISTS User (
@@ -107,7 +107,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 			bannedID INTEGER NOT NULL KEY,
 			CHECK bannerID != bannedID,
 			FOREIGN KEY(bannerID) references User(userID),
-			FOREIGN KEY(bannedID) references UseR(userID)
+			FOREIGN KEY(bannedID) references User(userID)
 			);`)
 
 		if err3 != nil {

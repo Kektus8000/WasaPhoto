@@ -6,10 +6,9 @@ import ProfileView from '../views/ProfileView.vue'
 const router = createRouter({
 	history: createWebHashHistory(import.meta.env.BASE_URL),
 	routes: [
-		{path: '/', component: HomePage2},
+		{path: '/', component: HomeView},
 		{path: '/session', component: LoginView},
 		{path: '/userProfile/:userID', component: ProfileView},
-		{path: '/some/:id/link', component: HomeView},
 	]
 })
 

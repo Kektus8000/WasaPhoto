@@ -1,7 +1,7 @@
 package database
 
 func (db *appdbimpl) UploadPhoto(filename string, userID int) (int, error) {
-	query, errInsert := db.c.Exec("INSERT INTO Photo(file, publicationDate, publisherID) VALUE (?,NOW,?));",
+	query, errInsert := db.c.Exec("INSERT INTO Photo(file, publicationDate, publisherID) VALUES (?,NOW,?);",
 		filename, userID)
 	if errInsert != nil {
 		return -1, errInsert
