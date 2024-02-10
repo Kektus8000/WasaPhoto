@@ -40,8 +40,9 @@ export default{
   data(){
     return{
       seguiti: -1,
-      followers: -1,
-      username: "Simone",
+      followers: this.ottieniProfilo(),
+      ID: localStorage.getItem('identifier'),
+      username: localStorage.getItem('username'),
       immagini: [{link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
                   {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'},
                   {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
@@ -51,15 +52,9 @@ export default{
     }
   },
   methods:{
-    ottieniFollowers(){
-          let response = this.$axios.get("/userProfile/:userID/followers/", this.username);
-          var dati = response.data;
-          alert(dati.length);
-    },
-    ottieniFollowings(){
-          let response = this.$axios.get("/userProfile/:userID/followings/", this.username);
-          var dati = response.data;
-          alert(dati.length);
+    async ottieniProfilo(){
+      let response = await this.$axios.get("/userProfile/" + this.ID,
+        { headers: {'Authorization': 'Bearer ' + this.ID}});
     }
   }
 }
