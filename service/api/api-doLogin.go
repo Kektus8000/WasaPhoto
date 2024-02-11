@@ -42,7 +42,7 @@ func (rt *_router) DoLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			return
 		}
 
-		errOS := os.WriteFile("/"+username+strconv.Itoa(ID), nil, fs.FileMode(os.O_RDWR))
+		errOS := os.WriteFile("/main/user/"+username+strconv.Itoa(ID), nil, fs.FileMode(os.O_RDWR))
 		if errOS != nil {
 			http.Error(w, "An error has occurred while adding the user to the user list", 500)
 			return

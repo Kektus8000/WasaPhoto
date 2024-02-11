@@ -39,10 +39,9 @@ export default{
         try{
             let response = await this.$axios.post("/session",{username: this.username});
             var profilo = response.data;
-            console.log(profilo);
             localStorage.setItem('identifier', profilo.UserID);
             localStorage.setItem('username', profilo.Username);
-            this.$router.replace('/session', '/userProfile/:userID');
+            this.$router.replace('/userProfile/:userID');
         }
         catch(e)
         {
