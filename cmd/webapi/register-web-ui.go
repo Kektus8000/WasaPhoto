@@ -1,4 +1,4 @@
-// go:build webui
+//go:build webui
 
 package main
 
@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Kektus8000/WasaPhoto/webui"
+	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/webui"
 )
 
 func registerWebUI(hdl http.Handler) (http.Handler, error) {
