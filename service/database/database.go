@@ -105,7 +105,6 @@ func New(db *sql.DB) (AppDatabase, error) {
 		_, err3 := db.Exec(`CREATE TABLE IF NOT EXISTS Banned (
 			bannerID INTEGER NOT NULL PRIMARY KEY,
 			bannedID INTEGER NOT NULL KEY,
-			CHECK bannerID != bannedID,
 			FOREIGN KEY(bannerID) references User(userID),
 			FOREIGN KEY(bannedID) references User(userID)
 			);`)
@@ -117,9 +116,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 		_, err4 := db.Exec(`CREATE TABLE IF NOT EXISTS Following (
 			followerID INTEGER NOT NULL PRIMARY KEY,
 			followingID INTEGER NOT NULL KEY,
-			CHECK followerID != followingID,
 			FOREIGN KEY(followerID) references User(userID),
-			FOREIGN KEY(followingID) references UseR(userID)
+			FOREIGN KEY(followingID) references User(userID)
 			);`)
 
 		if err4 != nil {

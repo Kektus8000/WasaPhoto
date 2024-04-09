@@ -36,7 +36,7 @@ func (rt *_router) DeletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	if userID != publisherID {
-		http.Error(w, "You can't unlike the photo because it isn't your photo", 403)
+		http.Error(w, "You can't delete the photo because it isn't your photo", 403)
 		return
 	}
 

@@ -22,7 +22,7 @@ func (rt *_router) FollowUser(w http.ResponseWriter, r *http.Request, ps httprou
 
 	// Check ID dell'Utente interessato
 	toFollowID, errConv2 := strconv.Atoi(ps.ByName("toFollowID"))
-	if errConv2 != nil {
+	if errConv2 != nil || userID == toFollowID {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

@@ -20,6 +20,9 @@
           <h3>Followers : {{this.followers}}</h3>
         </a>
       </li>
+      <li>
+        <button @click = "ottieniProfilo"> Test </button>
+      </li>
     </ul>
   </nav>
 
@@ -30,8 +33,11 @@
             <img class= "Foto" :src = foto.link>
         </li>
       </ul>
+      
     </div>
-
+    <button class = "conferma" 
+      :disabled= "username.length > 16 || username.length < 3"
+      @click = "ottieniProfilo"> Test </button>
   </main>
 </template>
 
@@ -53,8 +59,9 @@ export default{
   },
   methods:{
     async ottieniProfilo(){
-      let response = await this.$axios.get("/userProfile/" + this.ID,
+      let response = await this.$axios.get("/userProfile/"+this.$router.params.ID,
         { headers: {'Authorization': 'Bearer ' + this.ID}});
+      alert(response);
     }
   }
 }

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"io"
 	"net/http"
 	"strconv"
@@ -60,16 +59,9 @@ func (rt *_router) CommentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	commentID, errComm := rt.db.CommentPhoto(photoID, comm, userID)
-	if errComm != nil || commentID == -1 {
+	_, errComm := rt.db.CommentPhoto(photoID, comm, userID)
+	if errComm != nil {
 		http.Error(w, "An error has occurred while publishing the comment on the photo", 400)
-		return
-	}
-
-	var comment Comment = Comment{CommentID: commentID, Comment: comm, PublisherID: userID, PhotoID: photoID}
-	errEncode := json.NewEncoder(w).Encode(comment)
-	if errEncode != nil {
-		http.Error(w, "An error has occurred while encoding comment's info", 400)
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
