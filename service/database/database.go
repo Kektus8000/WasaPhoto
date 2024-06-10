@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 type User struct {
@@ -110,7 +111,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 			);`)
 
 		if err3 != nil {
-			return nil, errors.New("An error has occurred while building the Banned table")
+			return nil, fmt.Errorf("An error has occurred while building the Banned table: %w", err)
 		}
 
 		_, err4 := db.Exec(`CREATE TABLE IF NOT EXISTS Following (
