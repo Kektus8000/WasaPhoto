@@ -149,4 +149,10 @@ func New(db *sql.DB) (AppDatabase, error) {
 	return &appdbimpl{
 		c: db,
 	}, nil
+
+}
+
+// Ping checks the connection to the database.
+func (db *appdbimpl) Ping() error {
+	return db.c.Ping()
 }

@@ -65,5 +65,4 @@ func (rt *_router) CommentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
-	return
 }

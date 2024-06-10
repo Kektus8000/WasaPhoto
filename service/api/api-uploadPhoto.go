@@ -55,5 +55,4 @@ func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
-	return
 }

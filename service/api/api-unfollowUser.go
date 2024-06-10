@@ -37,5 +37,4 @@ func (rt *_router) UnfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	w.WriteHeader(http.StatusNoContent)
-	return
 }

@@ -55,7 +55,6 @@ func (rt *_router) DoLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-		return
 
 	} else if exist {
 		user, errQuery := rt.db.GetUserByUsername(username)
@@ -70,6 +69,5 @@ func (rt *_router) DoLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			return
 		}
 		w.WriteHeader(http.StatusCreated)
-		return
 	}
 }

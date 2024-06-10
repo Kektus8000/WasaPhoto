@@ -52,6 +52,4 @@ func (rt *_router) DeletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
-	return
-
 }

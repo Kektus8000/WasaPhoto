@@ -102,5 +102,4 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 	w.WriteHeader(http.StatusFound)
-	return
 }

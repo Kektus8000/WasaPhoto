@@ -48,5 +48,4 @@ func (rt *_router) FollowUser(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 
 	w.WriteHeader(http.StatusNoContent)
-	return
 }

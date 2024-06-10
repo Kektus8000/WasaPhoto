@@ -41,7 +41,5 @@ func (rt *_router) BanUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
 	w.WriteHeader(http.StatusNoContent)
-	return
 }
