@@ -60,7 +60,7 @@ export default{
     transform: translate(-50%,-50%);
 
     left: 50%;
-    top: 10%;
+    top: 30%;
     font-size: 800%;
 
     -webkit-text-stroke-width: 0.5px;
@@ -93,7 +93,7 @@ export default{
     left: 50%;
     transform: translate(-50%,-50%);
 
-    width:250px;
+    width:300px;
     height:30px;
     font-size: 25px;
 
@@ -101,6 +101,7 @@ export default{
     align-self:right;
     border-radius: 5px;
     background-color: rgba(0, 0, 0, 0.5);
+    
     color: white;
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     text-align: center;

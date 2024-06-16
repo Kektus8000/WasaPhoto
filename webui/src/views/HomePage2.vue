@@ -1,102 +1,3 @@
-<template>
-  <header class="Intestazione">
-    <h3> Benvenuto {{this.username}}</h3>
-    <nav class="NavigazioneRapida">
-      <a href="link" target="_blank" style="text-decoration: none"> Followers </a>
-
-      <span>
-        <input placeholder="Cerca Utente" v-model="ricerca">
-        <button :disabled="ricerca.length > 16 || ricerca.length < 3"> Cerca </button>
-      </span>
-
-      <a href="link" target="_blank" style="text-decoration: none"> Seguiti </a>
-    </nav>
-  </header>
-
-  <main>
-    <div class="ListaFoto">
-      <ul v-for="foto in immagini">
-        <li>
-          <span>
-            <img class="Foto" :src= foto.link alt="Caricamento">
-            <button class="MiPiace"> Mi piace </button>
-            <button class="Commenta"> Commenta </button>
-          </span>
-          
-        </li>
-      </ul>
-    </div>
-
-    <h1>{{this.ricerca}}</h1>
-  </main>
-
-</template>
-
-<style>
-  .Intestazione{
-    text-align: center;
-    text-shadow: 1px 2px 2px chocolate;
-    background-color: darkgoldenrod;
-    
-  }
-
-  .MiPiace{
-    position:absolute;
-    transform: translate(-350%, 420%);
-    width:100px;
-    height: 50px;
-    background-color: gray;
-    border-color: whitesmoke;
-    border-radius: 20px;
-  }
-
-  .Commenta{
-    position:absolute;
-    transform: translate(-125%, 420%);
-    width:100px;
-    height: 50px;
-    background-color: gray;
-    border-color: whitesmoke;
-    border-radius: 20px;
-  }
-
-  .NavigazioneRapida{
-    background-color: darkgoldenrod;
-    text-shadow: 1px 2px 2px chocolate;
-    color: black;
-    border-block-end: solid;
-    width: 100%;
-    height:30px;
-    display: inline-flex;
-    gap: 250px;
-    margin-top: -10px;
-    text-align: center;
-    overflow-x: hidden;
-    overflow-y: hidden;
-    white-space: nowrap;
-  }
-
-  .Foto{
-    width:380px;
-    height:260px;
-    border: 3px solid;
-    border-color: black;
-    box-shadow: 10px 10px;
-  }
-
-  .ListaFoto{
-    display: flex;
-    flex-wrap: wrap;
-  }
-
-  .ListaFoto, li{
-    list-style: none;
-    cursor:pointer;
-    float:left;
-    align-items: center;
-  }
-</style>
-
 <script>
 export default{
   data(){
@@ -110,6 +11,86 @@ export default{
                   {link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
                   {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'}]
     }
+  },
+  methods:{
+    stampa(){console.log("Simone");}
   }
 }
 </script>
+
+<template>
+  <body>
+    <section>
+      <header class="intestazione">
+        <h1 class = "benvenuto">Bentornato {{this.username}}</h1>
+      </header>
+    </section>
+
+    <br>
+    <section>
+      <ul class = fotoDisplayer v-for = "foto in this.immagini">
+        <div class = fotoContainer>
+          <img class = immagine :src= foto.link @click=stampa>
+          <button class = like>Mi piace</button>
+          <button class = commento>Commenti</button>
+        </div>  
+      </ul>
+    </section>
+  </body>
+</template>
+
+<style>
+  .intestazione{
+    position:absolute;
+    flex: 1;
+    width:100%;
+    top: 0%;
+    left:0%;
+    background-color: orange;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+
+    font-size:20px;
+    text-align: center;
+    color:white;  
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;
+  
+  }
+  
+  .fotoContainer{
+    border: 1px;
+    border-color: black;
+
+    padding-top: 40px;
+  }
+
+  .immagine {
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .like{
+    position: relative;
+    width: 30%;
+    transform: translate(20%, -140%);
+
+    text-align:center;
+    border-radius: 1px;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    cursor: pointer;
+  }
+
+  .commento{
+    position: relative;
+    width: 30%;
+    transform: translate(110%, -140%);
+
+    text-align:center;
+    border-radius: 1px;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    cursor: pointer;
+  }
+</style>
+
