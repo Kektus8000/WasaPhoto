@@ -13,84 +13,64 @@ export default{
     }
   },
   methods:{
-    stampa(){console.log("Simone");}
+    
   }
 }
 </script>
 
 <template>
   <body>
-    <section>
-      <header class="intestazione">
-        <h1 class = "benvenuto">Bentornato {{this.username}}</h1>
-      </header>
-    </section>
+    <nav class = navigazione>
+      <h1 class = introduzione>Benvenuto {{this.username}}</h1>
+      <hr>
+      <div class = opzioni>
+        <RouterLink :to = " '/userProfile/' + '{{this.username}}' + '/following/'">
+          <h3>Seguiti</h3>
+        </RouterLink>
+        <h3>Followers</h3>
+      </div>
+     </nav>
 
-    <br>
-    <section>
-      <ul class = fotoDisplayer v-for = "foto in this.immagini">
-        <div class = fotoContainer>
-          <img class = immagine :src= foto.link @click=stampa>
-          <button class = like>Mi piace</button>
-          <button class = commento>Commenti</button>
-        </div>  
-      </ul>
-    </section>
+
+    <main class= schermata>
+      <ul class=fotoPubblicate v-for = "foto in this.immagini">
+        <img class = foto :src = foto.link>
+       </ul>
+    </main>
   </body>
+
 </template>
 
 <style>
-  .intestazione{
-    position:absolute;
-    flex: 1;
-    width:100%;
-    top: 0%;
+  body{
+    display:flex;
+  }
+
+  .navigazione{
+    position: fixed;
     left:0%;
+    top:0%;
+
+    width: 225px;
+    height: 100%;
+
     background-color: orange;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-
-    font-size:20px;
-    text-align: center;
-    color:white;  
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    -webkit-text-stroke-width: 1px;
-    -webkit-text-stroke-color: black;
-  
-  }
-  
-  .fotoContainer{
-    border: 1px;
-    border-color: black;
-
-    padding-top: 40px;
   }
 
-  .immagine {
+  hr{color: black;}
+
+  .opzioni{
+    padding-left: 5px;
+    text-align: left;
     cursor: pointer;
+  }
+
+  .fotoPubblicate{
     width: 100%;
+    border-bottom: 3px solid black;
   }
 
-  .like{
-    position: relative;
-    width: 30%;
-    transform: translate(20%, -140%);
-
-    text-align:center;
-    border-radius: 1px;
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    cursor: pointer;
-  }
-
-  .commento{
-    position: relative;
-    width: 30%;
-    transform: translate(110%, -140%);
-
-    text-align:center;
-    border-radius: 1px;
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    cursor: pointer;
+  .foto{
+    width: 50%;
   }
 </style>
-
