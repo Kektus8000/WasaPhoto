@@ -26,7 +26,7 @@ export default{
 <template>
   <body>
     <header class=intestazione>
-      <RouterLink :to = " '/userProfile/' + '{{this.username}}' + '/stream/'">
+      <RouterLink :to = "'/session'">
         <h4 class=home>Torna alla HomePage</h4>
       </RouterLink>
       <img class = icona src = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Alonso_2016.jpg/640px-Alonso_2016.jpg">  

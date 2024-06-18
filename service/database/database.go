@@ -83,9 +83,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 	if errors.Is(err, sql.ErrNoRows) {
 		_, err1 := db.Exec(`CREATE TABLE IF NOT EXISTS User (
-			userID INTEGER NOT NULL AUTOINCREMENT,
-			username TEXT NOT NULL,
-			PRIMARY KEY (userID)
+			userID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			username TEXT NOT NULL
 			);`)
 		if err1 != nil {
 			return nil, errors.New("An error has occurred while building User table")
@@ -93,9 +92,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 		_, err2 := db.Exec(`CREATE TABLE IF NOT EXISTS Photo (
 			file TEXT NOT NULL,
-			photoID INTEGER NOT NULL AUTOINCREMENT,
+			photoID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 			publisherID INTEGER NOT NULL,
-			PRIMARY KEY (photoID),
 			publicationDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 			FOREIGN KEY(publisherID) references User (userID)
 			);`)
@@ -128,11 +126,10 @@ func New(db *sql.DB) (AppDatabase, error) {
 			return nil, errors.New("An error has occurred while building the Following table")
 		}
 		_, err5 := db.Exec(`CREATE TABLE IF NOT EXISTS Comment (
-			commentID INTEGER NOT NULL AUTOINCREMENT,
+			commentID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 			comment TEXT NOT NULL, 
 			publisherID INTEGER NOT NULL,
 			photoID INTEGER NOT NULL,
-			PRIMARY KEY (commentID),
 			FOREIGN KEY(publisherID) references User(userID),
 			FOREIGN KEY(photoID) references Photo(photoID)
 			);`)

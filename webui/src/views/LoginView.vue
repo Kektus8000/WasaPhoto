@@ -14,7 +14,7 @@ export default{
             var profilo = response.data;
             localStorage.setItem('identifier', profilo.UserID);
             localStorage.setItem('username', profilo.Username);
-            this.$router.replace('/userProfile/:userID');
+            this.$router.replace('/session');
         }
         catch(e)
         {
