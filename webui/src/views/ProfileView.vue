@@ -1,118 +1,103 @@
-<template>
-  <div class = "Titolo">
-      <h1 class="Profilo"> Profilo di {{this.username}} </h1>
-  </div>
-
-  <nav class ="BarraLaterale">
-    <ul class = "listaOpzioni">
-      <li class="home">
-        <a>
-          <h3>Home Page</h3>
-        </a>
-      </li>
-      <li>
-        <a>
-          <h3>Seguiti : {{this.seguiti}}</h3>
-        </a>
-      </li>
-      <li>
-        <a>
-          <h3>Followers : {{this.followers}}</h3>
-        </a>
-      </li>
-      <li>
-        <button @click = "ottieniProfilo"> Test </button>
-      </li>
-    </ul>
-  </nav>
-
-  <main class = "SchermataPrincipale">
-    <div class = "FotoPubblicate">
-      <ul v-for="foto in immagini">
-        <li>
-            <img class= "Foto" :src = foto.link>
-        </li>
-      </ul>
-      
-    </div>
-    <button class = "conferma" 
-      :disabled= "username.length > 16 || username.length < 3"
-      @click = "ottieniProfilo"> Test </button>
-  </main>
-</template>
-
 <script>
 export default{
   data(){
     return{
-      seguiti: -1,
-      followers: this.ottieniProfilo(),
-      ID: localStorage.getItem('identifier'),
-      username: localStorage.getItem('username'),
-      immagini: [{link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
-                  {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'},
-                  {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
-                  {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
-                  {link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
-                  {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'}]
+      username: "Simone",
+      seguiti: [{link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
+                {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'},
+                {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
+                {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
+                {link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
+                {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'},
+                {link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
+                {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'},
+                {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
+                {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
+                {link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
+                {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'}]
     }
   },
   methods:{
-    async ottieniProfilo(){
-      let response = await this.$axios.get("/userProfile/"+this.$router.params.ID,
-        { headers: {'Authorization': 'Bearer ' + this.ID}});
-      alert(response);
-    }
+    stampa(){console.log("Simone");}
   }
 }
 </script>
 
+<template>
+  <body>
+    <header class=intestazione>
+      <RouterLink :to = " '/userProfile/' + '{{this.username}}' + '/stream/'">
+        <h4 class=home>Torna alla HomePage</h4>
+      </RouterLink>
+      <img class = icona src = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Alonso_2016.jpg/640px-Alonso_2016.jpg">  
+      <h1 class = nome>Profilo di {{this.username}}</h1>
+      <div class=statistiche>
+        <h4>Followers: 0</h4>
+        <h4>Seguiti: 0</h4>
+      </div>
+    </header>
+
+    <div class = riga>
+      <template class = listaFollowers v-for = "utente in this.seguiti">
+        <div class = colonna>
+          <img class = foto :src = utente.link alt="foto">
+        </div>
+      </template>
+    </div>
+  </body>
+</template>
+
 <style>
-  .BarraLaterale{
-    position:fixed;
-    padding-top: 10px;
-    top:0;
-    background-color:chocolate;
-    height:100%;
-    width:160px;
-    border-right:1px solid black;
-    overflow-x: hidden;
-  }
-
-  .Titolo{
-    background-color:chocolate;
-    text-align: center;
+  body{
+    margin: 0;
+    margin-right: 0;
     width:100%;
-    border-bottom: 1px solid black;
-    padding-left: 100px;
-    top:0;
-    position: absolute;
+
+    background-color: whitesmoke;
   }
 
-  .Foto{
+  .intestazione{
+    width:100%;
+    display: flex;
+    align-items: center;
+    justify-content:space-between;
     cursor: pointer;
-    box-shadow: 10px 10px;
-    width: 260px;
-    height: 260px;
+    height:100px;
+
+    background-color:brown;
+    text-align: left;
+
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+    border-bottom: 3px solid black;
   }
 
-  .FotoPubblicate{
-    padding-top: 100px;
-    padding-left: 200px;
+  .nome{
+    float: left;
+  }
+  .riga{
     display: flex;
     flex-wrap: wrap;
-    flex: 0 0 33.33333%;
-    gap: 10px;
-    margin: 0px;
   }
 
-  .listaOpzioni{
-    padding-left: 10px;
-    padding-top: 50px;
+  .colonna{
+    flex: 1 0 30%;
+    padding: 5px;
   }
 
-  ul {
-    list-style: none;
+  .foto{
+    width: 100%;
+    height:100%;
+    border-radius: 10px;;
+  }
+
+  .icona{
+    border-radius: 50%;
+    border-style: solid;
+    border-color: rgba(0,0,0,0.5);
+
+    width:90px;
+    height:90px;
   }
 
 </style>

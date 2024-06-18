@@ -47,27 +47,22 @@ func (rt *_router) DoLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			http.Error(w, "An error has occurred while adding the user to the user list", 500)
 			return
 		}
-
 		user.UserID = ID
-		errEncode := encoder.Encode(user)
-		if errEncode != nil {
-			http.Error(w, "An error has occurred while encoding the user infos", 500)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-
+		w.WriteHeader(http.StatusCreated)
 	} else if exist {
-		user, errQuery := rt.db.GetUserByUsername(username)
+		found, errQuery := rt.db.GetUserByUsername(username)
 		if errQuery != nil {
 			http.Error(w, "An error has occurred during a query in the database", 500)
 			return
 		}
-
-		errEncode := encoder.Encode(user)
-		if errEncode != nil {
-			http.Error(w, "An error has occurred while encoding the user infos", 500)
-			return
-		}
-		w.WriteHeader(http.StatusCreated)
+		user.UserID = found.UserID
+		user.Username = found.Username
 	}
+
+	errEncode := encoder.Encode(user)
+	if errEncode != nil {
+		http.Error(w, "An error has occurred while encoding the user infos", 500)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }

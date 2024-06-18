@@ -19,7 +19,7 @@ export default{
     }
   },
   methods:{
-    
+    stampa(){console.log("Simone");}
   }
 }
 </script>
@@ -29,20 +29,17 @@ export default{
     <header class=intestazione>
       <h1>Account Seguiti</h1>
     </header>
-  
-    <template class = listaFollowers v-for = "utente in this.seguiti">
-      <div class = follower>
-        <span class = info>
+
+    <div class = riga>
+      <template class = listaFollowers v-for = "utente in this.seguiti">
+        <div class = follower>
           <img class = icona :src = utente.link alt="avatar di {{utente.nome}}">
           <h2>{{utente.nome}}</h2>
-        </span>
-        <span class = opzioni>
-          <h4>Vai al Profilo</h4>
-          <h4 class = blocca>Blocca</h4>
-          <div class=vl></div>
-        </span>
-      </div>
-    </template>
+          <button width = "15%">Vai al Profilo</button>
+          <button class = blocca style = "color:red"  @click = stampa>Blocca</button>
+        </div>
+      </template>
+    </div>
   </body>
 </template>
 
@@ -51,44 +48,37 @@ export default{
     margin: 0;
     margin-right: 0;
     width:100%;
-    margin-top: 0;
 
+    display: inline-block;
     background-color: whitesmoke;
   }
+
   .intestazione{
     width:100%;
     height:100px;
-
 
     background-color: cadetblue;
     text-align: center;
   }
 
+  .riga{
+    display: flex;
+    flex-wrap: wrap;
+  }
+
   .follower{
-    max-width:25%;
-    align-items: center;
+    flex: 1 0 33.33%;
     text-align: center;
-    display: inline-block;
-    justify-content: space-evenly;
     border: 2px solid black;
   }
 
   .icona{
-    /* Bordo dell'icona */
     border-radius: 50%;
     border-style: solid;
     border-color: rgba(0,0,0,0.5);
 
-    /* Posizione e allineamento*/
-    width:100px;
-    height:100px;
-  }
-  
-  h4{
-    cursor: pointer;
+    width:95px;
+    height:95px;
   }
 
-  .blocca{
-    color: red;
-  }
 </style>

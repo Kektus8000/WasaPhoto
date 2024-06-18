@@ -24,6 +24,10 @@ export default{
       <h1 class = introduzione>Benvenuto {{this.username}}</h1>
       <hr>
       <div class = opzioni>
+        <RouterLink :to = "'/userProfile/' + '{{this.username}}'">
+          <h3>Profilo</h3>
+        </RouterLink>
+          
         <RouterLink :to = " '/userProfile/' + '{{this.username}}' + '/following/'">
           <h3>Seguiti</h3>
         </RouterLink>

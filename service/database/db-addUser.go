@@ -2,7 +2,7 @@ package database
 
 func (db *appdbimpl) AddUser(username string) (int, error) {
 
-	update, errQuery := db.c.Exec("INSERT INTO User(Username) VALUES (?)", username)
+	update, errQuery := db.c.Exec("INSERT INTO User(username) VALUES (?)", username)
 	if errQuery != nil {
 		return -1, errQuery
 	}

@@ -8,8 +8,8 @@ func (db *appdbimpl) GetStream(userID int) ([]int, []int, error) {
 	var IDs []int
 	rows, errQuery := db.c.Query(` SELECT pht.publisherID, pht.photoID FROM Photo pht, User us, Following fl
 	WHERE pht.publisherID = fl.followerID
-	AND fl.followingID = us.UserID
-	AND us.UserID = ?
+	AND fl.followingID = us.userID
+	AND us.userID = ?
     ORDER BY pht.publicationDate?;`, userID)
 	if errQuery != nil {
 		return nil, nil, errQuery

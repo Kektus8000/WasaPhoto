@@ -3,7 +3,6 @@ package database
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 )
 
 type User struct {
@@ -84,8 +83,9 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 	if errors.Is(err, sql.ErrNoRows) {
 		_, err1 := db.Exec(`CREATE TABLE IF NOT EXISTS User (
-			UserID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-			Username TEXT NOT NULL
+			userID INTEGER NOT NULL AUTOINCREMENT,
+			username TEXT NOT NULL,
+			PRIMARY KEY (userID)
 			);`)
 		if err1 != nil {
 			return nil, errors.New("An error has occurred while building User table")
@@ -93,8 +93,9 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 		_, err2 := db.Exec(`CREATE TABLE IF NOT EXISTS Photo (
 			file TEXT NOT NULL,
-			photoID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			photoID INTEGER NOT NULL AUTOINCREMENT,
 			publisherID INTEGER NOT NULL,
+			PRIMARY KEY (photoID),
 			publicationDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 			FOREIGN KEY(publisherID) references User (userID)
 			);`)
@@ -104,19 +105,21 @@ func New(db *sql.DB) (AppDatabase, error) {
 		}
 
 		_, err3 := db.Exec(`CREATE TABLE IF NOT EXISTS Banned (
-			bannerID INTEGER NOT NULL PRIMARY KEY,
-			bannedID INTEGER NOT NULL KEY,
+			bannerID INTEGER NOT NULL,
+			bannedID INTEGER NOT NULL,
+			PRIMARY KEY (bannerID, bannedID),
 			FOREIGN KEY(bannerID) references User(userID),
 			FOREIGN KEY(bannedID) references User(userID)
 			);`)
 
 		if err3 != nil {
-			return nil, fmt.Errorf("An error has occurred while building the Banned table: %w", err)
+			return nil, errors.New("An error has occurred while building the Banned table")
 		}
 
 		_, err4 := db.Exec(`CREATE TABLE IF NOT EXISTS Following (
-			followerID INTEGER NOT NULL PRIMARY KEY,
-			followingID INTEGER NOT NULL KEY,
+			followerID INTEGER NOT NULL,
+			followingID INTEGER NOT NULL,
+			PRIMARY KEY (followerID, followingID)
 			FOREIGN KEY(followerID) references User(userID),
 			FOREIGN KEY(followingID) references User(userID)
 			);`)
@@ -125,10 +128,11 @@ func New(db *sql.DB) (AppDatabase, error) {
 			return nil, errors.New("An error has occurred while building the Following table")
 		}
 		_, err5 := db.Exec(`CREATE TABLE IF NOT EXISTS Comment (
-			commentID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			commentID INTEGER NOT NULL AUTOINCREMENT,
 			comment TEXT NOT NULL, 
 			publisherID INTEGER NOT NULL,
-			photoID INTEGER NOT NULL KEY,
+			photoID INTEGER NOT NULL,
+			PRIMARY KEY (commentID),
 			FOREIGN KEY(publisherID) references User(userID),
 			FOREIGN KEY(photoID) references Photo(photoID)
 			);`)
@@ -139,6 +143,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 		_, err6 := db.Exec(`CREATE TABLE IF NOT EXISTS Like (
 			likedPhotoID INTEGER NOT NULL,
 			likerUserID INTEGER NOT NULL,
+			PRIMARY KEY (likedPhotoID, likerUserID),
 			FOREIGN KEY(likePhotoID) references Photo(photoID)
 			FOREIGN KEY(likerUserID) references User(userID)
 			);`)
