@@ -64,5 +64,4 @@ func (rt *_router) DoLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		http.Error(w, "An error has occurred while encoding the user infos", 500)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 }

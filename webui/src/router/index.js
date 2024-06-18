@@ -1,6 +1,6 @@
 import {createRouter, createWebHashHistory} from 'vue-router'
 import LoginView from '../views/LoginView.vue'
-import HomeView from '../views/HomePage2.vue'
+import HomeView from '../views/HomeView.vue'
 import FollowerView from '../views/FollowerView.vue'
 import ProfileView from '../views/ProfileView.vue'
 

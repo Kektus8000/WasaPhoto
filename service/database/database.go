@@ -83,7 +83,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 	if errors.Is(err, sql.ErrNoRows) {
 		_, err1 := db.Exec(`CREATE TABLE IF NOT EXISTS User (
-			userID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			userID INTEGER PRIMARY KEY AUTOINCREMENT,
 			username TEXT NOT NULL
 			);`)
 		if err1 != nil {
@@ -92,7 +92,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 		_, err2 := db.Exec(`CREATE TABLE IF NOT EXISTS Photo (
 			file TEXT NOT NULL,
-			photoID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			photoID INTEGER PRIMARY KEY AUTOINCREMENT,
 			publisherID INTEGER NOT NULL,
 			publicationDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 			FOREIGN KEY(publisherID) references User (userID)
@@ -117,7 +117,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 		_, err4 := db.Exec(`CREATE TABLE IF NOT EXISTS Following (
 			followerID INTEGER NOT NULL,
 			followingID INTEGER NOT NULL,
-			PRIMARY KEY (followerID, followingID)
+			PRIMARY KEY (followerID, followingID),
 			FOREIGN KEY(followerID) references User(userID),
 			FOREIGN KEY(followingID) references User(userID)
 			);`)
@@ -126,7 +126,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 			return nil, errors.New("An error has occurred while building the Following table")
 		}
 		_, err5 := db.Exec(`CREATE TABLE IF NOT EXISTS Comment (
-			commentID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			commentID INTEGER PRIMARY KEY AUTOINCREMENT,
 			comment TEXT NOT NULL, 
 			publisherID INTEGER NOT NULL,
 			photoID INTEGER NOT NULL,
@@ -141,7 +141,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 			likedPhotoID INTEGER NOT NULL,
 			likerUserID INTEGER NOT NULL,
 			PRIMARY KEY (likedPhotoID, likerUserID),
-			FOREIGN KEY(likePhotoID) references Photo(photoID)
+			FOREIGN KEY(likePhotoID) references Photo(photoID),
 			FOREIGN KEY(likerUserID) references User(userID)
 			);`)
 		if err6 != nil {
