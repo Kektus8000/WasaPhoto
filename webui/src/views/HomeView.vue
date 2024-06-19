@@ -38,7 +38,7 @@ export default{
     <div class= contenuto>
       <template class=fotoPubblicate v-for = "foto in this.immagini">
         <div class = pubblicazione>
-          <img class = foto width = 50% :src = foto.link>
+          <img class = foto :src = foto.link>
           <div class = sezioneCommenti>
             <div v-for = "commento in this.commenti">
               <div class = commento>
@@ -66,7 +66,7 @@ export default{
     left:0%;
     top:0%;
 
-    width: 225px;
+    width: 250px;
     height: 100%;
     text-align: center;
 
@@ -75,20 +75,20 @@ export default{
   }
 
   .contenuto{
-    padding-left:225px;
+    padding-left:500px;
   }
-  
 
   .pubblicazione{
-    height:250px;;
-    width:100%;
+    height:400px;
+    width:80%;
     display: flex;
-    border-bottom: 3px solid black;
+    margin-bottom: 50px;
+    border: 1px solid black;
   }
 
   .sezioneCommenti{
     padding-left: 5px;
-    width:50%;
+    width:60%;
     display:inline;
     flex-wrap: wrap;
     overflow-y:scroll;

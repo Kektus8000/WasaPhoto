@@ -141,7 +141,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 			likedPhotoID INTEGER NOT NULL,
 			likerUserID INTEGER NOT NULL,
 			PRIMARY KEY (likedPhotoID, likerUserID),
-			FOREIGN KEY(likePhotoID) references Photo(photoID),
+			FOREIGN KEY(likedPhotoID) references Photo(photoID),
 			FOREIGN KEY(likerUserID) references User(userID)
 			);`)
 		if err6 != nil {
