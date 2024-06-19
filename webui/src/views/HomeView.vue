@@ -9,7 +9,7 @@ export default{
                   {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
                   {link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
                   {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'}],
-      commenti: ["Simoneeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "The Best", "Ansh", "Gayest", "No", "Gay"]
+      commenti: ["Nice", "The Best", "Ansh", "Buio", "No", "Ottimo"]
     }
   },
   methods:{
@@ -40,16 +40,19 @@ export default{
         <div class = pubblicazione>
           <div class = foto>
             <div class = infoUser>
-              <img class = icona :src = foto.link>
-              <h5>{{this.username}}</h5>
+              <img class = miniPic width = 40 :src = foto.link>
+              <h4 style = "padding-top: 5px; padding-left: 5px;">{{this.username}}</h4>
             </div>
             <img class = immagine :src = foto.link>
           </div>
           <div class = sezioneCommenti>
             <div v-for = "commento in this.commenti">
               <div class = commento>
-                <h5 style = "font-family: italic;">{{this.username}}</h5>
-                <h3>{{commento}}</h3>
+                <div class = commentatore>
+                  <img class = miniPic width = 30 height = 30 :src = foto.link>
+                  <h5 style = "padding-top: 5px; padding-left: 5px;">{{this.username}}</h5>
+                </div>
+                <h4 style = "font-family: italic;">{{commento}}</h4>
               </div>
             </div>
           </div>
@@ -90,40 +93,40 @@ export default{
     width:80%;
     display: flex;
     margin-bottom: 50px;
-    border: 1px solid black;
-  }
-
-  .sezioneCommenti{
-    padding-left: 5px;
-    width:60%;
-    display:inline;
-    flex-wrap: wrap;
-    overflow-y:scroll;
-  }
-
-  .commento{
-    border: 1px solid black;
-    word-wrap:break-word;
   }
 
   .infoUser{
-    height: 10%;
+    height: 40px;
     display:flex;
   }
 
+  .miniPic{
+    border-radius: 50%;
+    border-style: solid;
+    border-color: rgba(0,0,0,0.5);
+  }
+  
   .immagine{
     width:100%;
     height:90%;
   }
 
-  .icona{
-    flex: 0.25;
-    border-radius: 50%;
-    border-style: solid;
-    border-color: rgba(0,0,0,0.5);
+  .sezioneCommenti{
+    top:40px;
+    width:65%;
+    display:inline;
+    flex-wrap: wrap;
+    overflow-y:scroll;
+  }
 
-    width:10px;
-    height:10px;
+  .commentatore{
+    display: flex;
+    text-align: center;
+  }
+
+  .commento{
+    border: 1px solid black;
+    word-wrap:break-word;
   }
 
 </style>
