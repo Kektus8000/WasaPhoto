@@ -34,7 +34,7 @@ func (rt *_router) GetMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 	for i := 0; i < len(photoIDs); i++ {
 		photo := photoIDs[i]
 		publisher := publisherIDs[i]
-		file := "main/userProfile/" + strconv.Itoa(publisher) + "/publishedPhotos/" + strconv.Itoa(photo)
+		file := "./userProfile/" + strconv.Itoa(publisher) + "/publishedPhotos/" + strconv.Itoa(photo)
 		photos = append(photos, file)
 	}
 

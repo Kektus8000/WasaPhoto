@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"io/fs"
 	"net/http"
 	"os"
 	"strconv"
@@ -36,13 +35,13 @@ func (rt *_router) DoLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			return
 		}
 
-		errDir := os.MkdirAll("/main/user/", fs.FileMode(os.O_RDWR))
+		errDir := os.Mkdir("user", os.ModePerm)
 		if errDir != nil {
 			http.Error(w, "An error has occurred while adding the user to the user list", 500)
 			return
 		}
 
-		errOS := os.WriteFile("/main/user/"+username+strconv.Itoa(ID), nil, fs.FileMode(os.O_RDWR))
+		errOS := os.WriteFile("./user/"+username+strconv.Itoa(ID), nil, os.ModePerm)
 		if errOS != nil {
 			http.Error(w, "An error has occurred while adding the user to the user list", 500)
 			return

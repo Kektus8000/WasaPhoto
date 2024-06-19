@@ -42,7 +42,7 @@ func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, "An error has occurred while uploading the photo", 400)
 		return
 	}
-	path, errOS := os.Create("main/userProfile/" + strconv.Itoa(userID) + "/publishedPhotos/" + strconv.Itoa(photoID))
+	path, errOS := os.Create("./userProfile/" + strconv.Itoa(userID) + "/publishedPhotos/" + strconv.Itoa(photoID))
 	if errOS != nil {
 		http.Error(w, "An error has occurred while uploading the photo", 400)
 		return
