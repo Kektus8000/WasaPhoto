@@ -21,7 +21,7 @@ export default{
 <template>
   <body>
     <div class = barraLaterale>
-      <h1 class = introduzione>Benvenuto {{this.username}}</h1>
+      <h2 class = introduzione>Benvenuto {{this.username}}</h2>
       <nav class = navigazione>
         <div class = opzioni style = "cursor: pointer">
           <RouterLink :to = "'/userProfile/' + this.username" style="text-decoration: none; color: inherit;">
@@ -38,7 +38,13 @@ export default{
     <div class= contenuto>
       <template class=fotoPubblicate v-for = "foto in this.immagini">
         <div class = pubblicazione>
-          <img class = foto :src = foto.link>
+          <div class = foto>
+            <div class = infoUser>
+              <img class = icona :src = foto.link>
+              <h5>{{this.username}}</h5>
+            </div>
+            <img class = immagine :src = foto.link>
+          </div>
           <div class = sezioneCommenti>
             <div v-for = "commento in this.commenti">
               <div class = commento>
@@ -58,7 +64,7 @@ export default{
 <style>
   .introduzione{
     border-bottom: 5px solid black;
-    text-wrap:wrap;
+    word-wrap:break-word;
   }
 
   .barraLaterale{
@@ -66,7 +72,7 @@ export default{
     left:0%;
     top:0%;
 
-    width: 250px;
+    width: 15%;
     height: 100%;
     text-align: center;
 
@@ -75,7 +81,8 @@ export default{
   }
 
   .contenuto{
-    padding-left:500px;
+    padding-left: 25%;
+    width:100%;
   }
 
   .pubblicazione{
@@ -97,6 +104,26 @@ export default{
   .commento{
     border: 1px solid black;
     word-wrap:break-word;
+  }
+
+  .infoUser{
+    height: 10%;
+    display:flex;
+  }
+
+  .immagine{
+    width:100%;
+    height:90%;
+  }
+
+  .icona{
+    flex: 0.25;
+    border-radius: 50%;
+    border-style: solid;
+    border-color: rgba(0,0,0,0.5);
+
+    width:10px;
+    height:10px;
   }
 
 </style>

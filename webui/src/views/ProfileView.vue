@@ -2,7 +2,7 @@
 export default{
   data(){
     return{
-      username: "Simone",
+      username: localStorage.getItem('username'),
       seguiti: [{link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
                 {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'},
                 {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
@@ -96,8 +96,7 @@ export default{
     border-style: solid;
     border-color: rgba(0,0,0,0.5);
 
-    width:90px;
-    height:90px;
+    width:50px;
   }
 
 </style>

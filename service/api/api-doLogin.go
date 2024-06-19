@@ -3,8 +3,6 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"os"
-	"strconv"
 
 	"github.com/Kektus8000/WasaPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
@@ -34,18 +32,6 @@ func (rt *_router) DoLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			http.Error(w, "An error has occurred during a query in the database", 500)
 			return
 		}
-
-		errDir := os.Mkdir("user", os.ModePerm)
-		if errDir != nil {
-			http.Error(w, "An error has occurred while adding the user to the user list", 500)
-			return
-		}
-
-		errOS := os.WriteFile("./user/"+username+strconv.Itoa(ID), nil, os.ModePerm)
-		if errOS != nil {
-			http.Error(w, "An error has occurred while adding the user to the user list", 500)
-			return
-		}
 		user.UserID = ID
 		w.WriteHeader(http.StatusCreated)
 	} else if exist {
@@ -56,6 +42,7 @@ func (rt *_router) DoLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		}
 		user.UserID = found.UserID
 		user.Username = found.Username
+		w.WriteHeader(http.StatusFound)
 	}
 
 	errEncode := encoder.Encode(user)
