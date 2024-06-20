@@ -2,6 +2,7 @@
 export default{
   data(){
     return{
+      identifier: localStorage.getItem('identifier'),
       username: localStorage.getItem('username'),
       immagini: [{link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
                   {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'},
@@ -9,11 +10,40 @@ export default{
                   {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
                   {link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
                   {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'}],
-      commenti: ["Nice", "The Best", "Ansh", "Buio", "No", "Ottimo"]
+      commenti: ["Nice", "The Best", "Mille", "Buio", "No", "Ottimo"]
     }
   },
   methods:{
-    
+    async visitaPropriaPagina(){
+      var profilo = {
+        ID : 0,
+        nome : "",
+        seguiti : [],
+        seguaci : [],
+        bannati : [],
+        fotoPubblicate : []
+      }
+      try{
+            let response = await this.$axios.post("/userProfile/" + this.identifier,{userID: this.identifier, checkID: this.identifier},
+              {headers: {Authorization: "Bearer " + this.identifier}});
+
+            var risultato = response.data;
+            profilo.ID = risultato.user.userID;
+            profilo.nome = risultato.user.username;
+            profilo.bannati = risultato.banneds;
+            profilo.seguaci = risultato.followers;
+            profilo.seguiti = risultato.followings;
+            profilo.fotoPubblicate = risultato.photos;
+            
+            localStorage.setItem('profiloRicercato', profilo);
+            this.$router.replace("/userProfile/" + profilo.nome);
+        }
+        catch(e)
+        {
+            this.errormsg = e.toString();
+            alert(this.errormsg);
+        }
+    }
   }
 }
 </script>
@@ -24,7 +54,7 @@ export default{
       <h2 class = introduzione>Benvenuto {{this.username}}</h2>
       <nav class = navigazione>
         <div class = opzioni style = "cursor: pointer">
-          <RouterLink :to = "'/userProfile/' + this.username" style="text-decoration: none; color: inherit;">
+          <RouterLink :to = "'/userProfile/' + this.username" style="text-decoration: none; color: inherit;" @click = "visitaPropriaPagina">
             <h3>Vai al tuo Profilo</h3>
           </RouterLink>
           

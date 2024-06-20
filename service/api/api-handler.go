@@ -11,10 +11,13 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.POST("/session", rt.wrap(rt.DoLogin))
 
 	// Call the function that handle the User Research
-	rt.router.GET("/userProfile/:userID", rt.wrap(rt.GetUserProfile))
+	rt.router.GET("/user/", rt.wrap(rt.SearchUser))
 
 	//Call the function that handle the Set Username
 	rt.router.POST("/user/:userID/username", rt.wrap(rt.SetMyUsername))
+
+	// Call the function that handle the User Research
+	rt.router.GET("/userProfile/:userID", rt.wrap(rt.GetUserProfile))
 
 	//Call the function that handle the followUser
 	rt.router.POST("/userProfile/:userID/following/", rt.wrap(rt.FollowUser))

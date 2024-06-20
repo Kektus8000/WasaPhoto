@@ -3,7 +3,7 @@ info:
   title: WasaPhoto 2023/2024
   description: |
     Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! You can upload your photos directly from your PC, and they will be visible to everyone following you
-  version: "9"
+  version: "12"
 
 components:
   schemas:
@@ -142,12 +142,7 @@ paths:
                     maxLength: 16
           required: true
       responses:
-        '201':
-          description: User wasn't in the system, so a new user has been created
-          content:
-            application/json:
-              schema: {$ref: "#/components/schemas/user"}
-        '202':
+        '200':
           description: User log-in action successful
           content:
             application/json:
@@ -155,7 +150,38 @@ paths:
                 description: The userID 
                 type: integer
                 example: 101293
+        '201':
+          description: User wasn't in the system, so a new user has been created
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/user"}
 
+  /user/:
+    parameters:
+    - name: searchName
+      in : path
+      required: true
+      schema:
+        description: User's username to find
+        type: string
+        example: Simone
+        pattern: '^.*?$'
+        minLength: 3
+        maxLength: 16
+    get:
+      tags: ["searchUser"]
+      summary: Get user ID by their username
+      operationId: searchUser
+      responses:
+        '200':
+          description: Found the user ID in the system
+          content:
+            schema:
+              description: User's ID
+              type: integer
+        '404':
+          description: Unable to find that user
+        
   
   /userProfile/{userID}:
     parameters:
@@ -210,7 +236,7 @@ paths:
               maxLength: 20
               example: Miriam
       responses:
-        '204':
+        '200':
           description: The username has been updated.
         '404':  
           description: The user wasn't in the system
@@ -240,7 +266,7 @@ paths:
               type: integer
               example: 123456
       responses:
-        '204':
+        '200':
           description: The user has been added to the following list
         '403':
           description: You can't add the user in you following list because you are in its banList
@@ -271,7 +297,7 @@ paths:
       description: Remove an user from your following list
       operationId: unfollowUser
       responses:
-        '204':
+        '200':
           description: The user has been removed from the following list
         '400':
           description: The user wasn't in the following list
@@ -292,7 +318,7 @@ paths:
       description: Get the user's stream by collecting the photo
       operationId: getMyStream
       responses:
-        '200':
+        '202':
           description: The stream has been collected
           content:
             image/jpeg:
@@ -318,7 +344,7 @@ paths:
           application/json:
             schema: {$ref: "#/components/schemas/user"}
       responses:
-        '204':
+        '200':
           description: The user has been added to the banList
         '400':
           description: The user was already in the banlist
@@ -347,7 +373,7 @@ paths:
       description: Remove an user from your banlist. This way, your profile can be viewed by the user.
       operationId: unbanUser
       responses:
-        '204':
+        '200':
           description: The user has been removed from the banlist.
         '404':
           description: The user wasn't in the banlist, so he can't be removed.
@@ -438,7 +464,7 @@ paths:
         description: Add a like to the photo, updating the like counter
         operationId: likePhoto
         responses:
-            '204':
+            '200':
               description: The photo has been liked.
             '403':
               description: Cannot like the photo because you've been banned by the user.
@@ -453,7 +479,7 @@ paths:
           description: Remove like from photo, decreasing the like counter.
           operationId: unlikePhoto
           responses:
-            '204':
+            '200':
               description: The like has been removed from the photo.
             '400':
               description: You didn't like the photo, so you can't unlike it
@@ -532,7 +558,7 @@ paths:
       description: Remove the comment from the collection of comments
       operationId: uncommentPhoto
       responses:
-        '204':
+        '200':
           description: The comment has been removed from the photo
         '404':
           description: The comment hasn't been found in photo's comments

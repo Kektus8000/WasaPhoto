@@ -8,7 +8,6 @@ export default{
   },
   methods:{
     async trovaUtente(){
-        console.log(this.username);
         try{
             let response = await this.$axios.post("/session",{username: this.username});
             var profilo = response.data;

@@ -31,6 +31,7 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
+	// Controlla se l'utente ricercato ha bannato l'utente richiedente
 	banned, errBan := rt.db.CheckBanned(checkID, userID)
 	if errBan != nil {
 		http.Error(w, "An error has occurred while fetching the request", 400)
@@ -46,24 +47,28 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
+	// Ritorna gli IDs di tutti gli utenti che seguono l'utente
 	followers, errFollowers := rt.db.GetFollowers(checkID)
 	if errFollowers != nil {
 		http.Error(w, "An error has occurred during a query in the database", 400)
 		return
 	}
 
+	// Ritorna gli IDs di tutti gli utenti seguiti dall'utente
 	followings, errFollowings := rt.db.GetFollowings(checkID)
 	if errFollowings != nil {
 		http.Error(w, "An error has occurred during a query in the database", 400)
 		return
 	}
 
+	// Ritorna gli IDs di tutti gli utenti bloccati dall'utente
 	banneds, errBanneds := rt.db.GetBanList(checkID)
 	if errBanneds != nil {
 		http.Error(w, "An error has occurred during a query in the database", 400)
 		return
 	}
 
+	// Ritorna gli IDs di tutte le foto pubblicate da tale utente
 	photos, errPhotos := rt.db.GetPublishedPhotos(checkID)
 	if errPhotos != nil {
 		http.Error(w, "An error has occurred during a query in the database", 400)

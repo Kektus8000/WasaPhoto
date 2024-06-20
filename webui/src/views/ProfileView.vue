@@ -2,6 +2,16 @@
 export default{
   data(){
     return{
+      errormsg: "",
+      profilo: {
+        ID : localStorage.getItem('profiloRicercato').ID,
+        nome : localStorage.getItem('profiloRicercato').nome,
+        seguiti : localStorage.getItem('profiloRicercato').seguiti,
+        seguaci : localStorage.getItem('profiloRicercato').seguaci,
+        bannati : localStorage.getItem('profiloRicercato').bannati,
+        fotoPubblicate : localStorage.getItem('profiloRicercato').fotoPubblicate
+      },
+      identifier: localStorage.getItem('identifier'),
       username: localStorage.getItem('username'),
       seguiti: [{link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
                 {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'},
@@ -16,9 +26,6 @@ export default{
                 {link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
                 {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'}]
     }
-  },
-  methods:{
-    stampa(){console.log("Simone");}
   }
 }
 </script>
@@ -30,10 +37,10 @@ export default{
         <h4 class=home>Torna alla HomePage</h4>
       </RouterLink>
       <img class = icona src = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Alonso_2016.jpg/640px-Alonso_2016.jpg">  
-      <h1 class = nome>Profilo di {{this.username}}</h1>
+      <h1 class = nome>Profilo di {{this.profilo.nome}}</h1>
       <div class=statistiche>
-        <h4>Followers: 0</h4>
-        <h4>Seguiti: 0</h4>
+        <h4>Followers: {{this.profilo.seguaci.length}}</h4>
+        <h4>Seguiti: {{this.profilo.seguiti.length}}</h4>
       </div>
     </header>
 
