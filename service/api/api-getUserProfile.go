@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"fmt"
 
 	"github.com/Kektus8000/WasaPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
@@ -18,9 +19,11 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	fmt.Println(userID) 
 
 	// Check ID dell'Utente interessato
 	checkID, errConv2 := strconv.Atoi(ps.ByName("checkID"))
+	fmt.Println(checkID)
 	if errConv2 != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

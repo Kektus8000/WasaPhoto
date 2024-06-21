@@ -3,14 +3,7 @@ export default{
   data(){
     return{
       errormsg: "",
-      profilo: {
-        ID : localStorage.getItem('profiloRicercato').ID,
-        nome : localStorage.getItem('profiloRicercato').nome,
-        seguiti : localStorage.getItem('profiloRicercato').seguiti,
-        seguaci : localStorage.getItem('profiloRicercato').seguaci,
-        bannati : localStorage.getItem('profiloRicercato').bannati,
-        fotoPubblicate : localStorage.getItem('profiloRicercato').fotoPubblicate
-      },
+      profilo: localStorage.getItem('profiloCercato'),
       identifier: localStorage.getItem('identifier'),
       username: localStorage.getItem('username'),
       seguiti: [{link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
