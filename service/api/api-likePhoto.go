@@ -12,8 +12,8 @@ func (rt *_router) LikePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	w.Header().Set("content-type", "application/json")
 
 	// Check dell'ID dell'Utente
-	userID, errConv1 := strconv.Atoi(ps.ByName("userID"))
-	if errConv1 != nil {
+	userID := Authenticate(r.Header.Get("Authorization"))
+	if userID == -1 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -22,11 +22,6 @@ func (rt *_router) LikePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	photoID, errConv2 := strconv.Atoi(ps.ByName("photoID"))
 	if errConv2 != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if !Authenticate(userID, r.Header.Get("Authorization")) {
-		http.Error(w, "Authentification went wrong", 401)
 		return
 	}
 

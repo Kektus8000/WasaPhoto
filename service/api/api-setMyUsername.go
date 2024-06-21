@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/Kektus8000/WasaPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
@@ -13,14 +12,9 @@ func (rt *_router) SetMyUsername(w http.ResponseWriter, r *http.Request, ps http
 	w.Header().Set("content-type", "application/json")
 
 	// Check ID dell'Utente
-	userID, errConv := strconv.Atoi(ps.ByName("userID"))
-	if errConv != nil {
+	userID := Authenticate(r.Header.Get("Authorization"))
+	if userID == -1 {
 		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if !Authenticate(userID, r.Header.Get("Authorization")) {
-		http.Error(w, "Authentification went wrong", 401)
 		return
 	}
 

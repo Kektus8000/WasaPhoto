@@ -13,14 +13,9 @@ func (rt *_router) GetMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 	w.Header().Set("content-type", "application/json")
 
 	// Check ID dell'Utente
-	userID, errConv := strconv.Atoi(ps.ByName("userID"))
-	if errConv != nil {
+	userID := Authenticate(r.Header.Get("Authorization"))
+	if userID == -1 {
 		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if !Authenticate(userID, r.Header.Get("Authorization")) {
-		http.Error(w, "Authentification went wrong", 401)
 		return
 	}
 

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"fmt"
 
 	"github.com/Kektus8000/WasaPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
@@ -13,24 +12,16 @@ import (
 func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
-	// Check ID dell'Utente
-	userID, errConv := strconv.Atoi(ps.ByName("userID"))
+	// Check ID dell'Utente interessato
+	checkID, errConv := strconv.Atoi(ps.ByName("checkID"))
 	if errConv != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	fmt.Println(userID) 
 
-	// Check ID dell'Utente interessato
-	checkID, errConv2 := strconv.Atoi(ps.ByName("checkID"))
-	fmt.Println(checkID)
-	if errConv2 != nil {
+	userID := Authenticate(r.Header.Get("Authorization"))
+	if userID == -1 {
 		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if !Authenticate(userID, r.Header.Get("Authorization")) {
-		http.Error(w, "Authentification went wrong", 401)
 		return
 	}
 

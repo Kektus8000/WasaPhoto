@@ -13,8 +13,8 @@ func (rt *_router) DeletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	w.Header().Set("content-type", "application/json")
 
 	// Check dell'ID dell'Utente
-	userID, errConv1 := strconv.Atoi(ps.ByName("userID"))
-	if errConv1 != nil {
+	userID := Authenticate(r.Header.Get("Authorization"))
+	if userID == -1 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -25,10 +25,7 @@ func (rt *_router) DeletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if !Authenticate(userID, r.Header.Get("Authorization")) {
-		http.Error(w, "Authentification went wrong", 401)
-		return
-	}
+
 	publisherID, errFetch := rt.db.GetPhotoPublisher(photoID)
 	if errFetch != nil || publisherID == -1 {
 		http.Error(w, "An error has occurred while fetching the user who published the photo", 404)

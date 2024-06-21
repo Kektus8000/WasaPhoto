@@ -12,8 +12,8 @@ func (rt *_router) UnlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	w.Header().Set("content-type", "application/json")
 
 	// Check dell'ID dell'Utente
-	userID, errConv1 := strconv.Atoi(ps.ByName("userID"))
-	if errConv1 != nil {
+	userID := Authenticate(r.Header.Get("Authorization"))
+	if userID == -1 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -25,10 +25,6 @@ func (rt *_router) UnlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	if !Authenticate(userID, r.Header.Get("Authorization")) {
-		http.Error(w, "Authentification went wrong", 401)
-		return
-	}
 	errUpdate := rt.db.UnlikePhoto(userID, photoID)
 	if errUpdate != nil {
 		http.Error(w, "You didn't like the photo, so you can't unlike it", 403)

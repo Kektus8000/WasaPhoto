@@ -5,14 +5,14 @@ import (
 	"strings"
 )
 
-func Authenticate(userID int, auth string) bool {
+func Authenticate(auth string) int {
 	elements := strings.Split(auth, " ")
 	if len(elements) == 2 {
 		identifier, errConv := strconv.Atoi(elements[1])
 		if errConv != nil {
-			return false
+			return -1
 		}
-		return userID == identifier
+		return identifier
 	}
-	return false
+	return -1
 }

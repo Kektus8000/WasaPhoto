@@ -14,8 +14,8 @@ func (rt *_router) FollowUser(w http.ResponseWriter, r *http.Request, ps httprou
 	w.Header().Set("content-type", "application/json")
 
 	// Check ID dell'Utente
-	userID, errConv := strconv.Atoi(ps.ByName("userID"))
-	if errConv != nil {
+	userID := Authenticate(r.Header.Get("Authorization"))
+	if userID == -1 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -24,11 +24,6 @@ func (rt *_router) FollowUser(w http.ResponseWriter, r *http.Request, ps httprou
 	toFollowID, errConv2 := strconv.Atoi(ps.ByName("toFollowID"))
 	if errConv2 != nil || userID == toFollowID {
 		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if !Authenticate(userID, r.Header.Get("Authorization")) {
-		http.Error(w, "Authentification went wrong", 401)
 		return
 	}
 

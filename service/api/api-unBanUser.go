@@ -13,8 +13,8 @@ func (rt *_router) UnBanUser(w http.ResponseWriter, r *http.Request, ps httprout
 	w.Header().Set("content-type", "application/json")
 
 	// Check ID dell'Utente
-	userID, errConv := strconv.Atoi(ps.ByName("userID"))
-	if errConv != nil {
+	userID := Authenticate(r.Header.Get("Authorization"))
+	if userID == -1 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -23,11 +23,6 @@ func (rt *_router) UnBanUser(w http.ResponseWriter, r *http.Request, ps httprout
 	bannedID, errConv2 := strconv.Atoi(ps.ByName("bannedID"))
 	if errConv2 != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if !Authenticate(userID, r.Header.Get("Authorization")) {
-		http.Error(w, "Authentification went wrong", 401)
 		return
 	}
 

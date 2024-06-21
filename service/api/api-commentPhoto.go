@@ -13,13 +13,6 @@ import (
 func (rt *_router) CommentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
-	// Check dell'ID dell'Utente
-	userID, errConv1 := strconv.Atoi(ps.ByName("userID"))
-	if errConv1 != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
 	// Check dell'ID della Foto
 	photoID, errConv2 := strconv.Atoi(ps.ByName("photoID"))
 	if errConv2 != nil {
@@ -27,8 +20,9 @@ func (rt *_router) CommentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	if !Authenticate(userID, r.Header.Get("Authorization")) {
-		http.Error(w, "Authentification went wrong", 401)
+	userID := Authenticate(r.Header.Get("Authorization"))
+	if userID == -1 {
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
