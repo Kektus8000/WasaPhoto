@@ -19,6 +19,7 @@ export default{
         {
             this.errormsg = e.toString();
             alert(this.errormsg);
+            console.log(this.errormsg);
         }
     }
   }

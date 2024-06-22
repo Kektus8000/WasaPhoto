@@ -3,42 +3,47 @@ export default{
   data(){
     return{
       errormsg: "",
-      profilo: localStorage.getItem('profiloCercato'),
-      identifier: localStorage.getItem('identifier'),
+      profilo: {
+        ID : 0,
+        nome : "",
+        seguaci: [],
+        seguiti: [],
+        bannati: [],
+        fotoPubblicate: []
+      },
       username: localStorage.getItem('username'),
-      seguiti: [{link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
-                {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'},
-                {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
-                {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
-                {link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
-                {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'},
-                {link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
-                {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'},
-                {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
-                {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
-                {link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
-                {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'}]
+      identifier: localStorage.getItem('identifier'),
     }
-  }
+  },
+  methods: {
+    async refresh(){
+      await this.recuperaInfo();
+    },
+    async recuperaInfo(){
+      this.profilo = localStorage.getItem('profiloCercato');
+      console.log(this.profilo)
+    }
+  },
+  mounted() {
+    this.recuperaInfo();
+  } 
 }
 </script>
 
 <template>
   <body>
     <header class=intestazione>
-      <RouterLink :to = "'/session'">
-        <h4 class=home>Torna alla HomePage</h4>
-      </RouterLink>
+      <h4 @click = "() => {this.$router.replace('/session');}" >Torna alla HomePage</h4>
       <img class = icona src = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Alonso_2016.jpg/640px-Alonso_2016.jpg">  
-      <h1 class = nome>Profilo di {{this.profilo.nome}}</h1>
+      <h1 style = "float:left;">Profilo di {{this.profilo.nome}}</h1>
       <div class=statistiche>
-        <h4>Followers: {{this.profilo.seguaci.length}}</h4>
-        <h4>Seguiti: {{this.profilo.seguiti.length}}</h4>
+        <h4>Followers: {{this.profilo.seguaci ? this.profilo.seguaci.length : 0}}</h4>
+        <h4>Seguiti: {{this.profilo.seguiti ? this.profilo.seguiti.length : 0}}</h4>
       </div>
     </header>
 
     <div class = riga>
-      <template class = listaFollowers v-for = "utente in this.seguiti">
+      <template class = listaFollowers v-for = "utente in this.profilo.fotoPubblicate">
         <div class = colonna>
           <img class = foto :src = utente.link alt="foto">
         </div>
@@ -72,9 +77,6 @@ export default{
     border-bottom: 3px solid black;
   }
 
-  .nome{
-    float: left;
-  }
   .riga{
     display: flex;
     flex-wrap: wrap;

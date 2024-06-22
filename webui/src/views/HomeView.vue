@@ -14,23 +14,31 @@ export default{
     }
   },
   methods:{
-    async visitaPropriaPagina(){
+    async visitaPropriaPagina(checkID){
       try{
-            let response = await this.$axios.get("/userProfile/" + this.identifier, 
-              {params: {userID: this.identifier, checkID: this.identifier},
-              headers: {Authorization: "Bearer " + this.identifier}
-              });
+            let response = await this.$axios.get('/userProfile/' + checkID
+            , 
+              {
+                headers: {Authorization: "Bearer " + this.identifier}
+              }
+            );
 
             var risultato = response.data;
-            
+
             localStorage.setItem('profiloCercato', risultato);
-            this.$router.replace("/userProfile/" + risultato.ID);
+            this.$router.replace("/userProfile/" + checkID);
         }
         catch(e)
         {
             this.errormsg = e.toString();
-            console.log(this.errormsg);
+            alert(this.errormsg);
         }
+    },
+    async logout(){
+      localStorage.removeItem('profiloCercato');
+      localStorage.removeItem('identifier');
+      localStorage.removeItem('username');
+      this.$router.replace("/");
     }
   }
 }
@@ -42,10 +50,8 @@ export default{
       <h2 class = introduzione>Benvenuto {{this.username}}</h2>
       <nav class = navigazione>
         <div class = opzioni style = "cursor: pointer">
-          <h3 @click = "visitaPropriaPagina">Vai al tuo Profilo</h3>
-          <RouterLink :to = "'/'" style="text-decoration: none; color: inherit;">
-            <h3>Logout</h3>
-          </RouterLink>
+          <h3 @click = "visitaPropriaPagina(this.identifier)">Vai al tuo Profilo</h3>
+          <h3 @click = "logout"> Logout </h3>
         </div>
       </nav>
     </div>
