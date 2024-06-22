@@ -2,8 +2,15 @@
 export default{
   data(){
     return{
-      identifier: localStorage.getItem('identifier'),
-      username: localStorage.getItem('username'),
+      errormsg: "",
+      profilo: {
+        ID : localStorage.getItem('identifier'),
+        username : localStorage.getItem('username'),
+        seguaci: [],
+        seguiti: [],
+        bannati: [],
+        fotoPubblicate: []
+      },
       immagini: [{link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
                   {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'},
                   {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
@@ -14,12 +21,15 @@ export default{
     }
   },
   methods:{
-    async visitaPropriaPagina(checkID){
+    async refresh(){
+      this.recuperaInfo();
+    },
+    async visitaProfilo(checkID){
       try{
             let response = await this.$axios.get('/userProfile/' + checkID
             , 
               {
-                headers: {Authorization: "Bearer " + this.identifier}
+                headers: {Authorization: "Bearer " + this.profilo.ID}
               }
             );
 
@@ -34,23 +44,45 @@ export default{
             alert(this.errormsg);
         }
     },
+    async recuperaInfo(){
+      try
+      {
+        let response = await this.$axios.get('/userProfile/' + this.profilo.ID
+            , 
+              {
+                headers: {Authorization: "Bearer " + this.profilo.ID}
+              }
+            );
+        localStorage.setItem('profilo', response.data);
+      }
+      catch(e)
+      {
+        this.errormsg = e.toString();
+        alert(this.errormsg);
+      }
+    },
     async logout(){
       localStorage.removeItem('profiloCercato');
       localStorage.removeItem('identifier');
       localStorage.removeItem('username');
       this.$router.replace("/");
     }
-  }
+  },
+    mounted() {
+    this.refresh()
+  } 
 }
 </script>
 
 <template>
   <body>
     <div class = barraLaterale>
-      <h2 class = introduzione>Benvenuto {{this.username}}</h2>
+      <h2 class = introduzione>Benvenuto {{this.profilo.username}}</h2>
       <nav class = navigazione>
         <div class = opzioni style = "cursor: pointer">
-          <h3 @click = "visitaPropriaPagina(this.identifier)">Vai al tuo Profilo</h3>
+          <h3 @click = "visitaProfilo(this.identifier)">Vai al tuo Profilo</h3>
+          <h3>Seguiti</h3>
+          <h3>Seguaci</h3>
           <h3 @click = "logout"> Logout </h3>
         </div>
       </nav>
