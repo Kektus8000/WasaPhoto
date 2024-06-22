@@ -3,9 +3,12 @@ export default{
   data(){
     return{
       errormsg: "",
+      ricerca: "",
+      username : localStorage.getItem('username'),
+      identifier: localStorage.getItem('identifier'),
       profilo: {
-        ID : localStorage.getItem('identifier'),
-        username : localStorage.getItem('username'),
+        ID : 0,
+        username : "",
         seguaci: [],
         seguiti: [],
         bannati: [],
@@ -29,7 +32,7 @@ export default{
             let response = await this.$axios.get('/userProfile/' + checkID
             , 
               {
-                headers: {Authorization: "Bearer " + this.profilo.ID}
+                headers: {Authorization: "Bearer " + this.identifier}
               }
             );
 
@@ -47,13 +50,14 @@ export default{
     async recuperaInfo(){
       try
       {
-        let response = await this.$axios.get('/userProfile/' + this.profilo.ID
+        let response = await this.$axios.get('/userProfile/' + this.identifier
             , 
               {
-                headers: {Authorization: "Bearer " + this.profilo.ID}
+                headers: {Authorization: "Bearer " + this.identifier}
               }
             );
         localStorage.setItem('profilo', response.data);
+        this.profilo = response.data;
       }
       catch(e)
       {
@@ -61,7 +65,7 @@ export default{
         alert(this.errormsg);
       }
     },
-    async logout(){
+    logout(){
       localStorage.removeItem('profiloCercato');
       localStorage.removeItem('identifier');
       localStorage.removeItem('username');
@@ -69,17 +73,18 @@ export default{
     }
   },
     mounted() {
-    this.refresh()
   } 
 }
 </script>
 
 <template>
   <body>
+    <v-if></v-if>
     <div class = barraLaterale>
-      <h2 class = introduzione>Benvenuto {{this.profilo.username}}</h2>
+      <h2 class = introduzione>Benvenuto {{this.username}}</h2>
       <nav class = navigazione>
         <div class = opzioni style = "cursor: pointer">
+          <input class = cercaNome placeholder ="Cerca Utente" v-model=this.ricerca>
           <h3 @click = "visitaProfilo(this.identifier)">Vai al tuo Profilo</h3>
           <h3>Seguiti</h3>
           <h3>Seguaci</h3>
@@ -88,7 +93,7 @@ export default{
       </nav>
     </div>
 
-    <div class= contenuto>
+    <div class= contenuto v-if = "this.ricerca == ''">
       <template class=fotoPubblicate v-for = "foto in this.immagini">
         <div class = pubblicazione>
           <div class = foto>
@@ -113,6 +118,10 @@ export default{
       </template>
     </div>
 
+    <div class = risultato v-else>
+      <h1>Simone</h1>
+    </div>
+
   </body>
 
 </template>
@@ -134,6 +143,22 @@ export default{
 
     background-color: orange;
     border-right: 5px solid black;
+  }
+
+  .cercaNome{
+    width: 90%;
+    height:30px;
+    font-size: 25px;
+
+    margin-bottom: 5px;
+    cursor: pointer;
+    align-self:right;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.5);
+    
+    color: white;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    text-align: center;
   }
 
   .contenuto{

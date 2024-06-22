@@ -32,7 +32,7 @@ export default{
   <body>
     <img class = sfondo src= 'https://www.ifolor.ch/content/dam/ifolor/inspire-gallery/FFL/photoshop-ein-panorama-aus-einzelaufnahmen-erstellen/Panorama-580.jpg.transform/q60/image.jpg?Panorama-580.jpg'>
     <h1 class = titolo >WasaPhoto</h1>
-    <input type ="text" placeholder="Inserisci il tuo username" v-model="username">
+    <input class = login type ="text" placeholder="Inserisci il tuo username" v-model="username">
     <button class= accesso :disabled= "username.length > 16 || username.length < 3"
       @click = "trovaUtente">Accedi</button>
   </body>
@@ -87,7 +87,7 @@ export default{
     background-color: rgba(255, 255, 255, 0.9);
   }
 
-  input{
+  .login{
     position: absolute;
     top: 43%;
     left: 50%;

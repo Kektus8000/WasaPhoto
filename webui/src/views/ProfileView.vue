@@ -3,30 +3,19 @@ export default{
   data(){
     return{
       errormsg: "",
-      profilo: {
-        ID : 0,
-        nome : "",
-        seguaci: [],
-        seguiti: [],
-        bannati: [],
-        fotoPubblicate: []
-      },
+      profilo: localStorage.getItem('profiloCercato'),
       username: localStorage.getItem('username'),
       identifier: localStorage.getItem('identifier'),
     }
   },
   methods: {
     async refresh(){
-      await this.recuperaInfo();
-    },
-    async recuperaInfo(){
-      this.profilo = localStorage.getItem('profiloCercato');
-      console.log(this.profilo)
-    }
+      console.log(profilo);
+    } 
   },
-  mounted() {
-    this.recuperaInfo();
-  } 
+  mounted(){
+    this.refresh();
+  }
 }
 </script>
 
@@ -35,7 +24,7 @@ export default{
     <header class=intestazione>
       <h4 @click = "() => {this.$router.replace('/session');}" >Torna alla HomePage</h4>
       <img class = icona src = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Alonso_2016.jpg/640px-Alonso_2016.jpg">  
-      <h1 style = "float:left;">Profilo di {{this.profilo.nome}}</h1>
+      <h1 style = "float:left;">Profilo di {{this.profilo.username}}</h1>
       <div class=statistiche>
         <h4>Followers: {{this.profilo.seguaci ? this.profilo.seguaci.length : 0}}</h4>
         <h4>Seguiti: {{this.profilo.seguiti ? this.profilo.seguiti.length : 0}}</h4>

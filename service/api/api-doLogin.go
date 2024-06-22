@@ -42,7 +42,6 @@ func (rt *_router) DoLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		}
 		user.UserID = found.UserID
 		user.Username = found.Username
-		w.WriteHeader(http.StatusFound)
 	}
 
 	errEncode := encoder.Encode(user)
