@@ -22,6 +22,8 @@ type AppDatabase interface {
 
 	GetUserByID(userID int) (User, error)
 
+	SearchUsers(searcherID int, searchedName string) ([]string, error)
+
 	GetUserByUsername(username string) (User, error)
 
 	GetFollowers(userID int) ([]int, error)
@@ -107,7 +109,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 			bannedID INTEGER NOT NULL,
 			PRIMARY KEY (bannerID, bannedID),
 			FOREIGN KEY(bannerID) references User(userID),
-			FOREIGN KEY(bannedID) references User(userID)
+			FOREIGN KEY(bannedID) references User(userID),
+			CHECK (bannerID != bannedID)
 			);`)
 
 		if err3 != nil {
@@ -119,7 +122,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 			followingID INTEGER NOT NULL,
 			PRIMARY KEY (followerID, followingID),
 			FOREIGN KEY(followerID) references User(userID),
-			FOREIGN KEY(followingID) references User(userID)
+			FOREIGN KEY(followingID) references User(userID),
+			CHECK (followerID != followingID)
 			);`)
 
 		if err4 != nil {

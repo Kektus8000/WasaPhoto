@@ -22,7 +22,7 @@ func (rt *_router) FollowUser(w http.ResponseWriter, r *http.Request, ps httprou
 
 	// Check ID dell'Utente interessato
 	toFollowID, errConv2 := strconv.Atoi(ps.ByName("toFollowID"))
-	if errConv2 != nil || userID == toFollowID {
+	if errConv2 != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -32,7 +32,7 @@ func (rt *_router) FollowUser(w http.ResponseWriter, r *http.Request, ps httprou
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	} else if banned == true {
-		http.Error(w, "You can't add the user in you following list because you are in its banList", 403)
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
@@ -41,6 +41,4 @@ func (rt *_router) FollowUser(w http.ResponseWriter, r *http.Request, ps httprou
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	w.WriteHeader(http.StatusNoContent)
 }

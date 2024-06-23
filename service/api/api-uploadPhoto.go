@@ -22,32 +22,31 @@ func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	multipart, errMulti := r.MultipartReader()
 	if errMulti != nil {
-		http.Error(w, "An error has occurred while decoding the photo", 400)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	photoFile, errFile := multipart.NextPart()
 	defer photoFile.Close()
 	if errFile != nil {
-		http.Error(w, "An error has occurred while decoding the photo", 400)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	photoID, errQuery := rt.db.UploadPhoto(photoFile.FileName(), userID)
 	if errQuery != nil || photoID == -1 {
-		http.Error(w, "An error has occurred while uploading the photo", 400)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	path, errOS := os.Create("./userProfile/" + strconv.Itoa(userID) + "/publishedPhotos/" + strconv.Itoa(photoID))
 	if errOS != nil {
-		http.Error(w, "An error has occurred while uploading the photo", 400)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	// Aggiunge la foto nella cartella appena creata, sotto l'ID richiesto
 	_, errIO := io.Copy(path, photoFile)
 	if errIO != nil {
-		http.Error(w, "An error has occurred while uploading the photo", 400)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
 }

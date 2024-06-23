@@ -21,7 +21,7 @@ func (rt *_router) GetMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 
 	photoIDs, publisherIDs, errFoll := rt.db.GetStream(userID)
 	if errFoll != nil {
-		http.Error(w, "An error has occurred during the query from the database", 400)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -38,5 +38,4 @@ func (rt *_router) GetMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, "An error has occurred while encoding photo's infos", 400)
 		return
 	}
-	w.WriteHeader(http.StatusFound)
 }

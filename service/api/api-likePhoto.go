@@ -36,7 +36,7 @@ func (rt *_router) LikePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		w.WriteHeader(http.StatusForbidden)
 		return
 	} else if banned == true {
-		http.Error(w, "You have been banned by the user who published the photo", 403)
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
@@ -45,6 +45,4 @@ func (rt *_router) LikePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		w.WriteHeader(http.StatusBadGateway)
 		return
 	}
-
-	w.WriteHeader(http.StatusNoContent)
 }

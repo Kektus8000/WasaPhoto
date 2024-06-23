@@ -48,5 +48,4 @@ func (rt *_router) DeletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, "An error has occurred while uploading the photo", 400)
 		return
 	}
-	w.WriteHeader(http.StatusNoContent)
 }

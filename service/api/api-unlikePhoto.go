@@ -27,10 +27,7 @@ func (rt *_router) UnlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	errUpdate := rt.db.UnlikePhoto(userID, photoID)
 	if errUpdate != nil {
-		http.Error(w, "You didn't like the photo, so you can't unlike it", 403)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	w.WriteHeader(http.StatusNoContent)
-
 }

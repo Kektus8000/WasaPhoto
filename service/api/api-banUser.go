@@ -26,21 +26,26 @@ func (rt *_router) BanUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	}
 
 	bannedID, errConv2 := strconv.Atoi(banned)
-	if errConv2 != nil || userID == bannedID {
-		w.WriteHeader(http.StatusBadRequest)
+	if errConv2 != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	errUpdate := rt.db.BanUser(userID, bannedID)
 	if errUpdate != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	errUnfollow := rt.db.UnFollowUser(userID, bannedID)
-	if errUnfollow != nil{
-		w.WriteHeader(http.StatusBadGateway)
+	if errUnfollow != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusNoContent)
+
+	errUnfollow2 := rt.db.UnFollowUser(bannedID, userID)
+	if errUnfollow2 != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
