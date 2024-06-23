@@ -1,26 +1,20 @@
 <script>
+const ricerca = ref('');
+
 export default{
   data(){
     return{
-      errormsg: "",
-      ricerca: "",
+      errormsg: "",  
       username : localStorage.getItem('username'),
       identifier: localStorage.getItem('identifier'),
-      profilo: {
-        ID : 0,
-        username : "",
-        seguaci: [],
-        seguiti: [],
-        bannati: [],
-        fotoPubblicate: []
-      },
       immagini: [{link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
                   {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'},
                   {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
                   {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
                   {link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
                   {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'}],
-      commenti: ["Nice", "The Best", "Mille", "Buio", "No", "Ottimo"]
+      commenti: ["Nice", "The Best", "Mille", "Buio", "No", "Ottimo"],
+      utenti : []
     }
   },
   methods:{
@@ -39,7 +33,7 @@ export default{
             var risultato = response.data;
 
             localStorage.setItem('profiloCercato', risultato);
-            this.$router.replace("/userProfile/" + checkID);
+            this.$router.push({path: `/userProfile/${checkID}`});
         }
         catch(e)
         {
@@ -47,6 +41,7 @@ export default{
             alert(this.errormsg);
         }
     },
+
     async recuperaInfo(){
       try
       {
@@ -56,8 +51,7 @@ export default{
                 headers: {Authorization: "Bearer " + this.identifier}
               }
             );
-        localStorage.setItem('profilo', response.data);
-        this.profilo = response.data;
+        localStorage.setItem('profiloUtente', response.data);
       }
       catch(e)
       {
@@ -68,11 +62,28 @@ export default{
     logout(){
       localStorage.removeItem('profiloCercato');
       localStorage.removeItem('identifier');
-      localStorage.removeItem('username');
-      this.$router.replace("/");
+      localStorage.removeItem('username');ù
+      this.$router.replace({path: "/"})
     }
   },
-    mounted() {
+    watch: 
+    {
+      async ricercaUtenti(ricerca){
+      try
+      {
+        let response = await this.$axios.get('/user/', ricerca, { headers: {Authorization: "Bearer " + this.identifier}});
+        this.utenti = response.data;
+      }
+      catch(e)
+      {
+        this.errormsg = e.toString();
+        alert(this.errormsg);
+      }
+
+    },
+    mounted(){
+      this.refresh();
+    } 
   } 
 }
 </script>
@@ -84,7 +95,7 @@ export default{
       <h2 class = introduzione>Benvenuto {{this.username}}</h2>
       <nav class = navigazione>
         <div class = opzioni style = "cursor: pointer">
-          <input class = cercaNome placeholder ="Cerca Utente" v-model=this.ricerca>
+          <input class = cercaNome placeholder ="Cerca Utente" v-model=ricerca>
           <h3 @click = "visitaProfilo(this.identifier)">Vai al tuo Profilo</h3>
           <h3>Seguiti</h3>
           <h3>Seguaci</h3>
@@ -119,7 +130,12 @@ export default{
     </div>
 
     <div class = risultato v-else>
-      <h1>Simone</h1>
+      <template class= utenti-ricercati v-for = "user in this.utenti">
+        <div class = utente-trovato>
+          <img class = miniPic width = 50 height = 50 src = 'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'>
+          <h2 style = "padding-left:10px">{{user}}</h2>
+        </div>
+      </template>
     </div>
 
   </body>
@@ -161,6 +177,22 @@ export default{
     text-align: center;
   }
 
+  .risultato{
+    padding-left: 20%;
+    width: 75%;
+    height:100%;
+  }
+
+  .utente-trovato{
+    padding-left: 10px;
+    margin: 10px;
+
+    display: flex;
+    align-items: center;
+    
+    border: 1px solid black;
+    box-shadow: 10px 10px 5px lightblue;
+  }
   .contenuto{
     padding-left: 25%;
     width:100%;
