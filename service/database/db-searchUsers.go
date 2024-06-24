@@ -8,7 +8,7 @@ func (db *appdbimpl) SearchUsers(searcherID int, searchedName string) ([]string,
 		newString += string(searchedName[i]) + "%"
 	}
 
-	rows, errQuery := db.c.Query(`SELECT ut.username FROM Utente ut, Banned bd
+	rows, errQuery := db.c.Query(`SELECT ut.username FROM User ut, Banned bd
 		WHERE ut.username LIKE ? 
 		AND NOT (bd.bannedID == ?
 			AND bd.bannerID == ut.userID

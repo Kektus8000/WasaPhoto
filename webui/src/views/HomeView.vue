@@ -1,19 +1,18 @@
 <script>
-const ricerca = ref('');
 
 export default{
   data(){
     return{
+      ricerca: "",
       errormsg: "",  
       username : localStorage.getItem('username'),
       identifier: localStorage.getItem('identifier'),
       immagini: [{link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
-                  {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'},
                   {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
                   {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
                   {link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
                   {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'}],
-      commenti: ["Nice", "The Best", "Mille", "Buio", "No", "Ottimo"],
+      commenti: ["Nice", "The Best", "Mille", "Buio", "No", "Ottimo", "Nice", "Super"],
       utenti : []
     }
   },
@@ -35,7 +34,7 @@ export default{
             localStorage.setItem('profiloCercato', risultato);
             this.$router.push({path: `/userProfile/${checkID}`});
         }
-        catch(e)
+      catch(e)
         {
             this.errormsg = e.toString();
             alert(this.errormsg);
@@ -62,24 +61,26 @@ export default{
     logout(){
       localStorage.removeItem('profiloCercato');
       localStorage.removeItem('identifier');
-      localStorage.removeItem('username');ù
+      localStorage.removeItem('username');
       this.$router.replace({path: "/"})
     }
   },
     watch: 
     {
-      async ricercaUtenti(ricerca){
-      try
+      async ricerca(){
+      if (this.ricerca != "")
       {
-        let response = await this.$axios.get('/user/', ricerca, { headers: {Authorization: "Bearer " + this.identifier}});
-        this.utenti = response.data;
+        try
+        {
+          let response = await this.$axios.put('/user/', {content: this.ricerca}, { headers: {Authorization: "Bearer " + this.identifier} });
+          this.utenti = response.data;
+          console.log(this.utenti);
+        }
+        catch(e)
+        {
+          console.log(e.toString());
+        }
       }
-      catch(e)
-      {
-        this.errormsg = e.toString();
-        alert(this.errormsg);
-      }
-
     },
     mounted(){
       this.refresh();
@@ -95,7 +96,7 @@ export default{
       <h2 class = introduzione>Benvenuto {{this.username}}</h2>
       <nav class = navigazione>
         <div class = opzioni style = "cursor: pointer">
-          <input class = cercaNome placeholder ="Cerca Utente" v-model=ricerca>
+          <input class = cercaNome placeholder ="Cerca Utente" v-model=this.ricerca>
           <h3 @click = "visitaProfilo(this.identifier)">Vai al tuo Profilo</h3>
           <h3>Seguiti</h3>
           <h3>Seguaci</h3>
@@ -108,20 +109,16 @@ export default{
       <template class=fotoPubblicate v-for = "foto in this.immagini">
         <div class = pubblicazione>
           <div class = foto>
-            <div class = infoUser>
-              <img class = miniPic width = 40 :src = foto.link>
-              <h4 style = "padding-top: 5px; padding-left: 5px;">{{this.username}}</h4>
-            </div>
+            <h4 height = 40px style = "font-weight: bold; padding-top: 5px; padding-left: 5px;">{{this.username}}</h4>
             <img class = immagine :src = foto.link>
           </div>
           <div class = sezioneCommenti>
             <div v-for = "commento in this.commenti">
               <div class = commento>
                 <div class = commentatore>
-                  <img class = miniPic width = 30 height = 30 :src = foto.link>
-                  <h5 style = "padding-top: 5px; padding-left: 5px;">{{this.username}}</h5>
+                  <h5 style = "font-weight: bold; padding-top: 5px;">{{this.username}}</h5>
                 </div>
-                <h4 style = "font-family: italic;">{{commento}}</h4>
+                <h4 style = "font-family: italic; padding-left: 5px;">{{commento}}</h4>
               </div>
             </div>
           </div>
@@ -132,7 +129,6 @@ export default{
     <div class = risultato v-else>
       <template class= utenti-ricercati v-for = "user in this.utenti">
         <div class = utente-trovato>
-          <img class = miniPic width = 50 height = 50 src = 'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'>
           <h2 style = "padding-left:10px">{{user}}</h2>
         </div>
       </template>
@@ -193,45 +189,35 @@ export default{
     border: 1px solid black;
     box-shadow: 10px 10px 5px lightblue;
   }
+
   .contenuto{
     padding-left: 25%;
     width:100%;
-  }
-
-  .pubblicazione{
-    height:400px;
-    width:80%;
-    display: flex;
     margin-bottom: 50px;
   }
 
-  .infoUser{
-    height: 40px;
-    display:flex;
+
+  .pubblicazione{
+    height:390px;
+    width:80%;
+    display: flex;
+    margin-bottom: 50px;
+    border: 1px solid black;
   }
 
-  .miniPic{
-    border-radius: 50%;
-    border-style: solid;
-    border-color: rgba(0,0,0,0.5);
-  }
-  
   .immagine{
     width:100%;
-    height:90%;
+    height: 90%;
   }
+
 
   .sezioneCommenti{
     top:40px;
-    width:65%;
+    width:60%;
+    height:100%;
     display:inline;
     flex-wrap: wrap;
     overflow-y:scroll;
-  }
-
-  .commentatore{
-    display: flex;
-    text-align: center;
   }
 
   .commento{

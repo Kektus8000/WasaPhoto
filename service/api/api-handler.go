@@ -11,7 +11,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.POST("/session", rt.wrap(rt.DoLogin))
 
 	// Call the function that handle the User Research
-	rt.router.GET("/user/", rt.wrap(rt.SearchUsers))
+	rt.router.PUT("/user/", rt.wrap(rt.SearchUsers))
 
 	//Call the function that handle the Set Username
 	rt.router.POST("/user/:userID/username", rt.wrap(rt.SetMyUsername))

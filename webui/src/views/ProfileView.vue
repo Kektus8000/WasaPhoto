@@ -23,8 +23,7 @@ export default{
   <body>
     <header class=intestazione>
       <h4 @click = "() => {this.$router.replace('/session');}" >Torna alla HomePage</h4>
-      <img class = icona src = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Alonso_2016.jpg/640px-Alonso_2016.jpg">  
-      <h1 style = "float:left;">Profilo di {{this.profilo.username}}</h1>
+      <h1 style = "font-weight: bold;">Profilo di {{this.profilo.username}}</h1>
       <div class=statistiche>
         <h4>Followers: {{this.profilo.seguaci ? this.profilo.seguaci.length : 0}}</h4>
         <h4>Seguiti: {{this.profilo.seguiti ? this.profilo.seguiti.length : 0}}</h4>
@@ -81,13 +80,4 @@ export default{
     height:100%;
     border-radius: 10px;;
   }
-
-  .icona{
-    border-radius: 50%;
-    border-style: solid;
-    border-color: rgba(0,0,0,0.5);
-
-    width:50px;
-  }
-
 </style>
