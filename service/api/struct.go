@@ -6,8 +6,5 @@ type User struct {
 }
 
 type Comment struct {
-	CommentID   int
-	Comment     string
-	PublisherID int
-	PhotoID     int
+	Comment string
 }

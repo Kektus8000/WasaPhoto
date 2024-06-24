@@ -10,59 +10,37 @@ type User struct {
 	Username string
 }
 
-type Comment struct {
-	CommentID   int
-	Comment     string
-	PublisherID int
-	PhotoID     int
-}
-
 type AppDatabase interface {
-	AddUser(username string) (int, error)
-
+	// Metodi GET
 	GetUserByID(userID int) (User, error)
-
-	SearchUsers(searcherID int, searchedName string) ([]string, error)
-
 	GetUserByUsername(username string) (User, error)
-
 	GetFollowers(userID int) ([]int, error)
-
 	GetFollowings(userID int) ([]int, error)
-
 	GetBanList(userID int) ([]int, error)
-
-	CheckBanned(bannerID int, bannedID int) (bool, error)
-
-	SetMyUsername(userID int, newUsername string) error
-
-	FollowUser(followerID int, tofollowID int) error
-
-	UnFollowUser(followerID int, followingID int) error
-
 	GetPublishedPhotos(userID int) ([]int, error)
-
 	GetPhotoPublisher(photoID int) (int, error)
-
+	CheckBanned(bannerID int, bannedID int) (bool, error)
 	GetStream(userID int) ([]int, []int, error)
+	UserExists(username string) (bool, error)
 
+	// Metodi POST
+	AddUser(username string) (int, error)
+	SetMyUsername(userID int, newUsername string) error
+	FollowUser(followerID int, tofollowID int) error
 	BanUser(bannerID int, bannedId int) error
-
-	UnbanUser(bannerID int, bannedID int) error
-
-	UploadPhoto(filename string, userID int) (int, error)
-
-	DeletePhoto(photoID int) (string, error)
-
 	LikePhoto(userID int, photoID int) error
 
-	UnlikePhoto(userID int, photoID int) error
-
+	// Metodi PUT
+	SearchUsers(searcherID int, searchedName string) ([]string, error)
+	UploadPhoto(filename string, userID int) (int, error)
 	CommentPhoto(commentorID int, comment string, photoID int) (int, error)
 
+	// Metodi DELETE
+	UnFollowUser(followerID int, followingID int) error
+	UnbanUser(bannerID int, bannedID int) error
+	DeletePhoto(photoID int) (string, error)
+	UnlikePhoto(userID int, photoID int) error
 	UncommentPhoto(commentID int) error
-
-	UserExists(username string) (bool, error)
 }
 
 type appdbimpl struct {

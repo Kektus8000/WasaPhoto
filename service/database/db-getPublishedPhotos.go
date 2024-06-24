@@ -5,7 +5,8 @@ import "errors"
 func (db *appdbimpl) GetPublishedPhotos(userID int) ([]int, error) {
 
 	var photos []int
-	rows, errQuery := db.c.Query(`SELECT photoID FROM Photo WHERE publisherID = ?`, userID)
+	rows, errQuery := db.c.Query(`SELECT photoID FROM Photo WHERE publisherID = ?
+	ORDER BY publicationDate`, userID)
 	if errQuery != nil {
 		return nil, errQuery
 	}

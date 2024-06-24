@@ -9,16 +9,26 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+type UserProfile struct {
+	UserID          int
+	Username        string
+	Followers       []int    // ID degli utenti seguaci
+	Followings      []int    // ID degli utenti seguiti
+	Banneds         []int    // ID degli utenti bannati
+	PublishedPhotos []string // Path delle foto pubblicate
+}
+
 func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
-	// Check ID dell'Utente interessato
+
+	// ID dell'utente a cui si vuole accedere al profilo
 	checkID, errConv := strconv.Atoi(ps.ByName("userID"))
-	
 	if errConv != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	// Recupera l'ID dell'utente che effettua la richiesta
 	userID := Authenticate(r.Header.Get("Authorization"))
 	if userID == -1 {
 		w.WriteHeader(http.StatusBadRequest)
@@ -28,82 +38,63 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	// Controlla se l'utente ricercato ha bannato l'utente richiedente
 	banned, errBan := rt.db.CheckBanned(checkID, userID)
 	if errBan != nil {
-		http.Error(w, "An error has occurred while fetching the request", 400)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	} else if banned == true {
-		http.Error(w, "You can't access the user profile because you'have been banned by them", 403)
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
+	var profilo UserProfile
+
 	user, errUser := rt.db.GetUserByID(checkID)
 	if errUser != nil {
-		http.Error(w, "An error has occurred during the query", 400)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	// Ritorna gli IDs di tutti gli utenti che seguono l'utente
 	followers, errFollowers := rt.db.GetFollowers(checkID)
 	if errFollowers != nil {
-		http.Error(w, "An error has occurred during a query in the database", 400)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	// Ritorna gli IDs di tutti gli utenti seguiti dall'utente
 	followings, errFollowings := rt.db.GetFollowings(checkID)
 	if errFollowings != nil {
-		http.Error(w, "An error has occurred during a query in the database", 400)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	// Ritorna gli IDs di tutti gli utenti bloccati dall'utente
 	banneds, errBanneds := rt.db.GetBanList(checkID)
 	if errBanneds != nil {
-		http.Error(w, "An error has occurred during a query in the database", 400)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
 
 	// Ritorna gli IDs di tutte le foto pubblicate da tale utente
 	photos, errPhotos := rt.db.GetPublishedPhotos(checkID)
 	if errPhotos != nil {
-		http.Error(w, "An error has occurred during a query in the database", 400)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
+	}
+	// I valori ottenuti vengono salvati nella struct UserProfile appena creata
+	profilo.UserID = user.UserID
+	profilo.Username = user.Username
+	profilo.Followers = followers
+	profilo.Followings = followings
+	profilo.Banneds = banneds
+	for i := 0; i < len(photos); i++ {
+		path := "./userProfile/" + strconv.Itoa(checkID) + "/publishedPhotos/" + strconv.Itoa(photos[i])
+		profilo.PublishedPhotos = append(profilo.PublishedPhotos, path)
 	}
 
 	// Viene creato un nuovo Encoder per trasformare i dati delle query in Json
-	encoder := json.NewEncoder(w)
-	errEncode1 := encoder.Encode(user.UserID)
-	if errEncode1 != nil {
-		http.Error(w, "An error has occurred while encoding the user infos", 400)
-		return
-	}
-
-	errEncode2 := encoder.Encode(user.Username)
-	if errEncode2 != nil {
-		http.Error(w, "An error has occurred while encoding the user infos", 400)
-		return
-	}
-	errEncode3 := encoder.Encode(followers)
-	if errEncode3 != nil {
-		http.Error(w, "An error has occurred while encoding the follower list", 400)
-		return
-	}
-
-	errEncode4 := encoder.Encode(followings)
-	if errEncode4 != nil {
-		http.Error(w, "An error has occurred while encoding the following list", 400)
-		return
-	}
-
-	errEncode5 := encoder.Encode(banneds)
-	if errEncode5 != nil {
-		http.Error(w, "An error has occurred while encoding the banList", 400)
-		return
-	}
-
-	errEncode6 := encoder.Encode(photos)
-	if errEncode6 != nil {
-		http.Error(w, "An error has occurred while encoding the photos", 400)
+	errEncode := json.NewEncoder(w).Encode(profilo)
+	if errEncode != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }

@@ -32,11 +32,13 @@ func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	photoID, errQuery := rt.db.UploadPhoto(photoFile.FileName(), userID)
 	if errQuery != nil || photoID == -1 {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
 	path, errOS := os.Create("./userProfile/" + strconv.Itoa(userID) + "/publishedPhotos/" + strconv.Itoa(photoID))
 	if errOS != nil {
 		w.WriteHeader(http.StatusInternalServerError)

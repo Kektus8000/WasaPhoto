@@ -1,7 +1,7 @@
 package api
 
 import (
-	"io"
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -13,6 +13,7 @@ import (
 func (rt *_router) CommentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
+	// Recupera l'ID dell'utente che effettua la richiesta
 	userID := Authenticate(r.Header.Get("Authorization"))
 	if userID == -1 {
 		w.WriteHeader(http.StatusBadRequest)
@@ -26,36 +27,45 @@ func (rt *_router) CommentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
+	// Cerca la foto con dato ID, ritornando errore 404 se non trovata o errore 500 per problemi di query
 	publisherID, errFetch := rt.db.GetPhotoPublisher(photoID)
-	if errFetch != nil || publisherID == -1 {
-		http.Error(w, "An error has occurred while fetching the user who published the photo", 404)
+	if errFetch != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	} else if publisherID == 0 {
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
+	// Controlla se l'utente è stato bannato dall'utente pubblicante, ritornando errore 403 se risulta bannato o errore 500 per problemi di query
 	banned, errQuery2 := rt.db.CheckBanned(publisherID, userID)
 	if errQuery2 != nil {
-		w.WriteHeader(http.StatusForbidden)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	} else if banned == true {
-		http.Error(w, "You have been banned by the user who published the photo", 403)
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
-	words, errRead := io.ReadAll(r.Body)
-	if errRead != nil {
-		http.Error(w, "An error has occured while reading the comment from the requestbody", 400)
-		return
-	}
-	comm := string(words[:])
+	// Legge il request body, ritornando errore 500 se vi sono problemi con la query
 
-	if len(comm) < 6 || len(comm) > 160 {
-		http.Error(w, "The comment doesn't follow the rules about comment's lenght, so it cannot be published", 400)
+	var word Comment
+	err := json.NewDecoder(r.Body).Decode(&word)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	_, errComm := rt.db.CommentPhoto(photoID, comm, userID)
+	// Controlla la lunghezza del commento, ritornando errore 400 se non adatta
+	if len(word.Comment) < 6 || len(word.Comment) > 160 {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// Aggiunge il commento nella tabella del database, ritornando errore 500 se non possibile
+	_, errComm := rt.db.CommentPhoto(photoID, word.Comment, userID)
 	if errComm != nil {
-		http.Error(w, "An error has occurred while publishing the comment on the photo", 400)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }

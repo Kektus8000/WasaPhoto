@@ -22,11 +22,11 @@ func (rt *_router) SetMyUsername(w http.ResponseWriter, r *http.Request, ps http
 
 	err := json.NewDecoder(r.Body).Decode(&newUsername)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 
 	errUpdate := rt.db.SetMyUsername(userID, newUsername)
 	if errUpdate != nil {
-		w.WriteHeader(http.StatusBadGateway)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 }

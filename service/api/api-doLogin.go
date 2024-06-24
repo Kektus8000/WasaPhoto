@@ -12,41 +12,45 @@ func (rt *_router) DoLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	w.Header().Set("content-type", "application/json")
 
 	var user User
+	// Recupera le informazioni dell'utente, ritornano errore 400 se impossibile
 	errDecode := json.NewDecoder(r.Body).Decode(&user)
 	if errDecode != nil {
-		http.Error(w, "An error has occurred while decoding the Request Body", 500)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	var username string = user.Username
-	encoder := json.NewEncoder(w)
-	exist, errQuery := rt.db.UserExists(username)
+	// Controlla se l'utente è nel database, ritornando errore 500 se vi sono errori nella query
+	exist, errQuery := rt.db.UserExists(user.Username)
 	if errQuery != nil {
-		http.Error(w, "An error has occurred during a query in the database", 500)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	// Se l'utente non esiste, viene aggiunto nel database
 	if !exist {
-		ID, errQuery := rt.db.AddUser(username)
-		if ID == -1 || errQuery != nil {
-			http.Error(w, "An error has occurred during a query in the database", 500)
+		// Si aggiunge l'utente al database, ritornando errore 500 se vi sono errori nella query
+		ID, errQuery := rt.db.AddUser(user.Username)
+		if errQuery != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		user.UserID = ID
 		w.WriteHeader(http.StatusCreated)
-	} else if exist {
-		found, errQuery := rt.db.GetUserByUsername(username)
+	} else if exist { // Se invece l'utente esiste, le sue informazioni vengono recuperate dal database
+		// Vengono recuperate le informazioni dell'utente, ritornando errore 500 se vi sono errori nella query
+		found, errQuery := rt.db.GetUserByUsername(user.Username)
 		if errQuery != nil {
-			http.Error(w, "An error has occurred during a query in the database", 500)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		user.UserID = found.UserID
 		user.Username = found.Username
 	}
 
-	errEncode := encoder.Encode(user)
+	// Le informazioni sull'utente vengono ritornate, ritornando errore 500 se vi sono errore nell'encode
+	errEncode := json.NewEncoder(w).Encode(user)
 	if errEncode != nil {
-		http.Error(w, "An error has occurred while encoding the user infos", 500)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }

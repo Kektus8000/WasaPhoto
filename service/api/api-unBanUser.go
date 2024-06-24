@@ -22,13 +22,13 @@ func (rt *_router) UnBanUser(w http.ResponseWriter, r *http.Request, ps httprout
 	// Check ID dell'Utente interessato
 	bannedID, errConv2 := strconv.Atoi(ps.ByName("bannedID"))
 	if errConv2 != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	errUpdate := rt.db.UnbanUser(userID, bannedID)
 	if errUpdate != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }

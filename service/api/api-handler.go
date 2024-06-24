@@ -35,7 +35,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.DELETE("/userProfile/:userID/banList/:bannedID", rt.wrap(rt.UnBanUser))
 
 	//Call the function that handle the uploadPhoto
-	rt.router.POST("/userProfile/:userID/publishedPhotos/", rt.wrap(rt.UploadPhoto))
+	rt.router.PUT("/userProfile/:userID/publishedPhotos/", rt.wrap(rt.UploadPhoto))
 
 	//Call the function that handle the deletePhoto
 	rt.router.DELETE("/userProfile/:userID/publishedPhotos/:photoID", rt.wrap(rt.DeletePhoto))
@@ -47,7 +47,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.DELETE("/userProfile/:userID/stream/:photoID/likes/", rt.wrap(rt.UnlikePhoto))
 
 	//Call the function that handle the commentPhoto
-	rt.router.POST("/userProfile/:userID/stream/:photoID/comments/", rt.wrap(rt.CommentPhoto))
+	rt.router.PUT("/userProfile/:userID/stream/:photoID/comments/", rt.wrap(rt.CommentPhoto))
 
 	//Call the function that handle the uncommentPhoto
 	rt.router.DELETE("/userProfile/:userID/stream/:photoID/comments/:commentID", rt.wrap(rt.UncommentPhoto))

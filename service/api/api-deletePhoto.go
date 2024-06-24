@@ -12,40 +12,44 @@ import (
 func (rt *_router) DeletePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
-	// Check dell'ID dell'Utente
+	// Recupera l'ID dell'utente che effettua la richiesta
 	userID := Authenticate(r.Header.Get("Authorization"))
 	if userID == -1 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// Check dell'ID della Foto
+	// Recupera l'ID della foto da cancellare, ottenendo errore 400 se non è possibile recuperarlo
 	photoID, errConv2 := strconv.Atoi(ps.ByName("photoID"))
 	if errConv2 != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
+	// Ottiene l'ID del pubblicatore della foto, ottenendo errore 500 se vi sono errori nella query
 	publisherID, errFetch := rt.db.GetPhotoPublisher(photoID)
-	if errFetch != nil || publisherID == -1 {
-		http.Error(w, "An error has occurred while fetching the user who published the photo", 404)
+	if errFetch != nil || publisherID == 0 {
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	// Se l'ID del richiedente e del pubblicante non sono lo stesso, viene ritornato errore 403 ed impedita l'operazione
 	if userID != publisherID {
-		http.Error(w, "You can't delete the photo because it isn't your photo", 403)
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
+	// Cancella la foto dal database, ottenendo errore 500 se vi sono errori nella query
 	_, errQuery := rt.db.DeletePhoto(photoID)
 	if errQuery != nil {
-		http.Error(w, "There isn't a photo with that Id, so it can't be removed", 404)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	// Cancella la foto dal server, ottenendo errore 500 se vi sono errori nella query
 	errOS := os.Remove("main/userProfile/" + strconv.Itoa(userID) + "/publishedPhotos/" + strconv.Itoa(photoID))
 	if errOS != nil {
-		http.Error(w, "An error has occurred while uploading the photo", 400)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
