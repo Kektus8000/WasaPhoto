@@ -25,8 +25,8 @@ export default{
 
 <template>
   <body>
-    <header class=intestazione>
-      <h1>Account Seguiti</h1>
+    <header class=intestazione-seguaci>
+      <h1 style = "font-weight: bold; text-align:center; padding-top:20px;">Account Seguiti</h1>
     </header>
 
     <div class = riga>
@@ -52,12 +52,11 @@ export default{
     background-color: whitesmoke;
   }
 
-  .intestazione{
+  .intestazione-seguaci{
     width:100%;
     height:100px;
 
     background-color: cadetblue;
-    text-align: center;
   }
 
   .riga{

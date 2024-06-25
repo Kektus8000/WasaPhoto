@@ -4,53 +4,22 @@ export default{
   data(){
     return{
       ricerca: "",
-      errormsg: "",  
+      errormsg: "",
       username : localStorage.getItem('username'),
       identifier: localStorage.getItem('identifier'),
-      immagini: [{link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
-                  {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
-                  {link: 'https://upload.wikimedia.org/wikipedia/it/2/22/Dragon_Ball_Super.png'},
-                  {link:'https://www.avvenire.it/c/2017/PublishingImages/debda429421d455a8975d6ba03e67d65/caparezza.jpg?width=1024'},
-                  {link: 'https://cdn-2.motorsport.com/images/amp/0ZRKlvo0/s1000/formula-1-spanish-gp-2023-char-2.jpg'}],
-      commenti: ["Nice", "The Best", "Mille", "Buio", "No", "Ottimo", "Nice", "Super"],
-      utenti : []
+      stream: [{path:"", commenti: []}],
+      utenti: []
     }
   },
   methods:{
     async refresh(){
-      this.recuperaInfo();
+      this.recuperaStream();
     },
-    async visitaProfilo(checkID){
-      try{
-            let response = await this.$axios.get('/userProfile/' + checkID
-            , 
-              {
-                headers: {Authorization: "Bearer " + this.identifier}
-              }
-            );
-
-            var risultato = response.data;
-
-            localStorage.setItem('profiloCercato', risultato);
-            this.$router.push({path: `/userProfile/${checkID}`});
-        }
-      catch(e)
-        {
-            this.errormsg = e.toString();
-            alert(this.errormsg);
-        }
-    },
-
-    async recuperaInfo(){
+    async recuperaStream(){
       try
       {
-        let response = await this.$axios.get('/userProfile/' + this.identifier
-            , 
-              {
-                headers: {Authorization: "Bearer " + this.identifier}
-              }
-            );
-        localStorage.setItem('profiloUtente', response.data);
+        let response = await this.$axios.get('/userProfile/${this.identifier}/stream/', { headers: {Authorization: "Bearer " + this.identifier} });
+        if (response.data != null) {for (let i = 0; i < response.data.length; i++){stream.push(response.data[i]);} }
       }
       catch(e)
       {
@@ -58,8 +27,12 @@ export default{
         alert(this.errormsg);
       }
     },
+    async visitaProfilo(checkID){
+        localStorage.setItem('IDCercato', checkID);
+        this.$router.push({path: `/userProfile/${checkID}`});
+    },
     logout(){
-      localStorage.removeItem('profiloCercato');
+      localStorage.removeItem('IDCercato');
       localStorage.removeItem('identifier');
       localStorage.removeItem('username');
       this.$router.replace({path: "/"})
@@ -91,21 +64,20 @@ export default{
 
 <template>
   <body>
-    <v-if></v-if>
     <div class = barraLaterale>
       <h2 class = introduzione>Benvenuto {{this.username}}</h2>
       <nav class = navigazione>
         <div class = opzioni style = "cursor: pointer">
           <input class = cercaNome placeholder ="Cerca Utente" v-model=this.ricerca>
           <h3 @click = "visitaProfilo(this.identifier)">Vai al tuo Profilo</h3>
-          <h3>Seguiti</h3>
+          <h3 @click = "() => {this.$router.push({path: '/userProfile/${this.identifier}/following'}) }">Seguiti</h3>
           <h3>Seguaci</h3>
           <h3 @click = "logout"> Logout </h3>
         </div>
       </nav>
     </div>
 
-    <div class= contenuto v-if = "this.ricerca == ''">
+    <div class= contenuto v-if = "this.ricerca == '' ">
       <template class=fotoPubblicate v-for = "foto in this.immagini">
         <div class = pubblicazione>
           <div class = foto>
@@ -140,6 +112,7 @@ export default{
 
 <style>
   .introduzione{
+    font-weight: bold;
     border-bottom: 5px solid black;
     word-wrap:break-word;
   }
@@ -152,6 +125,7 @@ export default{
     width: 15%;
     height: 100%;
     text-align: center;
+    margin-top: 10px;
 
     background-color: orange;
     border-right: 5px solid black;
@@ -198,7 +172,7 @@ export default{
 
 
   .pubblicazione{
-    height:390px;
+    height:500px;
     width:80%;
     display: flex;
     margin-bottom: 50px;
@@ -207,7 +181,7 @@ export default{
 
   .immagine{
     width:100%;
-    height: 90%;
+    height: 455px;
   }
 
 

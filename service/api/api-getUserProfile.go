@@ -90,7 +90,6 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		path := "./userProfile/" + strconv.Itoa(checkID) + "/publishedPhotos/" + strconv.Itoa(photos[i])
 		profilo.PublishedPhotos = append(profilo.PublishedPhotos, path)
 	}
-
 	// Viene creato un nuovo Encoder per trasformare i dati delle query in Json
 	errEncode := json.NewEncoder(w).Encode(profilo)
 	if errEncode != nil {
