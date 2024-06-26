@@ -80,11 +80,10 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	for i := 0; i < len(photos); i++ {
 		temp := photos[i]
 		var photo Photo
-		photo.File = temp.File
 		photo.PhotoID = temp.PhotoID
 		photo.PublisherID = temp.PublisherID
 		photo.PublicationDate = temp.PublicationDate
-		photo.Path = "./userProfile/" + strconv.Itoa(photo.PublisherID) + "/publishedPhotos/" + strconv.Itoa(photo.PhotoID)
+		photo.File = "./userProfile/" + strconv.Itoa(photo.PublisherID) + "/publishedPhotos/" + strconv.Itoa(photo.PhotoID)
 
 		result, errComm := rt.db.GetComments(photo.PhotoID)
 		if errComm != nil {

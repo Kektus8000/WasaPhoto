@@ -20,12 +20,12 @@ type Comment struct {
 
 type Photo struct {
 	File            string
-	Path            string
 	PhotoID         int
 	PublisherID     int
 	PublicationDate time.Time
 	Comments        []Comment
 }
+
 type AppDatabase interface {
 	// Metodi GET
 	GetUserByID(userID int) (User, error)
@@ -49,7 +49,7 @@ type AppDatabase interface {
 
 	// Metodi PUT
 	SearchUsers(searcherID int, searchedName string) ([]string, error)
-	UploadPhoto(filename string, userID int) (int, error)
+	UploadPhoto(userID int) (int, error)
 	CommentPhoto(commentorID int, comment string, photoID int) (int, error)
 
 	// Metodi DELETE

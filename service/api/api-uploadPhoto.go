@@ -20,20 +20,7 @@ func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	multipart, errMulti := r.MultipartReader()
-	if errMulti != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	photoFile, errFile := multipart.NextPart()
-	defer photoFile.Close()
-	if errFile != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	photoID, errQuery := rt.db.UploadPhoto(photoFile.FileName(), userID)
+	photoID, errQuery := rt.db.UploadPhoto(userID)
 	if errQuery != nil || photoID == -1 {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -46,9 +33,10 @@ func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	// Aggiunge la foto nella cartella appena creata, sotto l'ID richiesto
-	_, errIO := io.Copy(path, photoFile)
+	_, errIO := io.Copy(path, r.Body)
 	if errIO != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
 }

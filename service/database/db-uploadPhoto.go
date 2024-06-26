@@ -1,8 +1,10 @@
 package database
 
-func (db *appdbimpl) UploadPhoto(filename string, userID int) (int, error) {
-	query, errInsert := db.c.Exec("INSERT INTO Photo(file, publisherID) VALUES (?,?);",
-		filename, userID)
+import "strconv"
+
+func (db *appdbimpl) UploadPhoto(userID int) (int, error) {
+	query, errInsert := db.c.Exec("INSERT INTO Photo(publisherID) VALUES (?);",
+		userID)
 	if errInsert != nil {
 		return -1, errInsert
 	}
@@ -11,5 +13,14 @@ func (db *appdbimpl) UploadPhoto(filename string, userID int) (int, error) {
 	if errID != nil {
 		return -1, errID
 	}
+
+	path := "./userProfile/" + strconv.Itoa(userID) + "/publishedPhotos/" + strconv.Itoa(int(ID))
+	_, errUpdate := db.c.Exec(`UPDATE Photo
+	SET file = ?
+	WHERE photoID = ?`, path, ID)
+	if errUpdate != nil {
+		return -1, errUpdate
+	}
+
 	return int(ID), nil
 }

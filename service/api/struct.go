@@ -16,7 +16,6 @@ type Comment struct {
 
 type Photo struct {
 	File            string
-	Path            string
 	PhotoID         int
 	PublisherID     int
 	PublicationDate time.Time
