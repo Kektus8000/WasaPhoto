@@ -2,32 +2,30 @@ package database
 
 import "errors"
 
-func (db *appdbimpl) GetStream(userID int) ([]int, []int, error) {
+func (db *appdbimpl) GetStream(userID int) ([]Photo, error) {
 
-	var photos []int
-	var IDs []int
-	rows, errQuery := db.c.Query(` SELECT pht.publisherID, pht.photoID FROM Photo pht, User us, Following fl
+	var photos []Photo
+	rows, errQuery := db.c.Query(` SELECT pht.file, pht.photoID, pht.publisherID, pht.publicationDate
+	FROM Photo pht, User us, Following fl
 	WHERE pht.publisherID = fl.followerID
 	AND fl.followingID = us.userID
 	AND us.userID = ?
     ORDER BY pht.publicationDate;`, userID)
 	if errQuery != nil {
-		return nil, nil, errQuery
+		return nil, errQuery
 	}
 
 	for rows.Next() {
-		var photoID int
-		var ID int
-		errScan := rows.Scan(&ID, &photoID)
+		var photo Photo
+		errScan := rows.Scan(&photo.File, &photo.PhotoID, &photo.PublisherID, &photo.PublicationDate)
 		if errScan != nil {
-			return nil, nil, errScan
+			return nil, errScan
 		}
-		photos = append(photos, photoID)
-		IDs = append(IDs, ID)
+		photos = append(photos, photo)
 	}
 
 	if rows.Err() != nil {
-		return nil, nil, errors.New("An error has occurred while reading the rows of the query")
+		return nil, errors.New("An error has occurred while reading the rows of the query")
 	}
-	return photos, IDs, nil
+	return photos, nil
 }

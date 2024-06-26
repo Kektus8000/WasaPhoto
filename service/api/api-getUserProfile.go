@@ -9,15 +9,6 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-type UserProfile struct {
-	UserID          int
-	Username        string
-	Followers       []int    // ID degli utenti seguaci
-	Followings      []int    // ID degli utenti seguiti
-	Banneds         []int    // ID degli utenti bannati
-	PublishedPhotos []string // Path delle foto pubblicate
-}
-
 func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
@@ -87,8 +78,30 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	profilo.Followings = followings
 	profilo.Banneds = banneds
 	for i := 0; i < len(photos); i++ {
-		path := "./userProfile/" + strconv.Itoa(checkID) + "/publishedPhotos/" + strconv.Itoa(photos[i])
-		profilo.PublishedPhotos = append(profilo.PublishedPhotos, path)
+		temp := photos[i]
+		var photo Photo
+		photo.File = temp.File
+		photo.PhotoID = temp.PhotoID
+		photo.PublisherID = temp.PublisherID
+		photo.PublicationDate = temp.PublicationDate
+		photo.Path = "./userProfile/" + strconv.Itoa(photo.PublisherID) + "/publishedPhotos/" + strconv.Itoa(photo.PhotoID)
+
+		result, errComm := rt.db.GetComments(photo.PhotoID)
+		if errComm != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		for j := 0; j < len(result); j++ {
+			temp2 := result[i]
+			var comm Comment
+			comm.CommentID = temp2.CommentID
+			comm.Comment = temp2.Comment
+			comm.PhotoID = temp2.PhotoID
+			comm.PublisherID = temp2.PublisherID
+			photo.Comments = append(photo.Comments, comm)
+		}
+
+		profilo.PublishedPhotos = append(profilo.PublishedPhotos, photo)
 	}
 	// Viene creato un nuovo Encoder per trasformare i dati delle query in Json
 	errEncode := json.NewEncoder(w).Encode(profilo)

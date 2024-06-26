@@ -50,7 +50,7 @@ func (rt *_router) CommentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	// Legge il request body, ritornando errore 500 se vi sono problemi con la query
 
 	var word Comment
-	err := json.NewDecoder(r.Body).Decode(&word)
+	err := json.NewDecoder(r.Body).Decode(&word.Comment)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

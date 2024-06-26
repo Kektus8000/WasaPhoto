@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"time"
 )
 
 type User struct {
@@ -10,6 +11,21 @@ type User struct {
 	Username string
 }
 
+type Comment struct {
+	CommentID   int
+	Comment     string
+	PublisherID int
+	PhotoID     int
+}
+
+type Photo struct {
+	File            string
+	Path            string
+	PhotoID         int
+	PublisherID     int
+	PublicationDate time.Time
+	Comments        []Comment
+}
 type AppDatabase interface {
 	// Metodi GET
 	GetUserByID(userID int) (User, error)
@@ -17,10 +33,11 @@ type AppDatabase interface {
 	GetFollowers(userID int) ([]int, error)
 	GetFollowings(userID int) ([]int, error)
 	GetBanList(userID int) ([]int, error)
-	GetPublishedPhotos(userID int) ([]int, error)
+	GetPublishedPhotos(userID int) ([]Photo, error)
 	GetPhotoPublisher(photoID int) (int, error)
 	CheckBanned(bannerID int, bannedID int) (bool, error)
-	GetStream(userID int) ([]int, []int, error)
+	GetStream(userID int) ([]Photo, error)
+	GetComments(photoID int) ([]Comment, error)
 	UserExists(username string) (bool, error)
 
 	// Metodi POST

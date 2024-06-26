@@ -2,22 +2,23 @@ package database
 
 import "errors"
 
-func (db *appdbimpl) GetPublishedPhotos(userID int) ([]int, error) {
+func (db *appdbimpl) GetPublishedPhotos(userID int) ([]Photo, error) {
 
-	var photos []int
-	rows, errQuery := db.c.Query(`SELECT photoID FROM Photo WHERE publisherID = ?
+	var photos []Photo
+	rows, errQuery := db.c.Query(`SELECT file, photoID, publisherID, publicationDate
+	FROM Photo WHERE publisherID = ?
 	ORDER BY publicationDate`, userID)
 	if errQuery != nil {
 		return nil, errQuery
 	}
 
 	for rows.Next() {
-		var photoID int
-		errScan := rows.Scan(&photoID)
+		var photo Photo
+		errScan := rows.Scan(&photo.File, &photo.PhotoID, &photo.PublisherID, &photo.PublicationDate)
 		if errScan != nil {
 			return nil, errScan
 		}
-		photos = append(photos, photoID)
+		photos = append(photos, photo)
 	}
 
 	if rows.Err() != nil {

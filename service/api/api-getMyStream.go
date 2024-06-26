@@ -19,22 +19,45 @@ func (rt *_router) GetMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	// Recupera lo stream degli ID delle foto e l'ID del loro pubblicatore, ottenendo errore 500 se vi sono problemi nella query
-	photoIDs, publisherIDs, errFoll := rt.db.GetStream(userID)
+	// Recupera lo stream di foto dell'utente, ottenendo errore 500 se vi sono problemi nella query
+	photos, errFoll := rt.db.GetStream(userID)
 	if errFoll != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// Viene preparato l'insieme di path delle foto
-	var photos []string
-	for i := 0; i < len(photoIDs); i++ {
-		file := "./userProfile/" + strconv.Itoa(publisherIDs[i]) + "/publishedPhotos/" + strconv.Itoa(photoIDs[i])
-		photos = append(photos, file)
+	// Viene preparato lo stream dell'utente, ritornando errore 500 se vi sono problemi nella query dei commenti
+	var stream []Photo
+	for i := 0; i < len(photos); i++ {
+		temp := photos[i]
+		var photo Photo
+		photo.File = temp.File
+		photo.PhotoID = temp.PhotoID
+		photo.PublisherID = temp.PublisherID
+		photo.PublicationDate = temp.PublicationDate
+		photo.Path = "./userProfile/" + strconv.Itoa(photo.PublisherID) + "/publishedPhotos/" + strconv.Itoa(photo.PhotoID)
+		result, errComm := rt.db.GetComments(photo.PhotoID)
+
+		if errComm != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		for j := 0; j < len(result); j++ {
+			temp2 := result[i]
+			var comm Comment
+			comm.CommentID = temp2.CommentID
+			comm.Comment = temp2.Comment
+			comm.PhotoID = temp2.PhotoID
+			comm.PublisherID = temp2.PublisherID
+			photo.Comments = append(photo.Comments, comm)
+		}
+
+		stream = append(stream, photo)
 	}
 
 	// Viene codificato il risultato, ritornando errore 500 se vi sono problemi
-	errEncode := json.NewEncoder(w).Encode(photos)
+	errEncode := json.NewEncoder(w).Encode(stream)
 	if errEncode != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
