@@ -88,10 +88,10 @@ func New(db *sql.DB) (AppDatabase, error) {
 		}
 
 		_, err2 := db.Exec(`CREATE TABLE IF NOT EXISTS Photo (
-			file TEXT NOT NULL,
+			file TEXT,
 			photoID INTEGER PRIMARY KEY AUTOINCREMENT,
 			publisherID INTEGER NOT NULL,
-			publicationDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+			publicationDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY(publisherID) references User (userID)
 			);`)
 

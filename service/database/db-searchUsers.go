@@ -1,4 +1,5 @@
 package database
+import "fmt"
 
 func (db *appdbimpl) SearchUsers(searcherID int, searchedName string) ([]string, error) {
 
@@ -7,13 +8,10 @@ func (db *appdbimpl) SearchUsers(searcherID int, searchedName string) ([]string,
 	for i := 0; i < len(searchedName); i++ {
 		newString += string(searchedName[i]) + "%"
 	}
-
 	rows, errQuery := db.c.Query(`SELECT ut.username FROM User ut, Banned bd
-		WHERE ut.username LIKE ? 
-		AND NOT (bd.bannedID == ?
-			AND bd.bannerID == ut.userID
-			AND ut.userID == ?)`, newString, searcherID, searcherID)
+		WHERE ut.username LIKE ? `, newString)
 
+	fmt.Println(rows)
 	if errQuery != nil {
 		return risultato, errQuery
 	}
