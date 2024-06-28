@@ -3,14 +3,13 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"fmt"
 
 	"github.com/Kektus8000/WasaPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 )
 
 func (rt *_router) SearchUsers(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	w.Header().Set("content-type", "plaintext")
+	w.Header().Set("content-type", "application/json")
 
 	// Check ID dell'Utente
 	userID := Authenticate(r.Header.Get("Authorization"))
@@ -31,7 +30,6 @@ func (rt *_router) SearchUsers(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	fmt.Println(risultato)
 
 	errEncode := json.NewEncoder(w).Encode(risultato)
 	if errEncode != nil {

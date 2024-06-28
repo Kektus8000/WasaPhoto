@@ -15,43 +15,23 @@ export default{
         seguaci : [],
         seguiti : [],
         bannati : [],
-        fotoPubblicate : [{
-          photoID : 0,
-          publisherID : 0,
-          dataPubblicazione : null,
-          path: "",
-          commenti : [{
-            commentID : 0,
-            testo : "",
-            photoID : 0,
-            IDcommentatore : 0
-          }]
-        }]
+        fotoPubblicate : []
       }
     }
   },
   methods: {
     async refresh(){
       await this.recuperaInfo();
-      console.log(this.visitorID);
     },
     async recuperaInfo(){
       try
       {
         let response = await this.$axios.get('/userProfile/' + localStorage.getItem('IDCercato'), {headers: {Authorization: "Bearer " + this.visitorID}});
         this.profilo.nome = response.data.Username;
-        if (response.data.Followers != null) {for (let i = 0; i < response.data.Followers.length; i++){this.profilo.seguaci.push(response.data.Followers[i]);} }
-        if (response.data.Followings != null) {for (let i = 0; i < response.data.Followings.length; i++){this.profilo.seguiti.push(response.data.Followings[i]);} }
-        if (response.data.Banneds != null) {for (let i = 0; i < response.data.Banneds.length; i++){bthis.profilo.bannati.push(response.data.Banneds[i]);} }
-        if (response.data.PublishedPhotos != null) {
-          var foto = response.data.PublishedPhotos;
-          for (let i = 0; i < foto.length; i++){
-            this.profilo.fotoPubblicate.push(foto[i]);
-            var comms = foto[i].Comments;
-            if (comms != null){ for (let j = 0; j < comms.length; j++) { this.profilo.fotoPubblicate[i].commenti.push(comms[j]); } }
-            console.log(this.profilo.fotoPubblicate[i]);
-          }
-        }
+        if (response.data.Followers != null) {this.profilo.seguaci = response.data.Followers; }
+        if (response.data.Followings != null) {this.profilo.seguiti = response.data.Followings; }
+        if (response.data.Banneds != null) {this.profilo.bannati = response.data.Banneds;}
+        if (response.data.PublishedPhotos != null) { this.profilo.fotoPubblicate = response.data.PublishedPhotos; }
       }
       catch(e)
       {
@@ -77,7 +57,9 @@ export default{
       }
     },
     async mostraDialog(){ document.getElementById("cambiaNome").show(); },
+    
     async chiudiDialog(){ document.getElementById("cambiaNome").close(); },
+    
     async cambiaUsername(){
       try
       {
@@ -100,6 +82,17 @@ export default{
     async tornaHomePage(){
       localStorage.removeItem('IDCercato');
       this.$router.replace('/session');
+    },
+    async seguiProprietario(){
+      try
+      {
+        let response = await this.$axios.post('/user/' + this.profilo.ID + '/username', {username: this.newUsername}, { headers: {Authorization: "Bearer " + this.visitorID} })
+      }
+      catch(e)
+      {
+        this.errormsg = e.toString();
+        alert(this.errormsg);
+      }
     }
   },
   mounted(){
@@ -111,9 +104,9 @@ export default{
 <template>
   <body>
     <header class=intestazione>
-      <h4 @click = "tornaHomePage" style = "padding-left: 10px;" >Torna alla HomePage</h4>
+      <h4 @click = "tornaHomePage" >Torna alla HomePage</h4>
       <h1 style = "font-weight: bold;">Profilo di {{this.profilo.nome}}</h1>
-      <div class=statistiche style = "padding-right: 10px;">
+      <div class=statistiche>
         <h4 @click = "controllaSeguiti">Followers: {{this.profilo.seguaci.length}}</h4>
         <h4>Seguiti: {{this.profilo.seguiti.length}}</h4>
       </div>
@@ -130,15 +123,23 @@ export default{
     <div class = riga>
       <div v-for = "immagine in this.profilo.fotoPubblicate">
         <div class = colonna>
-          <img class = foto :src = immagine.path alt= immagine.photoID>
+          <img class = foto :src = immagine.File alt= immagine.photoID>
         </div>
       </div>
     </div>
 
     <div class = footer>
-        <h4 style= "padding-left:10px;" v-show = "this.profilo.ID == this.visitorID"> Bannati: {{this.profilo.bannati.length}}</h4>
-        <input id = "upload" type="file" accept="image/*" @change="uploadPhoto" v-show = "this.profilo.ID == this.visitorID">
-        <h4 style= "padding-right:10px;" v-show = "this.profilo.ID == this.visitorID" @click = "mostraDialog()"> Cambia username </h4>
+      
+      <div class = ownerActions v-if = "this.profilo.ID == this.visitorID">
+        <h4 style= "padding-left : 100px;"> Bannati: {{this.profilo.bannati.length}}</h4>
+        <input id = "upload" type="file" accept="image/*" @change="uploadPhoto">
+        <h4 style= "padding-right : 100px;" @click = "mostraDialog()"> Cambia username </h4>
+      </div>
+
+      <div class = visitorActions v-else>
+        <button width = 200% style = "color:red;"> Banna </button>
+        <button> Segui </button>
+      </div>
     </div>
   </body>
 </template>
@@ -150,7 +151,7 @@ export default{
     top:  50%;
     left: 50%;
     display: inline;
-    transform: translate(-50%, -10%);
+    transform: translate(-100%, -60%);
   }
 
   body{
@@ -166,7 +167,7 @@ export default{
     width:100%;
     display: flex;
     align-items: center;
-    justify-content:space-between;
+    justify-content:space-evenly;
     cursor: pointer;
     height:100px;
 
@@ -191,24 +192,34 @@ export default{
   .foto{
     width: 100%;
     height:100%;
-    border-radius: 10px;;
+    border-radius: 10px;
   }
 
   .footer{
     position:fixed;
     width:100%;
-    display: flex;
-    align-items: center;
-    justify-content:space-between;
+
     cursor: pointer;
     height:100px;
     bottom: 0;
 
     background-color:brown;
-    text-align: left;
 
     border-top-left-radius: 30px;
     border-top-right-radius: 30px;
     border-top: 3px solid black;
+  }
+
+  .ownerActions{
+    padding-top: 25px;
+    display: flex;
+    align-items: center;
+    justify-content:space-evenly;
+  }
+
+  .visitorActions{
+    padding-top: 25px;
+    display: flex;
+    justify-content: space-evenly;
   }
 </style>

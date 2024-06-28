@@ -5,22 +5,42 @@ export default{
     return{
       ricerca: "",
       errormsg: "",
-      username : localStorage.getItem('username'),
-      identifier: localStorage.getItem('identifier'),
-      stream: [{link: ""}],
-      utenti: []
+      stream: [],
+      utenti: [],
+
+      profilo : {
+        ID : localStorage.getItem('identifier'),
+        nome : localStorage.getItem('username'),
+        seguaci : [],
+        seguiti : [],
+        bannati : [],
+      }
     }
   },
   methods:{
     async refresh()
     {
-
-    },
+      await this.recuperaStream();
+    },    
+    async recuperaInfo(){
+      try
+      {
+        let response = await this.$axios.get('/userProfile/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.profilo.ID}});
+        if (response.data.Followers != null) {this.profilo.seguaci = response.data.Followers; }
+        if (response.data.Followings != null) {this.profilo.seguiti = response.data.Followings; }
+        if (response.data.Banneds != null) {this.profilo.bannati = response.data.Banneds;}
+      }
+      catch(e)
+      {
+        this.errormsg = e.toString();
+        alert(this.errormsg);
+      }
+    },    
     async recuperaStream(){
       try
       {
-        let response = await this.$axios.get('/userProfile/${this.identifier}/stream/', { headers: {Authorization: "Bearer " + this.identifier} });
-        if (response.data != null) {for (let i = 0; i < response.data.length; i++){stream.push(response.data[i]);} }
+        let response = await this.$axios.get('/userProfile/${this.profilo.ID}/stream/', { headers: {Authorization: "Bearer " + this.profilo.ID} });
+        if (response.data != null) { this.stream = response.data; }
       }
       catch(e)
       {
@@ -46,9 +66,8 @@ export default{
         {
           try
           {
-            let response = await this.$axios.put('/user/', {username: this.ricerca}, { headers: {Authorization: "Bearer " + this.identifier} });
+            let response = await this.$axios.put('/user/', {username: this.ricerca}, { headers: {Authorization: "Bearer " + this.profilo.ID} });
             this.utenti = response.data;
-            console.log(this.utenti);
           }
           catch(e)
           {
@@ -67,12 +86,12 @@ export default{
 <template>
   <body>
     <div class = barraLaterale>
-      <h2 class = introduzione>Benvenuto {{this.username}}</h2>
+      <h2 class = introduzione>Benvenuto {{this.profilo.nome}}</h2>
       <nav class = navigazione>
         <div class = opzioni style = "cursor: pointer">
           <input class = cercaNome placeholder ="Cerca Utente" v-model=this.ricerca>
-          <h3 @click = "visitaProfilo(this.identifier)">Vai al tuo Profilo</h3>
-          <h3 @click = "() => {this.$router.push({path: '/userProfile/${this.identifier}/following'}) }">Seguiti</h3>
+          <h3 @click = "visitaProfilo(this.profilo.ID)">Vai al tuo Profilo</h3>
+          <h3 @click = "() => {this.$router.push({path: '/userProfile/${this.profilo.ID}/following'}) }">Seguiti</h3>
           <h3>Seguaci</h3>
           <h3 @click = "logout"> Logout </h3>
         </div>
@@ -83,14 +102,14 @@ export default{
       <div class=fotoPubblicate v-for = "foto in this.stream">
         <div class = pubblicazione>
           <div class = foto>
-            <h4 height = 40px style = "font-weight: bold; padding-top: 5px; padding-left: 5px;">{{this.username}}</h4>
+            <h4 height = 40px style = "font-weight: bold; padding-top: 5px; padding-left: 5px;">{{this.profilo.nome}}</h4>
             <img class = immagine :src = foto.link>
           </div>
           <div class = sezioneCommenti>
             <div v-for = "commento in this.commenti">
               <div class = commento>
                 <div class = commentatore>
-                  <h5 style = "font-weight: bold; padding-top: 5px;">{{this.username}}</h5>
+                  <h5 style = "font-weight: bold; padding-top: 5px;">{{this.profilo.nome}}</h5>
                 </div>
                 <h4 style = "font-family: italic; padding-left: 5px;">{{commento}}</h4>
               </div>
@@ -101,11 +120,13 @@ export default{
     </div>
 
     <div class = risultato v-else>
-      <template class= utenti-ricercati v-for = "user in this.utenti">
+      <div class= utenti-ricercati v-for = "user in this.utenti">
         <div class = utente-trovato>
-          <h2 style = "padding-left:10px">{{user}}</h2>
+          <h2 style = "font-weight: bold; padding-left:10px" @click = "visitaProfilo(user.UserID)"> {{user.Username}} </h2>
+          <h2 style = "color: red; padding-top: 5px; padding-right: 20px;" v-show = "this.profilo.bannati.includes(user.userID)"> Bannato </h2>
+          <h2 style = "color: green; padding-top: 5px; padding-right: 20px;" v-show = "this.profilo.seguiti.includes(user.userID)" > Ti segue </h2>
         </div>
-      </template>
+      </div>
     </div>
 
   </body>
@@ -159,8 +180,10 @@ export default{
     padding-left: 10px;
     margin: 10px;
 
+    cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content:space-between;
     
     border: 1px solid black;
     box-shadow: 10px 10px 5px lightblue;

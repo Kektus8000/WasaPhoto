@@ -48,7 +48,7 @@ type AppDatabase interface {
 	LikePhoto(userID int, photoID int) error
 
 	// Metodi PUT
-	SearchUsers(searcherID int, searchedName string) ([]string, error)
+	SearchUsers(searcherID int, searchedName string) ([]User, error)
 	UploadPhoto(userID int) (int, error)
 	CommentPhoto(commentorID int, comment string, photoID int) (int, error)
 

@@ -1,27 +1,25 @@
 package database
-import "fmt"
 
-func (db *appdbimpl) SearchUsers(searcherID int, searchedName string) ([]string, error) {
+func (db *appdbimpl) SearchUsers(searcherID int, searchedName string) ([]User, error) {
 
-	var risultato []string
+	var risultato []User
 	newString := "%"
 	for i := 0; i < len(searchedName); i++ {
 		newString += string(searchedName[i]) + "%"
 	}
-	rows, errQuery := db.c.Query(`SELECT ut.username FROM User ut, Banned bd
-		WHERE ut.username LIKE ? `, newString)
+	rows, errQuery := db.c.Query(`SELECT username, userID FROM User
+		WHERE username LIKE ? `, newString)
 
-	fmt.Println(rows)
 	if errQuery != nil {
 		return risultato, errQuery
 	}
 	for rows.Next() {
-		var username string
-		errRow := rows.Scan(&username)
+		var user User
+		errRow := rows.Scan(&user.Username, &user.UserID)
 		if errRow != nil {
 			return nil, errRow
 		}
-		risultato = append(risultato, username)
+		risultato = append(risultato, user)
 	}
 	if rows.Err() != nil {
 		return risultato, rows.Err()
