@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-
+	"fmt"
 	"github.com/Kektus8000/WasaPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 )
@@ -18,15 +18,17 @@ func (rt *_router) SetMyUsername(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	var newUsername string
+	var newUser User
 
-	err := json.NewDecoder(r.Body).Decode(&newUsername)
+	err := json.NewDecoder(r.Body).Decode(&newUser)
 	if err != nil {
+		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	errUpdate := rt.db.SetMyUsername(userID, newUsername)
+	errUpdate := rt.db.SetMyUsername(userID, newUser.Username)
 	if errUpdate != nil {
+		fmt.Println(errUpdate)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }

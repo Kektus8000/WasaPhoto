@@ -1,7 +1,5 @@
 <script>
 
-const READER = new FileReader();
-
 export default{
   data(){
     return{
@@ -17,21 +15,6 @@ export default{
     async refresh()
     {
 
-    },
-    async uploadPhoto(){
-      try
-      {
-        let foto = document.getElementById('upload');
-        READER.readAsArrayBuffer(foto.files[0]);
-        READER.onload = async () => {
-          let response = await this.$axios.put('/userProfile/${this.identifier}/publishedPhotos/', READER.result, { headers: {Authorization: "Bearer " + this.identifier} });
-        };
-      }
-      catch(e)
-      {
-        this.errormsg = e.toString();
-        alert(this.errormsg);
-      }
     },
     async recuperaStream(){
       try
@@ -87,7 +70,6 @@ export default{
       <h2 class = introduzione>Benvenuto {{this.username}}</h2>
       <nav class = navigazione>
         <div class = opzioni style = "cursor: pointer">
-          <input id = "upload" type="file" accept="image/*" @change="uploadPhoto">
           <input class = cercaNome placeholder ="Cerca Utente" v-model=this.ricerca>
           <h3 @click = "visitaProfilo(this.identifier)">Vai al tuo Profilo</h3>
           <h3 @click = "() => {this.$router.push({path: '/userProfile/${this.identifier}/following'}) }">Seguiti</h3>
