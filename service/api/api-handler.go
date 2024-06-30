@@ -15,7 +15,7 @@ func (rt *_router) Handler() http.Handler {
 	// Metodi POST
 	rt.router.POST("/session", rt.wrap(rt.DoLogin))
 	rt.router.POST("/user/:userID/username", rt.wrap(rt.SetMyUsername))
-	rt.router.POST("/userProfile/:userID/following/", rt.wrap(rt.FollowUser))
+	rt.router.POST("/userProfile/:userID/following/:followerID", rt.wrap(rt.FollowUser))
 	rt.router.POST("/userProfile/:userID/banList/", rt.wrap(rt.BanUser))
 	rt.router.POST("/userProfile/:userID/stream/:photoID/likes/", rt.wrap(rt.LikePhoto))
 

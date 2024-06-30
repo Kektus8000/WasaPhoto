@@ -3,7 +3,7 @@ package database
 func (db *appdbimpl) GetFollowings(userID int) ([]int, error) {
 
 	var followingIDs []int
-	rows, err := db.c.Query(`SELECT * FROM Following WHERE followerID = ?`, userID)
+	rows, err := db.c.Query(`SELECT followingID FROM Following WHERE followerID = ?`, userID)
 	if err != nil {
 		return nil, err
 	}

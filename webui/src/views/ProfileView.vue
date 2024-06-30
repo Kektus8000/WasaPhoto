@@ -1,13 +1,24 @@
 <script>
 
 const READER = new FileReader();
+const STATOBAN = ["BAN", "UNBAN"];
+const STATOFOLLOW = ["FOLLOW", "UNFOLLOW"];
 
 export default{
   data(){
     return{
-      visitorID : localStorage.getItem('identifier'),
       newUsername : "",
       errormsg: "",
+      
+      visitor : {
+        visitorID : localStorage.getItem('identifier'),
+        visitorNome : localStorage.getItem('username'),
+        visitorSeguaci : [],
+        visitorSeguiti : [],
+        visitorBannati : [],
+        hasBanned : false,
+        isFollowing : false,
+      },
 
       profilo : {
         ID : localStorage.getItem('IDCercato'),
@@ -21,17 +32,78 @@ export default{
   },
   methods: {
     async refresh(){
+      if (this.visitor.visitorID != this.profilo.ID) { await this.visitorInfo(); }
       await this.recuperaInfo();
     },
+    ///////////////////////////// FUNZIONI VISITOR ////////////////////////////////////////////
+    async visitorInfo(){
+      try
+      {
+        let response = await this.$axios.get('/userProfile/' + this.visitor.visitorID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}});
+        
+        if (response.data.Followers != null) {this.visitor.visitorSeguaci = response.data.Followers; }
+        
+        if (response.data.Followings != null) {this.visitor.visitorSeguiti = response.data.Followings; }
+        
+        if (response.data.Banneds != null) {this.visitor.visitorBannati = response.data.Banneds;}
+
+        this.controllaBan();
+
+        this.controllaFollow();
+      }
+      catch(e)
+      {
+        this.errormsg = e.toString();
+        alert(this.errormsg);
+      }
+    },
+    async gestioneFollow(){
+      try
+      {
+        if (this.visitor.isFollowing) {
+          await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/following/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} ); 
+          this.visitor.isFollowing = false;
+          alert("Non segui più " + this.profilo.nome);
+        }
+        else {
+          await this.$axios.post('/userProfile/' + this.visitor.visitorID + '/following/' + this.profilo.ID, {}, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} );
+          this.visitor.isFollowing = true;
+          alert("Ora segui " + this.profilo.nome);
+        }
+        this.refresh();
+      }
+      catch(e)
+      {
+        this.errormsg = e.toString();
+        alert(this.errormsg);
+      }
+    },
+    async gestioneBan(){
+
+    },
+    async controllaBan(){
+        if (this.visitor.isBanned) {document.getElementById('banButton').innerHTML = STATOBAN[1];}
+        else {document.getElementById('banButton').innerHTML = STATOBAN[0];}
+    },
+    async controllaFollow(){
+        if (this.visitor.isFollowing) {document.getElementById('followButton').innerHTML = STATOFOLLOW[1];}
+        else {document.getElementById('followButton').innerHTML = STATOFOLLOW[0];}
+    },
+    ////////////////////////////// FUNZIONI OWNER //////////////////////////////////////////////
     async recuperaInfo(){
       try
       {
-        let response = await this.$axios.get('/userProfile/' + localStorage.getItem('IDCercato'), {headers: {Authorization: "Bearer " + this.visitorID}});
+        let response = await this.$axios.get('/userProfile/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}});
+        
         this.profilo.nome = response.data.Username;
+        
         if (response.data.Followers != null) {this.profilo.seguaci = response.data.Followers; }
+        
         if (response.data.Followings != null) {this.profilo.seguiti = response.data.Followings; }
+        
         if (response.data.Banneds != null) {this.profilo.bannati = response.data.Banneds;}
-        if (response.data.PublishedPhotos != null) { this.profilo.fotoPubblicate = response.data.PublishedPhotos; }
+        
+        if (response.data.PublishedPhotos != null) {this.profilo.fotoPubblicate = response.data.PublishedPhotos;}
       }
       catch(e)
       {
@@ -45,7 +117,7 @@ export default{
         let foto = document.getElementById('upload');
         READER.readAsArrayBuffer(foto.files[0]);
         READER.onload = async () => {
-          let response = await this.$axios.put('/userProfile/${this.visitorID}/publishedPhotos/', READER.result, { headers: {Authorization: "Bearer " + this.visitorID} });
+          let response = await this.$axios.put('/userProfile/${this.visitorID}/publishedPhotos/', READER.result, { headers: {Authorization: "Bearer " + this.visitor.visitorID} });
           alert("Foto pubblicata!");
         };
         this.refresh();
@@ -56,14 +128,17 @@ export default{
         alert(this.errormsg);
       }
     },
-    async mostraDialog(){ document.getElementById("cambiaNome").show(); },
+    async mostraDialog(){ document.getElementById("cambiaNome").style.display = "inline"; },
     
-    async chiudiDialog(){ document.getElementById("cambiaNome").close(); },
+    async chiudiDialog(){
+      this.newUsername = "";
+      document.getElementById("cambiaNome").style.display = "none"; 
+    },
     
     async cambiaUsername(){
       try
       {
-        let response = await this.$axios.post('/user/' + this.profilo.ID + '/username', {username: this.newUsername}, { headers: {Authorization: "Bearer " + this.visitorID} })
+        let response = await this.$axios.post('/user/' + this.profilo.ID + '/username', {username: this.newUsername}, { headers: {Authorization: "Bearer " + this.visitor.visitorID} })
         this.profilo.nome = this.newUsername;
         this.newUsername = "";
         localStorage.setItem('username', this.profilo.nome);
@@ -82,21 +157,10 @@ export default{
     async tornaHomePage(){
       localStorage.removeItem('IDCercato');
       this.$router.replace('/session');
-    },
-    async seguiProprietario(){
-      try
-      {
-        let response = await this.$axios.post('/user/' + this.profilo.ID + '/username', {username: this.newUsername}, { headers: {Authorization: "Bearer " + this.visitorID} })
-      }
-      catch(e)
-      {
-        this.errormsg = e.toString();
-        alert(this.errormsg);
-      }
     }
   },
-  mounted(){
-    this.refresh();
+    mounted(){
+      this.refresh();
   }
 }
 </script>
@@ -104,9 +168,9 @@ export default{
 <template>
   <body>
     <header class=intestazione>
-      <h4 @click = "tornaHomePage" >Torna alla HomePage</h4>
+      <h4 @click = "tornaHomePage" style= "padding-right : 300px; font-weight: bold;">Torna alla HomePage</h4>
       <h1 style = "font-weight: bold;">Profilo di {{this.profilo.nome}}</h1>
-      <div class=statistiche>
+      <div class=statistiche style= "padding-left : 300px; ">
         <h4 @click = "controllaSeguiti">Followers: {{this.profilo.seguaci.length}}</h4>
         <h4>Seguiti: {{this.profilo.seguiti.length}}</h4>
       </div>
@@ -117,28 +181,26 @@ export default{
       <div style = "align-self: center;">
         <input placeholder="Nuovo username" v-model = this.newUsername style = "text-align: center;">
         <button @click = "cambiaUsername" :disabled= "this.newUsername.length > 16 || this.newUsername.length < 3">Cambia</button>
+        <button @click = "chiudiDialog" > Chiudi </button>
       </div>
     </dialog>
 
-    <div class = riga>
-      <div v-for = "immagine in this.profilo.fotoPubblicate">
-        <div class = colonna>
-          <img class = foto :src = immagine.File alt= immagine.photoID>
-        </div>
+    <div class = fotoCondivise v-for = "immagine in this.profilo.fotoPubblicate">
+      <div class = colonna>
+        <img :src = "immagine.File">
       </div>
     </div>
 
     <div class = footer>
-      
-      <div class = ownerActions v-if = "this.profilo.ID == this.visitorID">
+      <div class = ownerActions v-if = "this.profilo.ID == this.visitor.visitorID">
         <h4 style= "padding-left : 100px;"> Bannati: {{this.profilo.bannati.length}}</h4>
-        <input id = "upload" type="file" accept="image/*" @change="uploadPhoto">
+        <input id = "upload" type="file" accept="image/*" @change="uploadPhoto" style= "padding-left : 100px;">
         <h4 style= "padding-right : 100px;" @click = "mostraDialog()"> Cambia username </h4>
       </div>
 
       <div class = visitorActions v-else>
-        <button width = 200% style = "color:red;"> Banna </button>
-        <button> Segui </button>
+        <button id = banButton style = "font-size: 30px; color:red;" @click = "gestioneBan"> {{controllaBan}}</button>
+        <button id = followButton style = "font-size: 30px;" @click = "gestioneFollow"> {{controllaFollow}}</button>
       </div>
     </div>
   </body>
@@ -147,7 +209,6 @@ export default{
 <style>
 
   dialog[open]{
-    position: absolute;
     top:  50%;
     left: 50%;
     display: inline;
@@ -158,21 +219,18 @@ export default{
     margin: 0;
     margin-right: 0;
     width:100%;
-
     background-color: whitesmoke;
   }
 
   .intestazione{
-    position: fixed;
     width:100%;
     display: flex;
+    justify-content: center;
     align-items: center;
-    justify-content:space-evenly;
     cursor: pointer;
     height:100px;
 
     background-color:brown;
-    text-align: left;
 
     border-bottom-left-radius: 30px;
     border-bottom-right-radius: 30px;
@@ -180,6 +238,7 @@ export default{
   }
 
   .riga{
+    padding-top: 300px;
     display: flex;
     flex-wrap: wrap;
   }
@@ -214,12 +273,13 @@ export default{
     padding-top: 25px;
     display: flex;
     align-items: center;
-    justify-content:space-evenly;
+    justify-content:space-between;
   }
 
   .visitorActions{
     padding-top: 25px;
     display: flex;
-    justify-content: space-evenly;
+    align-items: center;
+    justify-content:space-evenly;
   }
 </style>

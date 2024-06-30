@@ -92,7 +92,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 			photoID INTEGER PRIMARY KEY AUTOINCREMENT,
 			publisherID INTEGER NOT NULL,
 			publicationDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-			FOREIGN KEY(publisherID) references User (userID)
+			FOREIGN KEY(publisherID) REFERENCES User (userID)
 			);`)
 
 		if err2 != nil {
@@ -103,8 +103,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 			bannerID INTEGER NOT NULL,
 			bannedID INTEGER NOT NULL,
 			PRIMARY KEY (bannerID, bannedID),
-			FOREIGN KEY(bannerID) references User(userID),
-			FOREIGN KEY(bannedID) references User(userID),
+			FOREIGN KEY(bannerID) REFERENCES User (userID),
+			FOREIGN KEY(bannedID) REFERENCES User (userID),
 			CHECK (bannerID != bannedID)
 			);`)
 
@@ -116,8 +116,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 			followerID INTEGER NOT NULL,
 			followingID INTEGER NOT NULL,
 			PRIMARY KEY (followerID, followingID),
-			FOREIGN KEY(followerID) references User(userID),
-			FOREIGN KEY(followingID) references User(userID),
+			FOREIGN KEY(followerID) REFERENCES User (userID),
+			FOREIGN KEY(followingID) REFERENCES User (userID),
 			CHECK (followerID != followingID)
 			);`)
 
@@ -129,8 +129,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 			comment TEXT NOT NULL, 
 			publisherID INTEGER NOT NULL,
 			photoID INTEGER NOT NULL,
-			FOREIGN KEY(publisherID) references User(userID),
-			FOREIGN KEY(photoID) references Photo(photoID)
+			FOREIGN KEY(publisherID) REFERENCES User(userID),
+			FOREIGN KEY(photoID) REFERENCES Photo(photoID)
 			);`)
 
 		if err5 != nil {
@@ -140,8 +140,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 			likedPhotoID INTEGER NOT NULL,
 			likerUserID INTEGER NOT NULL,
 			PRIMARY KEY (likedPhotoID, likerUserID),
-			FOREIGN KEY(likedPhotoID) references Photo(photoID),
-			FOREIGN KEY(likerUserID) references User(userID)
+			FOREIGN KEY(likedPhotoID) REFERENCES Photo(photoID),
+			FOREIGN KEY(likerUserID) REFERENCES User(userID)
 			);`)
 		if err6 != nil {
 			return nil, errors.New("An error has occurred while building the Like table")
