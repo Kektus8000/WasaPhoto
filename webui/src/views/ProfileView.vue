@@ -8,11 +8,12 @@ export default{
   data(){
     return{
       newUsername : "",
+      
       errormsg: "",
       
       visitor : {
-        visitorID : localStorage.getItem('identifier'),
-        visitorNome : localStorage.getItem('username'),
+        visitorID : 0,
+        visitorNome : "",
         visitorSeguaci : [],
         visitorSeguiti : [],
         visitorBannati : [],
@@ -21,7 +22,7 @@ export default{
       },
 
       profilo : {
-        ID : localStorage.getItem('IDCercato'),
+        ID : 0,
         nome : "",
         seguaci : [],
         seguiti : [],
@@ -39,6 +40,10 @@ export default{
     async visitorInfo(){
       try
       {
+        this.visitor.visitorID = localStorage.getItem('identifier');
+
+        this.visitor.visitorNome = localStorage.getItem('username');
+
         let response = await this.$axios.get('/userProfile/' + this.visitor.visitorID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}});
         
         if (response.data.Followers != null) {this.visitor.visitorSeguaci = response.data.Followers; }
@@ -46,6 +51,14 @@ export default{
         if (response.data.Followings != null) {this.visitor.visitorSeguiti = response.data.Followings; }
         
         if (response.data.Banneds != null) {this.visitor.visitorBannati = response.data.Banneds;}
+
+        this.visitor.isFollowing = this.visitor.visitorSeguiti.includes(this.profilo.ID);
+
+        this.visitor.hasBanned = this.visitor.visitorBannati.includes(this.profilo.ID);
+
+        console.log(this.visitor.isFollowing);
+        
+        console.log(this.visitor.hasBanned);
 
         this.controllaBan();
 
@@ -61,13 +74,11 @@ export default{
       try
       {
         if (this.visitor.isFollowing) {
-          await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/following/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} ); 
-          this.visitor.isFollowing = false;
+          await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/following/' + this.profilo.ID, {}, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} ); 
           alert("Non segui più " + this.profilo.nome);
         }
         else {
           await this.$axios.post('/userProfile/' + this.visitor.visitorID + '/following/' + this.profilo.ID, {}, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} );
-          this.visitor.isFollowing = true;
           alert("Ora segui " + this.profilo.nome);
         }
         this.refresh();
@@ -79,10 +90,26 @@ export default{
       }
     },
     async gestioneBan(){
-
+      try
+      {
+        if (this.visitor.hasBanned) {
+          await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/banList/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} ); 
+          alert(this.profilo.nome + " non è più bannato!");
+        }
+        else {
+          await this.$axios.post('/userProfile/' + this.visitor.visitorID + '/banList/' + this.profilo.ID, {}, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} );
+          alert("Hai bannato " + this.profilo.nome);
+        }
+        this.refresh();
+      }
+      catch(e)
+      {
+        this.errormsg = e.toString();
+        alert(this.errormsg);
+      }
     },
     async controllaBan(){
-        if (this.visitor.isBanned) {document.getElementById('banButton').innerHTML = STATOBAN[1];}
+        if (this.visitor.hasBanned) {document.getElementById('banButton').innerHTML = STATOBAN[1];}
         else {document.getElementById('banButton').innerHTML = STATOBAN[0];}
     },
     async controllaFollow(){
@@ -93,6 +120,8 @@ export default{
     async recuperaInfo(){
       try
       {
+        this.profilo.ID = localStorage.getItem('IDCercato');
+
         let response = await this.$axios.get('/userProfile/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}});
         
         this.profilo.nome = response.data.Username;

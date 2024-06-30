@@ -53,7 +53,7 @@ type AppDatabase interface {
 	CommentPhoto(commentorID int, comment string, photoID int) (int, error)
 
 	// Metodi DELETE
-	UnFollowUser(followerID int, followingID int) error
+	UnFollowUser(followerID int, tofollowID int) error
 	UnbanUser(bannerID int, bannedID int) error
 	DeletePhoto(photoID int) (string, error)
 	UnlikePhoto(userID int, photoID int) error

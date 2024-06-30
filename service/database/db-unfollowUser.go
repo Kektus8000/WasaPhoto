@@ -1,7 +1,7 @@
 package database
 
-func (db *appdbimpl) UnFollowUser(followingID int, followerID int) error {
-	_, err := db.c.Exec("DELETE FROM Following WHERE followingID = ? AND followerID = ?;", followingID, followerID)
+func (db *appdbimpl) UnFollowUser(followerID int, tofollowID int) error {
+	_, err := db.c.Exec("DELETE FROM Following WHERE followingID = ? AND followerID = ?;", tofollowID, followerID)
 	if err != nil {
 		return err
 	}
