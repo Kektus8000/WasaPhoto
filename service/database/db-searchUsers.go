@@ -12,7 +12,8 @@ func (db *appdbimpl) SearchUsers(searcherID int, searchedName string) ([]User, e
 		AND username LIKE ? 
 		AND NOT EXISTS (SELECT *
 			FROM Banned
-			WHERE bannedID = ?)`, searcherID, newString, searcherID)
+			WHERE bannedID = ?
+			AND bannerID = userID)`, searcherID, newString, searcherID)
 
 	if errQuery != nil {
 		return risultato, errQuery

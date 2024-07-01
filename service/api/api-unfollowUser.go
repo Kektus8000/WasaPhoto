@@ -14,8 +14,10 @@ func (rt *_router) UnfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 
 	// Check ID dell'Utente
 	fmt.Println("UNFOLLOW")
+	fmt.Println(r.Header.Get("Authorization"))
 	userID := Authenticate(r.Header.Get("Authorization"))
 	if userID == -1 {
+		fmt.Println(userID)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

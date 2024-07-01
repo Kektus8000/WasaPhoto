@@ -3,7 +3,7 @@ export default{
   data(){
     return{
       ID : localStorage.getItem('IDCercato'),
-      seguiti: []
+      bannati: []
     }
   },
   methods:{
@@ -15,7 +15,7 @@ export default{
       {
         let response = await this.$axios.get('/userProfile/' + this.ID, {headers: {Authorization: "Bearer " + this.ID}});
         
-        if (response.data.Followings != null) {this.seguiti = response.data.Followings; }
+        if (response.data.Banneds != null) {this.bannati = response.data.Banneds; }
       }
       catch(e)
       {
@@ -32,18 +32,17 @@ export default{
 
 <template>
   <body>
-    <header class=intestazione-seguaci>
+    <header class=intestazione-bannati>
       <h2 style = "font-weight: bold; padding-left: 20px; cursor:pointer;"
       @click = "() => {this.$router.back();}"> Torna indietro </h2>
-      <h1 style = "font-weight: bold;">Account Seguiti</h1>
-      <h2 style = "padding-right: 20px;"> Seguiti : {{this.seguiti.length}}</h2>
+      <h1 style = "font-weight: bold;">Account Bannati</h1>
+      <h2 style = "padding-right: 20px;"> Bannati : {{this.bannati.length}}</h2>
     </header>
 
-    <section class = lista-seguiti>
-      <div class = follower v-for = "utente in this.seguiti" v-if = "this.seguiti.length > 0">
+    <section class = lista-bannati>
+      <div class = utente-bannato v-for = "utente in this.bannati">
         <h2>{{utente}}</h2>
-        <button width = "15%">Smetti di Seguire</button>
-        <button class = blocca style = "color:red">Blocca</button>
+        <button class = blocca style = "color:red"> Unban </button>
       </div>
     </section>
   </body>
@@ -59,7 +58,7 @@ export default{
     background-color: whitesmoke;
   }
 
-  .intestazione-seguaci{
+  .intestazione-bannati{
     position: fixed;
     width:100%;
     height:100px;
@@ -68,11 +67,11 @@ export default{
     align-items:center;
     justify-content: space-between;
 
-    background-color: cadetblue;
+    background-color: rgb(150, 0, 24);
     border-bottom: 5px solid black;
   }
 
-  .lista-seguiti{
+  .lista-bannati{
     padding-left: 10%;
     padding-right: 10%;
     padding-top:120px;
@@ -83,10 +82,10 @@ export default{
     gap: 10px;
   }
 
-  .follower{
+  .utente-bannato{
     cursor: pointer;
     border-radius: 10px;
-    box-shadow: 10px 10px 5px cadetblue;
+    box-shadow: 10px 10px 5px rgb(150, 0, 24);
     text-align: center;
     border: 2px solid black;
   }

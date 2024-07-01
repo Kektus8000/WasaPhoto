@@ -8,21 +8,21 @@ export default{
   data(){
     return{
       newUsername : "",
-      
+
       errormsg: "",
       
       visitor : {
-        visitorID : 0,
-        visitorNome : "",
+        visitorID : Number(localStorage.getItem('identifier')),
+        visitorNome : localStorage.getItem('username'),
         visitorSeguaci : [],
         visitorSeguiti : [],
         visitorBannati : [],
-        hasBanned : false,
-        isFollowing : false,
+        hasBanned : null,
+        isFollowing : null,
       },
 
       profilo : {
-        ID : 0,
+        ID : Number(localStorage.getItem('IDCercato')),
         nome : "",
         seguaci : [],
         seguiti : [],
@@ -33,17 +33,13 @@ export default{
   },
   methods: {
     async refresh(){
-      if (this.visitor.visitorID != this.profilo.ID) { await this.visitorInfo(); }
       await this.recuperaInfo();
+      if (this.visitor.visitorID != this.profilo.ID) { await this.visitorInfo(); }
     },
     ///////////////////////////// FUNZIONI VISITOR ////////////////////////////////////////////
     async visitorInfo(){
       try
       {
-        this.visitor.visitorID = localStorage.getItem('identifier');
-
-        this.visitor.visitorNome = localStorage.getItem('username');
-
         let response = await this.$axios.get('/userProfile/' + this.visitor.visitorID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}});
         
         if (response.data.Followers != null) {this.visitor.visitorSeguaci = response.data.Followers; }
@@ -55,14 +51,6 @@ export default{
         this.visitor.isFollowing = this.visitor.visitorSeguiti.includes(this.profilo.ID);
 
         this.visitor.hasBanned = this.visitor.visitorBannati.includes(this.profilo.ID);
-
-        console.log(this.visitor.isFollowing);
-        
-        console.log(this.visitor.hasBanned);
-
-        this.controllaBan();
-
-        this.controllaFollow();
       }
       catch(e)
       {
@@ -74,7 +62,7 @@ export default{
       try
       {
         if (this.visitor.isFollowing) {
-          await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/following/' + this.profilo.ID, {}, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} ); 
+          await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/following/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} ); 
           alert("Non segui più " + this.profilo.nome);
         }
         else {
@@ -108,20 +96,10 @@ export default{
         alert(this.errormsg);
       }
     },
-    async controllaBan(){
-        if (this.visitor.hasBanned) {document.getElementById('banButton').innerHTML = STATOBAN[1];}
-        else {document.getElementById('banButton').innerHTML = STATOBAN[0];}
-    },
-    async controllaFollow(){
-        if (this.visitor.isFollowing) {document.getElementById('followButton').innerHTML = STATOFOLLOW[1];}
-        else {document.getElementById('followButton').innerHTML = STATOFOLLOW[0];}
-    },
     ////////////////////////////// FUNZIONI OWNER //////////////////////////////////////////////
     async recuperaInfo(){
       try
       {
-        this.profilo.ID = localStorage.getItem('IDCercato');
-
         let response = await this.$axios.get('/userProfile/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}});
         
         this.profilo.nome = response.data.Username;
@@ -183,10 +161,17 @@ export default{
     async controllaSeguiti(){
       this.$router.push({path: '/userProfile/${this.profilo.ID}/following'})
     },
+    async controllaBannati(){
+      this.$router.push({path: '/userProfile/' + this.profilo.ID + '/banList'});
+    },
     async tornaHomePage(){
       localStorage.removeItem('IDCercato');
       this.$router.replace('/session');
     }
+  },
+    computed: {
+      controllaBan() {return this.visitor.hasBanned ? STATOBAN[1] : STATOBAN[0];},
+      controllaFollow() { return this.visitor.isFollowing ? STATOFOLLOW[1] : STATOFOLLOW[0];}
   },
     mounted(){
       this.refresh();
@@ -197,9 +182,9 @@ export default{
 <template>
   <body>
     <header class=intestazione>
-      <h4 @click = "tornaHomePage" style= "padding-right : 300px; font-weight: bold;">Torna alla HomePage</h4>
+      <h4 @click = "tornaHomePage" style= "padding-left : 10px; font-weight: bold;">Torna alla HomePage</h4>
       <h1 style = "font-weight: bold;">Profilo di {{this.profilo.nome}}</h1>
-      <div class=statistiche style= "padding-left : 300px; ">
+      <div class=statistiche style= "padding-right : 10px; ">
         <h4 @click = "controllaSeguiti">Followers: {{this.profilo.seguaci.length}}</h4>
         <h4>Seguiti: {{this.profilo.seguiti.length}}</h4>
       </div>
@@ -222,14 +207,14 @@ export default{
 
     <div class = footer>
       <div class = ownerActions v-if = "this.profilo.ID == this.visitor.visitorID">
-        <h4 style= "padding-left : 100px;"> Bannati: {{this.profilo.bannati.length}}</h4>
+        <h4 style= "padding-left : 100px; font-weight: bold;" @click = "controllaBannati"> Bannati: {{this.profilo.bannati.length}}</h4>
         <input id = "upload" type="file" accept="image/*" @change="uploadPhoto" style= "padding-left : 100px;">
-        <h4 style= "padding-right : 100px;" @click = "mostraDialog()"> Cambia username </h4>
+        <h4 style= "padding-right : 100px; font-weight: bold;" @click = "mostraDialog()"> Cambia username </h4>
       </div>
 
       <div class = visitorActions v-else>
-        <button id = banButton style = "font-size: 30px; color:red;" @click = "gestioneBan"> {{controllaBan}}</button>
-        <button id = followButton style = "font-size: 30px;" @click = "gestioneFollow"> {{controllaFollow}}</button>
+        <button id = banButton style = "font-size: 30px; color:red;" @click = "gestioneBan"> {{controllaBan}} </button>
+        <button id = followButton style = "font-size: 30px;" @click = "gestioneFollow"> {{controllaFollow}} </button>
       </div>
     </div>
   </body>
@@ -254,12 +239,12 @@ export default{
   .intestazione{
     width:100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     cursor: pointer;
     height:100px;
 
-    background-color:brown;
+    background-color: rgb(0, 117, 94);
 
     border-bottom-left-radius: 30px;
     border-bottom-right-radius: 30px;
@@ -291,7 +276,7 @@ export default{
     height:100px;
     bottom: 0;
 
-    background-color:brown;
+    background-color:rgb(0, 117, 94);
 
     border-top-left-radius: 30px;
     border-top-right-radius: 30px;

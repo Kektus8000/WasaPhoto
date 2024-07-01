@@ -3,7 +3,7 @@ package database
 func (db *appdbimpl) GetBanList(userID int) ([]int, error) {
 
 	var bannedIDs []int
-	rows, err := db.c.Query(`SELECT * FROM Banned WHERE bannerID = ?`, userID)
+	rows, err := db.c.Query(`SELECT bannedID FROM Banned WHERE bannerID = ?`, userID)
 	if err != nil {
 		return nil, err
 	}

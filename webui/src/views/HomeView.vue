@@ -5,11 +5,13 @@ export default{
     return{
       ricerca: "",
       errormsg: "",
+      
       stream: [],
+      
       utenti: [],
 
       profilo : {
-        ID : localStorage.getItem('identifier'),
+        ID : Number(localStorage.getItem('identifier')),
         nome : localStorage.getItem('username'),
         seguaci : [],
         seguiti : [],
@@ -20,7 +22,9 @@ export default{
   methods:{
     async refresh()
     {
+      await this.recuperaInfo();
       await this.recuperaStream();
+      console.log(this.profilo.seguiti);
     },    
     async recuperaInfo(){
       try
@@ -49,15 +53,20 @@ export default{
       }
     },
     async visitaProfilo(checkID){
-        localStorage.setItem('IDCercato', checkID);
-        this.$router.push({path: `/userProfile/${checkID}`});
+      localStorage.setItem('IDCercato', checkID);
+      this.$router.push({path: `/userProfile/${checkID}`});
     },
-    logout(){
+    async visitaSeguiti(){
+      localStorage.setItem('IDCercato', this.profilo.ID);
+      this.$router.push({path: '/userProfile/' + this.profilo.ID + '/following'});
+    },
+    async logout(){
       localStorage.removeItem('IDCercato');
       localStorage.removeItem('identifier');
       localStorage.removeItem('username');
       this.$router.replace({path: "/"})
-    }
+    },
+    async stampaTipo(elem){console.log(this.profilo.seguiti.includes(elem));},
   },
     watch: 
     {
@@ -68,6 +77,7 @@ export default{
           {
             let response = await this.$axios.put('/user/', {username: this.ricerca}, { headers: {Authorization: "Bearer " + this.profilo.ID} });
             this.utenti = response.data;
+            console.log(this.utenti);
           }
           catch(e)
           {
@@ -91,7 +101,7 @@ export default{
         <div class = opzioni style = "cursor: pointer">
           <input class = cercaNome placeholder ="Cerca Utente" v-model=this.ricerca>
           <h3 @click = "visitaProfilo(this.profilo.ID)">Vai al tuo Profilo</h3>
-          <h3 @click = "() => {this.$router.push({path: '/userProfile/${this.profilo.ID}/following'}) }">Seguiti</h3>
+          <h3 @click = "visitaSeguiti">Seguiti</h3>
           <h3>Seguaci</h3>
           <h3 @click = "logout"> Logout </h3>
         </div>
@@ -123,8 +133,8 @@ export default{
       <div class= utenti-ricercati v-for = "user in this.utenti">
         <div class = utente-trovato>
           <h2 style = "font-weight: bold; padding-left:10px" @click = "visitaProfilo(user.UserID)"> {{user.Username}} </h2>
-          <h2 style = "color: red; padding-top: 5px; padding-right: 20px;" v-show = "this.profilo.bannati.includes(user.userID)"> Bannato </h2>
-          <h2 style = "color: green; padding-top: 5px; padding-right: 20px;" v-show = "this.profilo.seguiti.includes(user.userID)" > Ti segue </h2>
+          <h2 style = "color: green; padding-top: 5px; padding-right: 20px;" v-if = "this.profilo.seguiti.includes(user.userID)"> Seguito </h2>
+          <h2 style = "color: red; padding-top: 5px; padding-right: 20px;" v-if = "this.profilo.bannati.includes(user.userID)"> Bannato </h2>
         </div>
       </div>
     </div>
@@ -183,7 +193,6 @@ export default{
     cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content:space-between;
     
     border: 1px solid black;
     box-shadow: 10px 10px 5px lightblue;

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -18,14 +17,7 @@ func (rt *_router) BanUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
-	var banned string
-	errDecode := json.NewDecoder(r.Body).Decode(&banned)
-	if errDecode != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	bannedID, errConv2 := strconv.Atoi(banned)
+	bannedID, errConv2 := strconv.Atoi(ps.ByName("bannedID"))
 	if errConv2 != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
