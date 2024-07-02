@@ -1,24 +1,27 @@
 package database
 
-func (db *appdbimpl) GetBanList(userID int) ([]int, error) {
+func (db *appdbimpl) GetBanList(userID int) ([]User, error) {
 
-	var bannedIDs []int
-	rows, err := db.c.Query(`SELECT bannedID FROM Banned WHERE bannerID = ?`, userID)
+	var banneds []User
+	rows, err := db.c.Query(`SELECT bd.bannedID, ut.username 
+	FROM Banned bd, User ut 
+	WHERE bd.bannerID = ?
+	AND bd.banned = ut.userID`, userID)
 	if err != nil {
 		return nil, err
 	}
 
 	for rows.Next() {
-		var ID int
-		errScan := rows.Scan(&ID)
+		var ban User
+		errScan := rows.Scan(&ban.UserID, &ban.Username)
 		if errScan != nil {
 			return nil, errScan
 		}
-		bannedIDs = append(bannedIDs, ID)
+		banneds = append(banneds, ban)
 	}
 
 	if rows.Err() != nil {
 		return nil, rows.Err()
 	}
-	return bannedIDs, nil
+	return banneds, nil
 }

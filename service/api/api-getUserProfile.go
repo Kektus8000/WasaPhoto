@@ -2,9 +2,9 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
-	"fmt"
 
 	"github.com/Kektus8000/WasaPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
@@ -82,9 +82,31 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	// I valori ottenuti vengono salvati nella struct UserProfile appena creata
 	profilo.UserID = user.UserID
 	profilo.Username = user.Username
-	profilo.Followers = followers
-	profilo.Followings = followings
-	profilo.Banneds = banneds
+
+	for i := 0; i < len(followers); i++ {
+		temp := followers[i]
+		var follower User
+		follower.UserID = temp.UserID
+		follower.Username = temp.Username
+		profilo.Followers = append(profilo.Followers, follower)
+	}
+
+	for i := 0; i < len(followings); i++ {
+		temp := followings[i]
+		var following User
+		following.UserID = temp.UserID
+		following.Username = temp.Username
+		profilo.Followings = append(profilo.Followings, following)
+	}
+
+	for i := 0; i < len(banneds); i++ {
+		temp := banneds[i]
+		var ban User
+		ban.UserID = temp.UserID
+		ban.Username = temp.Username
+		profilo.Banneds = append(profilo.Banneds, ban)
+	}
+
 	for i := 0; i < len(photos); i++ {
 		temp := photos[i]
 		var photo Photo
@@ -98,6 +120,7 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+
 		for j := 0; j < len(result); j++ {
 			temp2 := result[i]
 			var comm Comment

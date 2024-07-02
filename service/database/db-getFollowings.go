@@ -1,24 +1,27 @@
 package database
 
-func (db *appdbimpl) GetFollowings(userID int) ([]int, error) {
+func (db *appdbimpl) GetFollowings(userID int) ([]User, error) {
 
-	var followingIDs []int
-	rows, err := db.c.Query(`SELECT followingID FROM Following WHERE followerID = ?`, userID)
+	var followings []User
+	rows, err := db.c.Query(`SELECT fl.followingID, ut.username 
+	FROM Following fl, User ut
+	WHERE fl.followerID = ?
+	AND ut.userID = fl.followingID`, userID)
 	if err != nil {
 		return nil, err
 	}
 
 	for rows.Next() {
-		var ID int
-		errScan := rows.Scan(&ID)
+		var followed User
+		errScan := rows.Scan(&followed.UserID, followed.Username)
 		if errScan != nil {
 			return nil, errScan
 		}
-		followingIDs = append(followingIDs, ID)
+		followings = append(followings, followed)
 	}
 
 	if rows.Err() != nil {
 		return nil, rows.Err()
 	}
-	return followingIDs, nil
+	return followings, nil
 }

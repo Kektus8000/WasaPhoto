@@ -30,9 +30,9 @@ type AppDatabase interface {
 	// Metodi GET
 	GetUserByID(userID int) (User, error)
 	GetUserByUsername(username string) (User, error)
-	GetFollowers(userID int) ([]int, error)
-	GetFollowings(userID int) ([]int, error)
-	GetBanList(userID int) ([]int, error)
+	GetFollowers(userID int) ([]User, error)
+	GetFollowings(userID int) ([]User, error)
+	GetBanList(userID int) ([]User, error)
 	GetPublishedPhotos(userID int) ([]Photo, error)
 	GetPhotoPublisher(photoID int) (int, error)
 	CheckBanned(bannerID int, bannedID int) (bool, error)
