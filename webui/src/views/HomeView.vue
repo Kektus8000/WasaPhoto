@@ -24,7 +24,8 @@ export default{
     {
       await this.recuperaInfo();
       await this.recuperaStream();
-      console.log(this.profilo.seguiti);
+      console.log(this.profilo.ID);
+      console.log(this.profilo.nome);
     },    
     async recuperaInfo(){
       try
@@ -58,15 +59,18 @@ export default{
     },
     async visitaSeguiti(){
       localStorage.setItem('IDCercato', this.profilo.ID);
+      this.$router.push({path: '/userProfile/' + this.profilo.ID + '/followeds'});
+    },
+    async visitaSeguaci(){
+      localStorage.setItem('IDCercato', this.profilo.ID);
       this.$router.push({path: '/userProfile/' + this.profilo.ID + '/following'});
     },
     async logout(){
       localStorage.removeItem('IDCercato');
       localStorage.removeItem('identifier');
       localStorage.removeItem('username');
-      this.$router.replace({path: "/"})
+      this.$router.replace({path: "/"});
     },
-    async stampaTipo(elem){console.log(this.profilo.seguiti.includes(elem));},
   },
     watch: 
     {
@@ -102,7 +106,7 @@ export default{
           <input class = cercaNome placeholder ="Cerca Utente" v-model=this.ricerca>
           <h3 @click = "visitaProfilo(this.profilo.ID)">Vai al tuo Profilo</h3>
           <h3 @click = "visitaSeguiti">Seguiti</h3>
-          <h3>Seguaci</h3>
+          <h3 @click = "visitaSeguaci">Seguaci</h3>
           <h3 @click = "logout"> Logout </h3>
         </div>
       </nav>

@@ -147,8 +147,8 @@ export default{
       {
         let response = await this.$axios.post('/user/' + this.profilo.ID + '/username', {username: this.newUsername}, { headers: {Authorization: "Bearer " + this.visitor.visitorID} })
         this.profilo.nome = this.newUsername;
+        localStorage.setItem('username', this.newUsername);
         this.newUsername = "";
-        localStorage.setItem('username', this.profilo.nome);
         alert("Username cambiato!");
         this.chiudiDialog();
       }
@@ -158,11 +158,14 @@ export default{
         alert(this.errormsg);
       }
     },
+    async controllaSeguaci(){
+      this.$router.push({path: '/userProfile/' + this.profilo.ID + '/following'});
+    },
     async controllaSeguiti(){
-      this.$router.push({path: '/userProfile/${this.profilo.ID}/following'})
+      this.$router.push({path: '/userProfile/' + this.profilo.ID + '/followeds'});
     },
     async controllaBannati(){
-      this.$router.push({path: '/userProfile/' + this.profilo.ID + '/banList'});
+      this.$router.push({path: '/userProfile/'+ this.profilo.ID + '/banList'});
     },
     async tornaHomePage(){
       localStorage.removeItem('IDCercato');
@@ -185,8 +188,8 @@ export default{
       <h4 @click = "tornaHomePage" style= "padding-left : 10px; font-weight: bold;">Torna alla HomePage</h4>
       <h1 style = "font-weight: bold;">Profilo di {{this.profilo.nome}}</h1>
       <div class=statistiche style= "padding-right : 10px; ">
-        <h4 @click = "controllaSeguiti">Followers: {{this.profilo.seguaci.length}}</h4>
-        <h4>Seguiti: {{this.profilo.seguiti.length}}</h4>
+        <h4 @click = "controllaSeguaci">Seguaci: {{this.profilo.seguaci.length}}</h4>
+        <h4 @click = "controllaSeguiti">Seguiti: {{this.profilo.seguiti.length}}</h4>
       </div>
     </header>
 
