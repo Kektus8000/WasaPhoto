@@ -8,6 +8,7 @@ import (
 func (rt *_router) Handler() http.Handler {
 
 	// Metodi GET
+	rt.router.GET("/user/:userID", rt.wrap(rt.GetUser))
 	rt.router.GET("/userProfile/:userID", rt.wrap(rt.GetUserProfile))
 	rt.router.GET("/userProfile/:userID/stream/", rt.wrap(rt.GetMyStream))
 	rt.router.GET("/userProfile/:userID/publishedPhotos/:photoID", rt.wrap(rt.RecoverPhoto))

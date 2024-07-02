@@ -35,6 +35,7 @@ export default{
     async refresh(){
       await this.recuperaInfo();
       if (this.visitor.visitorID != this.profilo.ID) { await this.visitorInfo(); }
+      console.log(this.profilo.fotoPubblicate);
     },
     ///////////////////////////// FUNZIONI VISITOR ////////////////////////////////////////////
     async visitorInfo(){
@@ -110,7 +111,16 @@ export default{
         
         if (response.data.Banneds != null) {this.profilo.bannati = response.data.Banneds;}
         
-        if (response.data.PublishedPhotos != null) {this.profilo.fotoPubblicate = response.data.PublishedPhotos;}
+        if (response.data.PublishedPhotos != null) {
+          this.profilo.fotoPubblicate = response.data.PublishedPhotos;
+          for (let i = 0; i < this.profilo.fotoPubblicate.length; i++){
+            var foto = this.profilo.fotoPubblicate[i];
+            let temp = await this.$axios.get('/userProfile/' + this.profilo.ID + '/publishedPhotos/' + foto.PhotoID, 
+            {responseType: 'blob',
+            headers: {Authorization: "Bearer " + this.visitor.visitorID}});
+            foto.File = URL.createObjectURL(temp.data);
+          }  
+        }
       }
       catch(e)
       {
@@ -202,12 +212,12 @@ export default{
       </div>
     </dialog>
 
-    <div class = fotoCondivise v-for = "immagine in this.profilo.fotoPubblicate">
-      <div class = colonna>
-        <img :src = "immagine.File">
+    <div class = fotoCondivise>
+      <div v-for = "immagine in this.profilo.fotoPubblicate">
+        <img class = foto-profilo :src = "immagine.File">
       </div>
     </div>
-
+    
     <div class = footer>
       <div class = ownerActions v-if = "this.profilo.ID == this.visitor.visitorID">
         <h4 style= "padding-left : 100px; font-weight: bold;" @click = "controllaBannati"> Bannati: {{this.profilo.bannati.length}}</h4>
@@ -240,6 +250,7 @@ export default{
   }
 
   .intestazione{
+    position: fixed;
     width:100%;
     display: flex;
     justify-content: space-between;
@@ -254,21 +265,23 @@ export default{
     border-bottom: 3px solid black;
   }
 
-  .riga{
-    padding-top: 300px;
-    display: flex;
-    flex-wrap: wrap;
-  }
-
-  .colonna{
-    flex: 1 0 30%;
-    padding: 5px;
-  }
-
-  .foto{
+  .fotoCondivise{
+    padding-top:100px;
+    padding-bottom:100px;
+    padding-left: 10%;
+    padding-right: 10%;
     width: 100%;
-    height:100%;
-    border-radius: 10px;
+    
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .foto-profilo{
+    width: 100%;
+    height: 100%;
+    border-radius: 15px;
+    border: 2px solid black;
   }
 
   .footer{

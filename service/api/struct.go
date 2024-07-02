@@ -25,8 +25,8 @@ type Photo struct {
 type UserProfile struct {
 	UserID          int
 	Username        string
-	Followers       []int   // ID degli utenti seguaci
-	Followings      []int   // ID degli utenti seguiti
-	Banneds         []int   // ID degli utenti bannati
-	PublishedPhotos []Photo // Foto pubblicate
+	Followers       []User   // Utenti seguaci
+	Followings      []User   // Utenti seguiti
+	Banneds         []User   // Utenti bannati
+	PublishedPhotos []Photo  // Foto pubblicate
 }

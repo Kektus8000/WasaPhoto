@@ -1,6 +1,6 @@
 package database
 
-func (db *appdbimpl) GetFollowers(userID int) ([]int, error) {
+func (db *appdbimpl) GetFollowers(userID int) ([]User, error) {
 
 	var followerIDs []int
 	rows, err := db.c.Query(`SELECT followerID FROM Following WHERE followingID = ?`, userID)
