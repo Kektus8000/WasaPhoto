@@ -1,7 +1,5 @@
 package database
 
-import "errors"
-
 func (db *appdbimpl) GetPublishedPhotos(userID int) ([]Photo, error) {
 
 	var photos []Photo
@@ -22,7 +20,7 @@ func (db *appdbimpl) GetPublishedPhotos(userID int) ([]Photo, error) {
 	}
 
 	if rows.Err() != nil {
-		return nil, errors.New("An error has occurred while reading the rows of the query")
+		return nil, rows.Err()
 	}
 	return photos, nil
 }
