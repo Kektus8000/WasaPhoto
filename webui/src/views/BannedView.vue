@@ -41,7 +41,7 @@ export default{
 
     <section class = lista-bannati>
       <div class = utente-bannato v-for = "utente in this.bannati">
-        <h2>{{utente}}</h2>
+        <h2>{{utente.Username}}</h2>
         <button class = blocca style = "color:red"> Unban </button>
       </div>
     </section>

@@ -6,7 +6,7 @@ func (db *appdbimpl) GetBanList(userID int) ([]User, error) {
 	rows, err := db.c.Query(`SELECT bd.bannedID, ut.username 
 	FROM Banned bd, User ut 
 	WHERE bd.bannerID = ?
-	AND bd.banned = ut.userID`, userID)
+	AND bd.bannedID = ut.userID`, userID)
 	if err != nil {
 		return nil, err
 	}

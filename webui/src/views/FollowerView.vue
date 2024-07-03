@@ -41,7 +41,7 @@ export default{
 
     <section class = lista-seguaci>
       <div class = follower v-for = "utente in this.seguaci" v-if = "this.seguaci.length > 0">
-        <h2>{{utente}}</h2>
+        <h2>{{utente.Username}}</h2>
         <button class = blocca style = "color:red">Blocca</button>
       </div>
     </section>

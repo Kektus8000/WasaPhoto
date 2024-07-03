@@ -24,8 +24,6 @@ export default{
     {
       await this.recuperaInfo();
       await this.recuperaStream();
-      console.log(this.profilo.ID);
-      console.log(this.profilo.nome);
     },    
     async recuperaInfo(){
       try
@@ -44,8 +42,20 @@ export default{
     async recuperaStream(){
       try
       {
-        let response = await this.$axios.get('/userProfile/${this.profilo.ID}/stream/', { headers: {Authorization: "Bearer " + this.profilo.ID} });
-        if (response.data != null) { this.stream = response.data; }
+        let response = await this.$axios.get('/userProfile/' + this.profilo.ID + '/stream/', { headers: {Authorization: "Bearer " + this.profilo.ID} });
+        if (response.data != null) {
+          this.stream = response.data;
+          for (let i = 0; i < this.stream.length; i++){
+            var foto = this.stream[i];
+            let temp = await this.$axios.get('/userProfile/' + foto.PublisherID + '/publishedPhotos/' + foto.PhotoID, 
+            {responseType: 'blob',
+            headers: {Authorization: "Bearer " + this.profilo.ID} });
+            foto.File = URL.createObjectURL(temp.data);
+            
+            let temp2 = await this.$axios.get('/user/' + foto.PublisherID, {});
+            foto.PublisherName = temp2.data.Username;
+          }  
+        }
       }
       catch(e)
       {
@@ -91,13 +101,16 @@ export default{
         }
       }
     },
-  mounted(){
+    mounted(){
       this.refresh();
   }  
 }
 </script>
 
 <template>
+  <head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  </head>
   <body>
     <div class = barraLaterale>
       <h2 class = introduzione>Benvenuto {{this.profilo.nome}}</h2>
@@ -113,14 +126,15 @@ export default{
     </div>
 
     <div class= contenuto v-if = "this.ricerca == '' ">
-      <div class=fotoPubblicate v-for = "foto in this.stream">
+      <div v-for = "foto in this.stream">
         <div class = pubblicazione>
-          <div class = foto>
-            <h4 height = 40px style = "font-weight: bold; padding-top: 5px; padding-left: 5px;">{{this.profilo.nome}}</h4>
-            <img class = immagine :src = foto.link>
+          <div class = zona-foto>
+            <h4 height = 40px style = "font-weight: bold; padding-top: 5px; padding-left: 5px;"> {{foto.PublisherName}}</h4>
+            <img class = immagine :src = foto.File>
+            <button class = like-stream> <i class="material-icons">favorite</i> Mi piace </button>
           </div>
           <div class = sezioneCommenti>
-            <div v-for = "commento in this.commenti">
+            <div v-for = "commento in foto.Commenti">
               <div class = commento>
                 <div class = commentatore>
                   <h5 style = "font-weight: bold; padding-top: 5px;">{{this.profilo.nome}}</h5>
@@ -211,21 +225,25 @@ export default{
 
   .pubblicazione{
     height:500px;
-    width:80%;
+    width:90%;
     display: flex;
     margin-bottom: 50px;
     border: 1px solid black;
   }
 
+  .zona-foto{
+    width: 50%;
+  }
   .immagine{
-    width:100%;
+    width: 100%;
     height: 455px;
   }
 
 
   .sezioneCommenti{
+    border-left: 1px solid black;
     top:40px;
-    width:60%;
+    width:50%;
     height:100%;
     display:inline;
     flex-wrap: wrap;
@@ -235,6 +253,24 @@ export default{
   .commento{
     border: 1px solid black;
     word-wrap:break-word;
+  }
+
+  .like-stream{
+    transform: translate(10%, -120%);
+    position: relative;
+
+    font-size: 20px;
+
+    border-radius:10px;
+    border: 1px solid black;
+    color: rgb(80, 200, 120);
+    cursor: pointer;
+    background-color: white;
+  }
+
+  .like-stream:hover{
+    color: white;
+    background-color: rgb(80, 200, 120);
   }
 
 </style>

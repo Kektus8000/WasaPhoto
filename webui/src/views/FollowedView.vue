@@ -41,7 +41,7 @@ export default{
 
     <section class = lista-seguiti>
       <div class = followed v-for = "utente in this.seguiti" v-if = "this.seguiti.length > 0">
-        <h2>{{utente}}</h2>
+        <h2>{{utente.Username}}</h2>
         <button width = "15%">Smetti di Seguire</button>
         <button class = blocca style = "color:red">Blocca</button>
       </div>

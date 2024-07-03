@@ -49,9 +49,9 @@ export default{
         
         if (response.data.Banneds != null) {this.visitor.visitorBannati = response.data.Banneds;}
 
-        this.visitor.isFollowing = this.visitor.visitorSeguiti.includes(this.profilo.ID);
+        this.visitor.isFollowing = this.visitor.visitorSeguiti.some(e => e.UserID === this.profilo.ID);
 
-        this.visitor.hasBanned = this.visitor.visitorBannati.includes(this.profilo.ID);
+        this.visitor.hasBanned = this.visitor.visitorBannati.some(e => e.UserID === this.profilo.ID);
       }
       catch(e)
       {
@@ -279,7 +279,8 @@ export default{
 
   .foto-profilo{
     width: 100%;
-    height: 100%;
+    height: 300px;
+    object-fit: cover;
     border-radius: 15px;
     border: 2px solid black;
   }

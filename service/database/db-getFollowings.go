@@ -13,7 +13,7 @@ func (db *appdbimpl) GetFollowings(userID int) ([]User, error) {
 
 	for rows.Next() {
 		var followed User
-		errScan := rows.Scan(&followed.UserID, followed.Username)
+		errScan := rows.Scan(&followed.UserID, &followed.Username)
 		if errScan != nil {
 			return nil, errScan
 		}

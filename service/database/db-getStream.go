@@ -5,10 +5,10 @@ import "errors"
 func (db *appdbimpl) GetStream(userID int) ([]Photo, error) {
 
 	var photos []Photo
-	rows, errQuery := db.c.Query(` SELECT pht.file, pht.photoID, pht.publisherID, pht.publicationDate
+	rows, errQuery := db.c.Query(`SELECT pht.file, pht.photoID, pht.publisherID, pht.publicationDate
 	FROM Photo pht, User us, Following fl
-	WHERE pht.publisherID = fl.followerID
-	AND fl.followingID = us.userID
+	WHERE pht.publisherID = fl.followingID
+	AND fl.followerID = us.userID
 	AND us.userID = ?
     ORDER BY pht.publicationDate;`, userID)
 	if errQuery != nil {
