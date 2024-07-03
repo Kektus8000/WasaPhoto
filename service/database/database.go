@@ -24,6 +24,7 @@ type Photo struct {
 	PublisherID     int
 	PublicationDate time.Time
 	Comments        []Comment
+	Likes           []User
 }
 
 type AppDatabase interface {
@@ -35,6 +36,7 @@ type AppDatabase interface {
 	GetBanList(userID int) ([]User, error)
 	GetPublishedPhotos(userID int) ([]Photo, error)
 	GetPhotoPublisher(photoID int) (int, error)
+	GetLikes(photoID int) ([]User, error)
 	CheckBanned(bannerID int, bannedID int) (bool, error)
 	GetStream(userID int) ([]Photo, error)
 	GetComments(photoID int) ([]Comment, error)
@@ -58,6 +60,8 @@ type AppDatabase interface {
 	DeletePhoto(photoID int) (string, error)
 	UnlikePhoto(userID int, photoID int) error
 	UncommentPhoto(commentID int) error
+	RemoveAllComments(bannerID int, userID int) error
+	RemoveAllLikes(bannerID int, userID int) error
 }
 
 type appdbimpl struct {

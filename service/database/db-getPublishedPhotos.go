@@ -7,7 +7,7 @@ func (db *appdbimpl) GetPublishedPhotos(userID int) ([]Photo, error) {
 	var photos []Photo
 	rows, errQuery := db.c.Query(`SELECT file, photoID, publisherID, publicationDate
 	FROM Photo WHERE publisherID = ?
-	ORDER BY publicationDate`, userID)
+	ORDER BY publicationDate DESC`, userID)
 	if errQuery != nil {
 		return nil, errQuery
 	}

@@ -115,20 +115,29 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		photo.PublicationDate = temp.PublicationDate
 		photo.File = "/tmp/userProfile/" + strconv.Itoa(photo.PublisherID) + "/publishedPhotos/" + strconv.Itoa(photo.PhotoID)
 
-		result, errComm := rt.db.GetComments(photo.PhotoID)
+		comms, errComm := rt.db.GetComments(photo.PhotoID)
 		if errComm != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		for j := 0; j < len(result); j++ {
-			temp2 := result[i]
+		for j := 0; j < len(comms); j++ {
+			temp2 := comms[i]
 			var comm Comment
 			comm.CommentID = temp2.CommentID
 			comm.Comment = temp2.Comment
 			comm.PhotoID = temp2.PhotoID
 			comm.PublisherID = temp2.PublisherID
 			photo.Comments = append(photo.Comments, comm)
+		}
+
+		likes, errComm := rt.db.GetLikes(photo.PhotoID)
+		for k := 0; k < len(likes); k++ {
+			temp3 := likes[k]
+			var lover User
+			lover.UserID = temp3.UserID
+			lover.Username = temp3.Username
+			photo.Likes = append(photo.Likes, lover)
 		}
 
 		profilo.PublishedPhotos = append(profilo.PublishedPhotos, photo)

@@ -20,13 +20,14 @@ type Photo struct {
 	PublisherID     int
 	PublicationDate time.Time
 	Comments        []Comment
+	Likes           []User
 }
 
 type UserProfile struct {
 	UserID          int
 	Username        string
-	Followers       []User   // Utenti seguaci
-	Followings      []User   // Utenti seguiti
-	Banneds         []User   // Utenti bannati
-	PublishedPhotos []Photo  // Foto pubblicate
+	Followers       []User  // Utenti seguaci
+	Followings      []User  // Utenti seguiti
+	Banneds         []User  // Utenti bannati
+	PublishedPhotos []Photo // Foto pubblicate
 }
