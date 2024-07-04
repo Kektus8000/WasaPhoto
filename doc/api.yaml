@@ -3,7 +3,7 @@ info:
   title: WasaPhoto 2023/2024
   description: |
     Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! You can upload your photos directly from your PC, and they will be visible to everyone following you
-  version: "13"
+  version: "14"
 
 components:
   schemas:
@@ -19,10 +19,11 @@ components:
           type: string
           example: Simone
           pattern: '^.*?$'
-          minLength: 6
-          maxLength: 20
+          minLength: 3
+          maxLength: 16
     
     userProfile:
+      description: The user profile of an user on WasaPhoto
       type: object
       properties:
         userID:
@@ -33,15 +34,15 @@ components:
           type: string
           example: Simone
           pattern: '^.*?$'
-          minLength: 6
-          maxLength: 20
+          minLength: 3
+          maxLength: 16
         followers:
           description: Users following the user
           type: array
           items: {$ref: "#/components/schemas/user"}
           minItems: 0
           maxItems: 1000
-        following:
+        followings:
           description: Users followed by the user
           type: array
           items: {$ref: "#/components/schemas/user"}
@@ -67,18 +68,16 @@ components:
           maxItems: 1000
 
     photo:
+      description: A photo saved on WasaPhoto database
       type: object
       properties:
         file:
           description: The photo's file
           type: string
           format: binary
-        Path:
-          description: The path in the server of the photo AFTER the upload
-          type: string
-          example: ./UserProfile/2/PublishedPhotos/3
-          minLength: 35
-          maxLength: 200
+          example: newPhoto.png
+          minLength: 20
+          maxLength: 1000
         photoID:
           description: Photo's identifier
           type: integer
@@ -132,7 +131,6 @@ components:
           example: 118182
           
 
-
   securitySchemes:
     bearerAuth:            
       type: http
@@ -153,29 +151,20 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  name:
-                    type: string
-                    example: Simone
-                    pattern: '^.*?$'
-                    minLength: 3
-                    maxLength: 16
+                type: string
+                example: Simone
+                pattern: '^.*?$'
+                minLength: 3
+                maxLength: 16
           required: true
       responses:
-        '200':
-          description: User log-in action successful
-          content:
-            application/json:
-              schema:
-                description: The userID 
-                type: integer
-                example: 101293
         '201':
           description: User wasn't in the system, so a new user has been created
           content:
             application/json:
               schema: {$ref: "#/components/schemas/user"}
+        '204':
+          description: User log-in action successful
 
   /user/:
     put:
@@ -193,13 +182,18 @@ paths:
               maxLength: 16
               example: Miriam
       responses:
-        '200':
+        '201':
           description: User's with similar names
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/user"}
-        '404':
-          description: Unable to find that user
+              schema:
+                description: A collection of users who have similar names to the one asked
+                type: array
+                items: {$ref: "#/components/schemas/user"}
+                minItems: 0
+                maxItems: 1000
+        '500':
+          description: The userlist couldn't be retrived due to a server error
         
   
   /userProfile/{userID}:
@@ -217,7 +211,7 @@ paths:
         Get the profile of an user with that username. If not found, return an error.
       operationId: getUserProfile
       responses:
-        '200':
+        '201':
           description: The user is in the system and you can visit his/her profile.
           content:
             application/json:
@@ -226,6 +220,8 @@ paths:
           description: You are in the user banlist, so you can't visit user's profile.
         '404':
           description: The user isn't registered in the system.
+        '500':
+          description: The userProfile couldn't be retrieved due to a server error
       security:
       - bearerAuth: [] 
   
@@ -251,46 +247,18 @@ paths:
               description: New username for the user
               type: string
               pattern: '^.*?$'
-              minLength: 6
-              maxLength: 20
+              minLength: 3
+              maxLength: 16
               example: Miriam
       responses:
-        '200':
+        '204':
           description: The username has been updated.
+        '403':
+          description: There is an user with already that name
         '404':  
           description: The user wasn't in the system
-      security:
-      - bearerAuth: [] 
-
-  /userProfile/{userID}/following/:
-    parameters:
-    - name : userID
-      in : path
-      required: true
-      schema:
-        description: User's Id
-        type: integer
-
-    post:
-      tags: ["followUser"]
-      summary: Follow an user
-      description: Add an user on your following list
-      operationId: followUser
-      requestBody:
-        description: The userID to follow
-        content:
-          plain/text:
-            schema:
-              description: An userID
-              type: integer
-              example: 123456
-      responses:
-        '200':
-          description: The user has been added to the following list
-        '403':
-          description: You can't add the user in you following list because you are in its banList
-        '404':
-          description: The user wasn't in the system
+        '500':
+          description: The username couldn't be changed due to a server error
       security:
       - bearerAuth: [] 
 
@@ -310,16 +278,35 @@ paths:
         description: Follower's Id
         type: integer
 
+    post:
+      tags: ["followUser"]
+      summary: Follow an user
+      description: Add an user on your following list
+      operationId: followUser
+      responses:
+        '204':
+          description: The user has been added to the following list
+        '403':
+          description: You can't add the user in you following list because you are in its banList
+        '404':
+          description: The user wasn't in the system
+        '500':
+          description: The user couldn't be followed due to a server error
+      security:
+      - bearerAuth: [] 
+
     delete:
       tags: ["unfollowUser"]
       summary: Un-Follow an user
       description: Remove an user from your following list
       operationId: unfollowUser
       responses:
-        '200':
+        '204':
           description: The user has been removed from the following list
-        '400':
+        '404':
           description: The user wasn't in the following list
+        '500':
+          description: The user couldn't be unfollowed due to a server error
       security:
       - bearerAuth: [] 
 
@@ -337,38 +324,13 @@ paths:
       description: Get the user's stream by collecting the photo
       operationId: getMyStream
       responses:
-        '202':
+        '201':
           description: The stream has been collected
           content:
             image/jpeg:
               schema: {$ref: '#/components/schemas/userProfile/properties/stream'}
-      security:
-      - bearerAuth: [] 
-
-  /userProfile/{userID}/banList/:
-    parameters:
-    - name : userID
-      in : path
-      required: true
-      schema:
-        description: User's id
-        type: integer
-    post:
-      tags: ["banUser"]
-      summary: Ban an user
-      description: Add an ID in the collection of banneds
-      operationId: banUser
-      requestBody:
-        content:
-          application/json:
-            schema: {$ref: "#/components/schemas/user"}
-      responses:
-        '200':
-          description: The user has been added to the banList
-        '400':
-          description: The user was already in the banlist
-        '404':
-          description: The user doesn't exist in the system
+        '500':
+          description: The stream couldn't be retrieved due to a server error
       security:
       - bearerAuth: [] 
 
@@ -386,16 +348,37 @@ paths:
       schema:
         description: User's id to ban
         type: integer
+    
+    post:
+      tags: ["banUser"]
+      summary: Ban an user
+      description: Add an ID in the collection of banneds
+      operationId: banUser
+      responses:
+        '204':
+          description: The user has been added to the banList
+        '403':
+          description: The user was already in the banlist
+        '404':
+          description: The user doesn't exist in the system
+        '500':
+          description: The user couldn't be banned due to a server error
+        
+      security:
+      - bearerAuth: [] 
+
     delete:
       tags: ["unbanUser"]
       summary: Un-ban an user
       description: Remove an user from your banlist. This way, your profile can be viewed by the user.
       operationId: unbanUser
       responses:
-        '200':
+        '204':
           description: The user has been removed from the banlist.
         '404':
           description: The user wasn't in the banlist, so he can't be removed.
+        '500':
+          description: The user couldn't be unbanned due to a server error
       security:
       - bearerAuth: [] 
         
@@ -417,19 +400,16 @@ paths:
         description: The photo to add
         content:
           image/jpeg:
-              schema:
-                description: The photo to upload on WasaPhoto
-                type: string
-                format: binary
+              schema: {$ref: '#/components/schemas/photo/properties/file'}
         required: true
       responses:
         '201':
           description: The photo has been added to the list of published photos.
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/photo"}
-        '400':
-          description: The photo couldn't be uploaded due to a client error
+              schema: {$ref: '#/components/schemas/photo'}
+        '500':
+          description: The photo couldn't be uploaded due to a server error
       security:
       - bearerAuth: [] 
           
@@ -454,11 +434,13 @@ paths:
       operationId: deletePhoto
       responses: 
         '204':
-          description: The photo has been removed from the list of published photos
+          description: The photo has been removed from the list of your published photos
         '403':
-          description: You can't unlike the photo because it isn't your photo
+          description: You can't delete the photo because it isn't your photo
         '404':
-          description: There isn't a photo with that Id, so it can't be removed.
+          description: There isn't a photo with that ID, so it can't be removed.
+        '500':
+          description: The photo couldn't be deleted due to a server error
       security:
       - bearerAuth: [] 
   
@@ -483,12 +465,17 @@ paths:
         description: Add a like to the photo, updating the like counter
         operationId: likePhoto
         responses:
-            '200':
+            '201':
               description: The photo has been liked.
+              content:
+                application/json:
+                  schema: {$ref: '#/components/schemas/photo/properties/likes'}
             '403':
               description: Cannot like the photo because you've been banned by the user.
             '404':
               description: The photo hasn't been found, so the like cannot be added
+            '500':
+             description: The photo couldn't be liked due to a server error
         security:
         - bearerAuth: [] 
     
@@ -498,12 +485,14 @@ paths:
           description: Remove like from photo, decreasing the like counter.
           operationId: unlikePhoto
           responses:
-            '200':
+            '204':
               description: The like has been removed from the photo.
             '400':
               description: You didn't like the photo, so you can't unlike it
             '404':
               description: The photo hasn't been found, so the like cannot be removed.
+            '500':
+              description: The photo couldn't be unliked due to a server error
           security:
           - bearerAuth: [] 
   
@@ -530,7 +519,7 @@ paths:
       requestBody:
         description: The comment to add to the photo
         content:
-          text/plain:
+          application/json:
             schema:
               type: string
               example: Nice Photo
@@ -548,6 +537,8 @@ paths:
           description: The comment hasn't been added to the photo due to an error
         '403':
           description: The comment hasn't been added because you are in user banned list
+        '500':
+          description: The comment couldn't be uploaded due to a server error
       security:
       - bearerAuth: [] 
   
@@ -577,9 +568,11 @@ paths:
       description: Remove the comment from the collection of comments
       operationId: uncommentPhoto
       responses:
-        '200':
+        '204':
           description: The comment has been removed from the photo
         '404':
           description: The comment hasn't been found in photo's comments
+        '500':
+          description: The comment couldn't be deleted due to a server error
       security:
       - bearerAuth: []

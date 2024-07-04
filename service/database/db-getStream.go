@@ -8,7 +8,7 @@ func (db *appdbimpl) GetStream(userID int) ([]Photo, error) {
 	WHERE pht.publisherID = fl.followingID
 	AND fl.followerID = us.userID
 	AND us.userID = ?
-    ORDER BY pht.publicationDate;`, userID)
+    ORDER BY pht.publicationDate DESC;`, userID)
 	if errQuery != nil {
 		return nil, errQuery
 	}
