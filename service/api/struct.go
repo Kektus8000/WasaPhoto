@@ -2,6 +2,9 @@ package api
 
 import "time"
 
+const PHOTOFOLDER = "/tmp/userProfile/"
+const PUBLISHEDFOLDER = "/publishedPhotos/"
+
 type User struct {
 	UserID   int
 	Username string

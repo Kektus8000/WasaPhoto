@@ -24,7 +24,7 @@ func (rt *_router) RecoverPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	file := "/tmp/userProfile/" + strconv.Itoa(userID) + "/publishedPhotos/" + strconv.Itoa(photoID)
+	file := PHOTOFOLDER + strconv.Itoa(userID) + PUBLISHEDFOLDER + strconv.Itoa(photoID)
 
 	http.ServeFile(w, r, file)
 }

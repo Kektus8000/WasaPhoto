@@ -26,13 +26,13 @@ func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	errDIR := os.MkdirAll("/tmp/userProfile/" + strconv.Itoa(userID) + "/publishedPhotos/", os.ModePerm)
+	errDIR := os.MkdirAll(PHOTOFOLDER+strconv.Itoa(userID)+PUBLISHEDFOLDER, os.ModePerm)
 	if errDIR != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	path, errOS := os.Create("/tmp/userProfile/" + strconv.Itoa(userID) + "/publishedPhotos/" + strconv.Itoa(photoID))
+	path, errOS := os.Create(PHOTOFOLDER + strconv.Itoa(userID) + PUBLISHEDFOLDER + strconv.Itoa(photoID))
 	if errOS != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

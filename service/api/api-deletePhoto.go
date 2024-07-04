@@ -47,7 +47,7 @@ func (rt *_router) DeletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	// Cancella la foto dal server, ottenendo errore 500 se vi sono errori nella query
-	errOS := os.Remove("main/userProfile/" + strconv.Itoa(userID) + "/publishedPhotos/" + strconv.Itoa(photoID))
+	errOS := os.Remove(PHOTOFOLDER + strconv.Itoa(userID) + PUBLISHEDFOLDER + strconv.Itoa(photoID))
 	if errOS != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
