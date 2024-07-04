@@ -54,6 +54,7 @@ export default{
             
             let temp2 = await this.$axios.get('/user/' + foto.PublisherID, {});
             foto.PublisherName = temp2.data.Username;
+            console.log(foto);
           }  
         }
       }
@@ -63,9 +64,38 @@ export default{
         alert(this.errormsg);
       }
     },
+    async lasciaMiPiace(photoID){
+      try
+      {
+        let response = await this.$axios.post('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.profilo.ID} });
+        this.refresh();
+      }
+      catch(e)
+      {
+        this.errormsg = e.toString();
+        alert(this.errormsg);       
+      }
+    },
+    async rimuoviMiPiace(photoID){
+      try
+      {
+        let response = await this.$axios.delete('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.profilo.ID} });
+        this.refresh();
+      }
+      catch(e)
+      {
+        this.errormsg = e.toString();
+        alert(this.errormsg);       
+      }
+    },
+    async fotoPiaciuta(photoID, userID){
+      var foto = this.stream.find(foto => foto.PhotoID === photoID);
+      if (foto.Likes == null) {return false;}
+      return foto.Likes(like => like.UserID === userID);
+    },
     async visitaProfilo(checkID){
       localStorage.setItem('IDCercato', checkID);
-      this.$router.push({path: `/userProfile/${checkID}`});
+      this.$router.push({path: '/userProfile/' + checkID });
     },
     async visitaSeguiti(){
       localStorage.setItem('IDCercato', this.profilo.ID);
@@ -91,7 +121,6 @@ export default{
           {
             let response = await this.$axios.put('/user/', {username: this.ricerca}, { headers: {Authorization: "Bearer " + this.profilo.ID} });
             this.utenti = response.data;
-            console.log(this.utenti);
           }
           catch(e)
           {
@@ -131,7 +160,8 @@ export default{
           <div class = zona-foto>
             <h4 height = 40px style = "font-weight: bold; padding-top: 5px; padding-left: 5px;"> {{foto.PublisherName}}</h4>
             <img class = immagine :src = foto.File>
-            <button class = like-stream> <i class="material-icons">favorite</i> Mi piace </button>
+            <button class = like-stream v-if = "fotoPiaciuta(foto.PhotoID, this.profilo.ID)" @click = lasciaMiPiace(foto.PhotoID)> <i class="material-icons">favorite</i> Mi piace </button>
+            <button class = like-stream v-else @click = rimuoviMiPiace(foto.PhotoID)> <i class="material-icons">favorite</i> Ti piace </button>
           </div>
           <div class = sezioneCommenti>
             <div v-for = "commento in foto.Commenti">

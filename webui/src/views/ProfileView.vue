@@ -35,7 +35,6 @@ export default{
     async refresh(){
       await this.recuperaInfo();
       if (this.visitor.visitorID != this.profilo.ID) { await this.visitorInfo(); }
-      console.log(this.profilo.fotoPubblicate);
     },
     ///////////////////////////// FUNZIONI VISITOR ////////////////////////////////////////////
     async visitorInfo(){
