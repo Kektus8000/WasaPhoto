@@ -40,7 +40,7 @@ func (rt *_router) DeletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	// Cancella la foto dal database, ottenendo errore 500 se vi sono errori nella query
-	_, errQuery := rt.db.DeletePhoto(photoID)
+	errQuery := rt.db.DeletePhoto(photoID)
 	if errQuery != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

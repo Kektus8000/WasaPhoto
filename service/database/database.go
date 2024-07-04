@@ -6,6 +6,9 @@ import (
 	"time"
 )
 
+const PHOTOFOLDER = "/tmp/userProfile/"
+const PUBLISHEDFOLDER = "/publishedPhotos/"
+
 type User struct {
 	UserID   int
 	Username string
@@ -25,6 +28,15 @@ type Photo struct {
 	PublicationDate time.Time
 	Comments        []Comment
 	Likes           []User
+}
+
+type UserProfile struct {
+	UserID          int
+	Username        string
+	Followers       []User  // Utenti seguaci
+	Followings      []User  // Utenti seguiti
+	Banneds         []User  // Utenti bannati
+	PublishedPhotos []Photo // Foto pubblicate
 }
 
 type AppDatabase interface {
@@ -57,7 +69,7 @@ type AppDatabase interface {
 	// Metodi DELETE
 	UnFollowUser(followerID int, tofollowID int) error
 	UnbanUser(bannerID int, bannedID int) error
-	DeletePhoto(photoID int) (string, error)
+	DeletePhoto(photoID int) error
 	UnlikePhoto(userID int, photoID int) error
 	UncommentPhoto(commentID int) error
 	RemoveAllComments(bannerID int, userID int) error
