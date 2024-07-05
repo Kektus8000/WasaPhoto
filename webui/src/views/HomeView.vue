@@ -25,9 +25,6 @@ export default{
     async refresh()
     {
       await this.recuperaStream();
-      console.log(this.profilo.seguaci);
-      console.log(this.profilo.seguiti);
-      console.log(this.profilo.bannati);
     },  
     async recuperaStream(){
       try

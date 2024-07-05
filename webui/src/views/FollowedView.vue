@@ -8,10 +8,7 @@ export default{
     }
   },
   methods:{
-    async refresh(){
-      console.log(this.seguiti);
-      console.log(this.bannati);
-    },
+    async refresh(){},
     async banUser(banned){
       try
       {
@@ -52,9 +49,6 @@ export default{
     },
     mounted(){
       this.refresh();
-    },
-    computed:{
-      lunghezzaSeguiti() {return this.seguiti != null ? this.seguiti.length : 0;}
     }
   }
 }
@@ -66,7 +60,7 @@ export default{
       <h2 style = "font-weight: bold; padding-left: 20px; cursor:pointer;"
       @click = "() => {this.$router.back();}"> Torna indietro </h2>
       <h1 style = "font-weight: bold;">Account Seguiti</h1>
-      <h2 style = "padding-right: 20px;"> Seguiti : {{lunghezzaSeguiti}}</h2>
+      <h2 style = "padding-right: 20px;"> Seguiti : {{this.seguiti ? this.seguiti.length : 0}}</h2>
     </header>
 
     <section class = lista-seguiti>

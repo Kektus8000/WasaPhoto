@@ -21,7 +21,7 @@ func (rt *_router) GetUser(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	// Viene recuperato l'utente, ritornando errore 500 se vi sono problemi nella query
 	user, errQuery := rt.db.GetUserByID(userID)
-	if errQuery != nil{
+	if errQuery != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

@@ -1,9 +1,9 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
-	"fmt"
 
 	"github.com/Kektus8000/WasaPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
