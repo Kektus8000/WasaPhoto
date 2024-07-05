@@ -2,20 +2,23 @@
 export default{
   data(){
     return{
-      ID : localStorage.getItem('IDCercato'),
-      bannati: []
+      ID : Number(localStorage.getItem('IDCercato')),
+      bannati : JSON.parse(localStorage.getItem('BannatiSessione'))
     }
   },
   methods:{
     async refresh(){
-      this.recuperaInfo();
     },
-    async recuperaInfo(){
+    async unBanUser(banned){
       try
       {
-        let response = await this.$axios.get('/userProfile/' + this.ID, {headers: {Authorization: "Bearer " + this.ID}});
-        
-        if (response.data.Banneds != null) {this.bannati = response.data.Banneds; }
+        await this.$axios.delete('/userProfile/' + this.ID + '/banList/' + banned.UserID, {headers: {Authorization: "Bearer " + this.ID}} );
+        let indice = this.bannati.map(user => user.UserID).indexOf(banned.UserID);
+        this.bannati.splice(indice, 1);
+        alert(banned.Username + " non è più bannato!");
+        if (this.bannati.length == 0) {this.bannati = null;}
+        localStorage.setItem('BannatiSessione', JSON.stringify(this.bannati));
+        this.refresh();
       }
       catch(e)
       {
@@ -26,6 +29,9 @@ export default{
   },
   mounted (){
     this.refresh();
+  },
+  computed:{
+    lunghezzaBannati() {return this.bannati != null ? this.bannati.length : 0;}
   }
 }
 </script>
@@ -36,13 +42,13 @@ export default{
       <h2 style = "font-weight: bold; padding-left: 20px; cursor:pointer;"
       @click = "() => {this.$router.back();}"> Torna indietro </h2>
       <h1 style = "font-weight: bold;">Account Bannati</h1>
-      <h2 style = "padding-right: 20px;"> Bannati : {{this.bannati.length}}</h2>
+      <h2 style = "padding-right: 20px;"> Bannati : {{lunghezzaBannati}}</h2>
     </header>
 
     <section class = lista-bannati>
-      <div class = utente-bannato v-for = "utente in this.bannati">
+      <div class = utente-bannato v-for = "utente in this.bannati" :key = "utente.UserID">
         <h2>{{utente.Username}}</h2>
-        <button class = blocca style = "color:red"> Unban </button>
+        <button class = blocca style = "color:red" @click = unBanUser(utente) show = "this.ID === Number(localStorage.getItem('identifier'))"> Unban </button>
       </div>
     </section>
   </body>

@@ -1,9 +1,9 @@
 package database
 
 func (db *appdbimpl) RemoveAllComments(bannerID int, userID int) error {
-	_, err := db.c.Exec(`DELETE FROM Comment cm
-	WHERE cm.publisherID = ? 
-	AND cm.photoID IN (
+	_, err := db.c.Exec(`DELETE FROM Comment
+	WHERE publisherID = ? 
+	AND photoID IN (
 		SELECT photoID
 		FROM Photo ph
 		WHERE ph.PublisherID = ? 

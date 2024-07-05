@@ -1,5 +1,7 @@
 <script>
 
+const STATOLIKE = ["Mi Piace", "Ti Piace"]
+
 export default{
   data(){
     return{
@@ -13,32 +15,20 @@ export default{
       profilo : {
         ID : Number(localStorage.getItem('identifier')),
         nome : localStorage.getItem('username'),
-        seguaci : [],
-        seguiti : [],
-        bannati : [],
+        seguaci : JSON.parse(localStorage.getItem('SeguaciSessione')),
+        seguiti : JSON.parse(localStorage.getItem('SeguitiSessione')),
+        bannati : JSON.parse(localStorage.getItem('BannatiSessione'))
       }
     }
   },
   methods:{
     async refresh()
     {
-      await this.recuperaInfo();
       await this.recuperaStream();
-    },    
-    async recuperaInfo(){
-      try
-      {
-        let response = await this.$axios.get('/userProfile/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.profilo.ID}});
-        if (response.data.Followers != null) {this.profilo.seguaci = response.data.Followers; }
-        if (response.data.Followings != null) {this.profilo.seguiti = response.data.Followings; }
-        if (response.data.Banneds != null) {this.profilo.bannati = response.data.Banneds;}
-      }
-      catch(e)
-      {
-        this.errormsg = e.toString();
-        alert(this.errormsg);
-      }
-    },    
+      console.log(this.profilo.seguaci);
+      console.log(this.profilo.seguiti);
+      console.log(this.profilo.bannati);
+    },  
     async recuperaStream(){
       try
       {
@@ -54,7 +44,6 @@ export default{
             
             let temp2 = await this.$axios.get('/user/' + foto.PublisherID, {});
             foto.PublisherName = temp2.data.Username;
-            console.log(foto);
           }  
         }
       }
@@ -64,10 +53,12 @@ export default{
         alert(this.errormsg);
       }
     },
-    async lasciaMiPiace(photoID){
+    async gestioneMiPiace(photoID){
       try
       {
-        let response = await this.$axios.post('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.profilo.ID} });
+        var foto = this.stream.find(foto => foto.PhotoID === photoID);
+        if (foto.Likes == null || !foto.Likes.some(like => like.UserID === this.profilo.ID)) {await this.$axios.post('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.profilo.ID} });}
+        else {await this.$axios.delete('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.profilo.ID} });}
         this.refresh();
       }
       catch(e)
@@ -76,22 +67,10 @@ export default{
         alert(this.errormsg);       
       }
     },
-    async rimuoviMiPiace(photoID){
-      try
-      {
-        let response = await this.$axios.delete('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.profilo.ID} });
-        this.refresh();
-      }
-      catch(e)
-      {
-        this.errormsg = e.toString();
-        alert(this.errormsg);       
-      }
-    },
-    async fotoPiaciuta(photoID, userID){
+    fotoPiaciuta(photoID){
       var foto = this.stream.find(foto => foto.PhotoID === photoID);
-      if (foto.Likes == null) {return false;}
-      return foto.Likes(like => like.UserID === userID);
+      if (foto.Likes == null) {return STATOLIKE[0];}
+      return foto.Likes.some(like => like.UserID === this.profilo.ID) ? STATOLIKE[1] : STATOLIKE[0];
     },
     async visitaProfilo(checkID){
       localStorage.setItem('IDCercato', checkID);
@@ -155,13 +134,12 @@ export default{
     </div>
 
     <div class= contenuto v-if = "this.ricerca == '' ">
-      <div v-for = "foto in this.stream">
+      <div v-for = "foto in this.stream" :key = foto.PhotoID>
         <div class = pubblicazione>
           <div class = zona-foto>
-            <h4 height = 40px style = "font-weight: bold; padding-top: 5px; padding-left: 5px;"> {{foto.PublisherName}}</h4>
+            <h4 height = 40px style = "font-weight: bold; padding-top: 5px; padding-left: 5px; cursor: pointer;" @click = visitaProfilo(foto.PublisherID)> {{foto.PublisherName}}</h4>
             <img class = immagine :src = foto.File>
-            <button class = like-stream v-if = "fotoPiaciuta(foto.PhotoID, this.profilo.ID)" @click = lasciaMiPiace(foto.PhotoID)> <i class="material-icons">favorite</i> Mi piace </button>
-            <button class = like-stream v-else @click = rimuoviMiPiace(foto.PhotoID)> <i class="material-icons">favorite</i> Ti piace </button>
+            <button class = like-stream  @click = gestioneMiPiace(foto.PhotoID)> <i class="material-icons">favorite</i> {{fotoPiaciuta(foto.PhotoID)}} </button>
           </div>
           <div class = sezioneCommenti>
             <div v-for = "commento in foto.Commenti">
@@ -178,11 +156,9 @@ export default{
     </div>
 
     <div class = risultato v-else>
-      <div class= utenti-ricercati v-for = "user in this.utenti">
+      <div class= utenti-ricercati v-for = "user in this.utenti" :key = user.UserID>
         <div class = utente-trovato>
           <h2 style = "font-weight: bold; padding-left:10px" @click = "visitaProfilo(user.UserID)"> {{user.Username}} </h2>
-          <h2 style = "color: green; padding-top: 5px; padding-right: 20px;" v-if = "this.profilo.seguiti.includes(user.userID)"> Seguito </h2>
-          <h2 style = "color: red; padding-top: 5px; padding-right: 20px;" v-if = "this.profilo.bannati.includes(user.userID)"> Bannato </h2>
         </div>
       </div>
     </div>

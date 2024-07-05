@@ -3,19 +3,30 @@ export default{
   data(){
     return{
       ID : localStorage.getItem('IDCercato'),
-      seguiti: []
+      seguiti: JSON.parse(localStorage.getItem('SeguitiSessione')),
+      bannati : JSON.parse(localStorage.getItem('BannatiSessione'))
     }
   },
   methods:{
     async refresh(){
-      this.recuperaInfo();
+      console.log(this.seguiti);
+      console.log(this.bannati);
     },
-    async recuperaInfo(){
+    async banUser(banned){
       try
       {
-        let response = await this.$axios.get('/userProfile/' + this.ID, {headers: {Authorization: "Bearer " + this.ID}});
-        
-        if (response.data.Followings != null) {this.seguiti = response.data.Followings; }
+        let indice = this.seguiti.map(user => user.UserID).indexOf(banned.UserID);
+        this.seguiti.splice(indice, 1);
+        alert("Hai bloccato " + banned.Username);
+        localStorage.setItem('SeguitiSessione', JSON.stringify(this.seguiti));
+
+        await this.$axios.post('/userProfile/' + this.ID + '/banList/' + banned.UserID, {}, {headers: {Authorization: "Bearer " + this.ID}} );
+
+        var temp = {UserID : banned.UserID, Username: banned.nome};
+        if (this.bannati == null) {this.bannati = [temp];}
+        else {this.bannati.push(temp);}
+        localStorage.setItem('BannatiSessione', JSON.stringify(this.bannati));
+        this.refresh();
       }
       catch(e)
       {
@@ -23,9 +34,28 @@ export default{
         alert(this.errormsg);
       }
     },
-  },
-  mounted (){
-    this.refresh();
+    async rimuoviFollow(remove){
+      try
+      {
+        await this.$axios.delete('/userProfile/' + this.ID + '/following/' + remove.UserID, {headers: {Authorization: "Bearer " + this.ID}} ); 
+        let indice = this.seguiti.map(user => user.UserID).indexOf(remove.UserID);
+        this.seguiti.splice(indice, 1);
+        alert("Non segui più " + remove.Username);
+        localStorage.setItem('SeguitiSessione', JSON.stringify(this.seguiti));
+        this.refresh();
+      }
+      catch(e)
+      {
+        this.errormsg = e.toString();
+        alert(this.errormsg);
+      }
+    },
+    mounted(){
+      this.refresh();
+    },
+    computed:{
+      lunghezzaSeguiti() {return this.seguiti != null ? this.seguiti.length : 0;}
+    }
   }
 }
 </script>
@@ -36,14 +66,14 @@ export default{
       <h2 style = "font-weight: bold; padding-left: 20px; cursor:pointer;"
       @click = "() => {this.$router.back();}"> Torna indietro </h2>
       <h1 style = "font-weight: bold;">Account Seguiti</h1>
-      <h2 style = "padding-right: 20px;"> Seguiti : {{this.seguiti.length}}</h2>
+      <h2 style = "padding-right: 20px;"> Seguiti : {{lunghezzaSeguiti}}</h2>
     </header>
 
     <section class = lista-seguiti>
-      <div class = followed v-for = "utente in this.seguiti" v-if = "this.seguiti.length > 0">
+      <div class = followed v-for = "utente in this.seguiti" :key = utente.UserID>
         <h2>{{utente.Username}}</h2>
-        <button width = "15%">Smetti di Seguire</button>
-        <button class = blocca style = "color:red">Blocca</button>
+        <button width = "15%" @click = rimuoviFollow(utente)>Smetti di Seguire</button>
+        <button class = blocca style = "color:red" @click= banUser(utente)>Banna</button>
       </div>
     </section>
   </body>

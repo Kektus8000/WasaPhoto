@@ -3,19 +3,27 @@ export default{
   data(){
     return{
       ID : localStorage.getItem('IDCercato'),
-      seguaci: []
+      seguaci : JSON.parse(localStorage.getItem('SeguaciSessione')),
+      bannati : JSON.parse(localStorage.getItem('BannatiSessione'))
     }
   },
   methods:{
-    async refresh(){
-      this.recuperaInfo();
-    },
-    async recuperaInfo(){
+    async refresh(){},
+    async banUser(banned){
       try
       {
-        let response = await this.$axios.get('/userProfile/' + this.ID, {headers: {Authorization: "Bearer " + this.ID}});
-        
-        if (response.data.Followers != null) {this.seguaci = response.data.Followers; }
+        let indice = this.seguaci.map(user => user.UserID).indexOf(banned.UserID);
+        this.seguaci.splice(indice, 1);
+        alert("Hai bloccato " + banned.Username);
+        localStorage.setItem('SeguitiSessione', JSON.stringify(this.seguaci));
+
+        await this.$axios.post('/userProfile/' + this.ID + '/banList/' + banned.UserID, {}, {headers: {Authorization: "Bearer " + this.ID}} );
+
+        var temp = {UserID : banned.UserID, Username: banned.nome};
+        if (this.bannati == null) {this.bannati = [temp];}
+        else {this.bannati.push(temp);}
+        localStorage.setItem('BannatiSessione', JSON.stringify(this.bannati));
+        this.refresh();
       }
       catch(e)
       {
@@ -26,6 +34,9 @@ export default{
   },
   mounted (){
     this.refresh();
+  },
+  computed:{
+    lunghezzaSeguaci() {return this.seguaci != null ? this.seguaci.length : 0;}
   }
 }
 </script>
@@ -36,13 +47,13 @@ export default{
       <h2 style = "font-weight: bold; padding-left: 20px; cursor:pointer;"
       @click = "() => {this.$router.back();}"> Torna indietro </h2>
       <h1 style = "font-weight: bold;">Account Seguaci</h1>
-      <h2 style = "padding-right: 20px;"> Seguaci : {{this.seguaci.length}}</h2>
+      <h2 style = "padding-right: 20px;"> Seguaci : {{lunghezzaSeguaci}}</h2>
     </header>
 
     <section class = lista-seguaci>
-      <div class = follower v-for = "utente in this.seguaci" v-if = "this.seguaci.length > 0">
+      <div class = follower v-for = "utente in this.seguaci" :key = "utente.UserID">
         <h2>{{utente.Username}}</h2>
-        <button class = blocca style = "color:red">Blocca</button>
+        <button class = blocca style = "color:red" @click = banUser(utente) show = "this.ID === Number(localStorage.getItem('identifier'))">Ban</button>
       </div>
     </section>
   </body>

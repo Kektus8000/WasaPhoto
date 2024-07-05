@@ -9,16 +9,19 @@ export default{
     return{
       newUsername : "",
 
+      changeFollow : false,
+      changeBan : false,
+
       errormsg: "",
       
       visitor : {
         visitorID : Number(localStorage.getItem('identifier')),
         visitorNome : localStorage.getItem('username'),
-        visitorSeguaci : [],
-        visitorSeguiti : [],
-        visitorBannati : [],
-        hasBanned : null,
-        isFollowing : null,
+        visitorSeguaci : JSON.parse(localStorage.getItem('SeguaciSessione')),
+        visitorSeguiti : JSON.parse(localStorage.getItem('SeguitiSessione')),
+        visitorBannati : JSON.parse(localStorage.getItem('BannatiSessione')),
+        hasBanned : false,
+        isFollowing : false
       },
 
       profilo : {
@@ -34,61 +37,75 @@ export default{
   methods: {
     async refresh(){
       await this.recuperaInfo();
-      if (this.visitor.visitorID != this.profilo.ID) { await this.visitorInfo(); }
+      if (this.visitor.visitorID != this.profilo.ID) {this.visitorInfo();}
+      console.log(this.visitor.visitorSeguiti)
+      console.log(this.visitor.visitorBannati);
     },
     ///////////////////////////// FUNZIONI VISITOR ////////////////////////////////////////////
     async visitorInfo(){
-      try
-      {
-        let response = await this.$axios.get('/userProfile/' + this.visitor.visitorID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}});
-        
-        if (response.data.Followers != null) {this.visitor.visitorSeguaci = response.data.Followers; }
-        
-        if (response.data.Followings != null) {this.visitor.visitorSeguiti = response.data.Followings; }
-        
-        if (response.data.Banneds != null) {this.visitor.visitorBannati = response.data.Banneds;}
+      if (this.visitor.visitorSeguiti != null) {this.visitor.isFollowing = this.visitor.visitorSeguiti.some(e => Number(e.UserID) === this.profilo.ID);}
+      if (this.visitor.visitorBannati != null) {this.visitor.hasBanned = this.visitor.visitorBannati.some(e => Number(e.UserID) === this.profilo.ID);}
 
-        this.visitor.isFollowing = this.visitor.visitorSeguiti.some(e => e.UserID === this.profilo.ID);
+      document.getElementById('followButton').value = STATOFOLLOW[0];
+      document.getElementById('banButton').value = STATOBAN[0];
+      if (this.visitor.isFollowing) {document.getElementById('followButton').value = STATOFOLLOW[1];}
+      if (this.visitor.hasBanned) {document.getElementById('banButton').value = STATOBAN[1];}
+    },
+    gestioneFollow(){
+      this.visitor.isFollowing = !this.visitor.isFollowing;
+      this.changeFollow = true;
+      if (this.visitor.isFollowing) {document.getElementById('followButton').value = STATOFOLLOW[1]}
+      else if (!this.visitor.isFollowing) {document.getElementById('followButton').value = STATOFOLLOW[0];}
+    },
+    gestioneBan(){
+      this.visitor.hasBanned = !this.visitor.hasBanned;
+      this.changeBan = true;
+      if (this.visitor.hasBanned) {document.getElementById('banButton').value = STATOBAN[1];}
+      else {document.getElementById('banButton').value = STATOBAN[0];}
+    },
+    async salvaStato(){
+      try
+      {
+        //Aggiornamento del Follow
+        if (this.changeFollow)
+        {
+          if (!this.visitor.isFollowing && (this.visitor.visitorBannati != null || this.visitor.visitorBannati.some(fl => Number(fl.UserID) === this.profilo.ID)) )
+          {
+            await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/following/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} ); 
+            let indice = this.visitor.visitorSeguiti.map(user => user.UserID).indexOf(this.profilo.ID);
+            this.visitor.visitorSeguiti.splice(indice, 1);
+          }
+          else if (this.visitor.isFollowing && (this.visitor.visitorBannati == null || !this.visitor.visitorBannati.some(fl => Number(fl.UserID) === this.profilo.ID)) )
+          {
+            await this.$axios.post('/userProfile/' + this.visitor.visitorID + '/following/' + this.profilo.ID, {}, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} );
+            var temp = {UserID : this.profilo.ID, Username: this.profilo.nome};
+            if (this.visitor.visitorSeguiti == null) {this.visitor.visitorSeguiti= [temp];}
+            else {this.visitor.visitorSeguiti.push(temp);}
+          }
+          localStorage.setItem('SeguitiSessione', JSON.stringify(this.visitor.visitorSeguiti));
+        }
+        //Aggiornamento del Ban
+        if (this.changeBan)
+        {
+          if (this.visitor.hasBanned && (this.visitor.visitorBannati == null || !this.visitor.visitorBannati.some(fl => Number(fl.UserID) === this.profilo.ID)) )
+          {
+            await this.$axios.post('/userProfile/' + this.visitor.visitorID  + '/banList/' + this.profilo.ID, {}, {headers: {Authorization: "Bearer " + this.visitor.visitorID }} );
 
-        this.visitor.hasBanned = this.visitor.visitorBannati.some(e => e.UserID === this.profilo.ID);
-      }
-      catch(e)
-      {
-        this.errormsg = e.toString();
-        alert(this.errormsg);
-      }
-    },
-    async gestioneFollow(){
-      try
-      {
-        if (this.visitor.isFollowing) {
-          await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/following/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} ); 
-          alert("Non segui più " + this.profilo.nome);
+            var temp = {UserID : this.profilo.ID, Username: this.profilo.nome};
+            let indice = this.visitor.visitorSeguiti.map(user => user.UserID).indexOf(this.profilo.ID);
+            if (indice != -1) {this.visitor.visitorSeguiti.splice(indice, 1);}
+            console.log("Bannato")
+          }
+          else if (!this.visitor.hasBanned && (this.visitor.visitorBannati == null || this.visitor.visitorBannati.some(fl => Number(fl.UserID) === this.profilo.ID)) )
+          {
+            await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/banList/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} );
+            
+            if (this.visitor.visitorBannati == null) {this.visitor.visitorBannati = [temp];}
+            else {this.visitor.visitorBannati.push(temp);}
+            console.log("Unban");
+          }
+          localStorage.setItem('BannatiSessione', JSON.stringify(this.visitor.visitorBannati));
         }
-        else {
-          await this.$axios.post('/userProfile/' + this.visitor.visitorID + '/following/' + this.profilo.ID, {}, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} );
-          alert("Ora segui " + this.profilo.nome);
-        }
-        this.refresh();
-      }
-      catch(e)
-      {
-        this.errormsg = e.toString();
-        alert(this.errormsg);
-      }
-    },
-    async gestioneBan(){
-      try
-      {
-        if (this.visitor.hasBanned) {
-          await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/banList/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} ); 
-          alert(this.profilo.nome + " non è più bannato!");
-        }
-        else {
-          await this.$axios.post('/userProfile/' + this.visitor.visitorID + '/banList/' + this.profilo.ID, {}, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} );
-          alert("Hai bannato " + this.profilo.nome);
-        }
-        this.refresh();
       }
       catch(e)
       {
@@ -167,23 +184,14 @@ export default{
         alert(this.errormsg);
       }
     },
-    async controllaSeguaci(){
-      this.$router.push({path: '/userProfile/' + this.profilo.ID + '/following'});
-    },
-    async controllaSeguiti(){
-      this.$router.push({path: '/userProfile/' + this.profilo.ID + '/followeds'});
-    },
     async controllaBannati(){
       this.$router.push({path: '/userProfile/'+ this.profilo.ID + '/banList'});
     },
     async tornaHomePage(){
+      if (this.visitor.visitorID != this.profilo.ID) {this.salvaStato();}
       localStorage.removeItem('IDCercato');
       this.$router.replace('/session');
     }
-  },
-    computed: {
-      controllaBan() {return this.visitor.hasBanned ? STATOBAN[1] : STATOBAN[0];},
-      controllaFollow() { return this.visitor.isFollowing ? STATOFOLLOW[1] : STATOFOLLOW[0];}
   },
     mounted(){
       this.refresh();
@@ -197,8 +205,8 @@ export default{
       <h4 @click = "tornaHomePage" style= "padding-left : 10px; font-weight: bold;">Torna alla HomePage</h4>
       <h1 style = "font-weight: bold;">Profilo di {{this.profilo.nome}}</h1>
       <div class=statistiche style= "padding-right : 10px; ">
-        <h4 @click = "controllaSeguaci">Seguaci: {{this.profilo.seguaci.length}}</h4>
-        <h4 @click = "controllaSeguiti">Seguiti: {{this.profilo.seguiti.length}}</h4>
+        <h4>Seguaci: {{this.profilo.seguaci.length}}</h4>
+        <h4>Seguiti: {{this.profilo.seguiti.length}}</h4>
       </div>
     </header>
 
@@ -225,8 +233,8 @@ export default{
       </div>
 
       <div class = visitorActions v-else>
-        <button id = banButton style = "font-size: 30px; color:red;" @click = "gestioneBan"> {{controllaBan}} </button>
-        <button id = followButton style = "font-size: 30px;" @click = "gestioneFollow"> {{controllaFollow}} </button>
+        <input  id = banButton style = "font-size: 30px; color:red;" type="button" runat="server" @click="gestioneBan()">
+        <input  id = followButton style = "font-size: 30px;" type="button" runat="server" @click="gestioneFollow()">
       </div>
     </div>
   </body>

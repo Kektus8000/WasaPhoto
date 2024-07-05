@@ -3,16 +3,36 @@ export default{
   data(){
     return{
       username: "",
-      errormsg: ""
+      
+      errormsg: "",
+      
+      profilo : {
+        ID : 0,
+        nome : "",
+        seguaci : [],
+        seguiti : [],
+        bannati : [],
+      }
     }
   },
   methods:{
     async trovaUtente(){
         try{
             let response = await this.$axios.post("/session",{username: this.username});
-            var profilo = response.data;
-            localStorage.setItem('identifier', profilo.UserID);
-            localStorage.setItem('username', profilo.Username);
+            var info = response.data;
+            localStorage.setItem('identifier', info.UserID);
+            this.profilo.ID = info.UserID;
+            localStorage.setItem('username', info.Username);
+            this.profilo.nome = info.Username;
+
+            let response2 = await this.$axios.get('/userProfile/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.profilo.ID}});
+            this.profilo.seguaci = response2.data.Followers;
+            localStorage.setItem('SeguaciSessione', JSON.stringify(this.profilo.seguaci));
+            this.profilo.seguiti = response2.data.Followings;
+            localStorage.setItem('SeguitiSessione', JSON.stringify(this.profilo.seguiti));
+            this.profilo.bannati = response2.data.Banneds;
+            localStorage.setItem('BannatiSessione', JSON.stringify(this.profilo.bannati));
+
             this.$router.push('/session');
         }
         catch(e)
