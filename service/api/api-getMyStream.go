@@ -52,6 +52,14 @@ func (rt *_router) GetMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 			photo.Comments = append(photo.Comments, comm)
 		}
 
+		likes, errComm := rt.db.GetLikes(photo.PhotoID)
+		for k := 0; k < len(likes); k++ {
+			temp3 := likes[k]
+			var lover User
+			lover.UserID = temp3.UserID
+			lover.Username = temp3.Username
+			photo.Likes = append(photo.Likes, lover)
+		}
 		stream = append(stream, photo)
 	}
 

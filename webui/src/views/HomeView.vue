@@ -1,6 +1,7 @@
 <script>
 
 const STATOLIKE = ["Mi Piace", "Ti Piace"]
+const STATOUTENTE = ["Bannato", "Lo Segui", "Ti Segue"]
 
 export default{
   data(){
@@ -41,6 +42,12 @@ export default{
             
             let temp2 = await this.$axios.get('/user/' + foto.PublisherID, {});
             foto.PublisherName = temp2.data.Username;
+
+            foto.isLiked = false;
+            if (foto.Likes != null) {foto.isLiked = foto.Likes.some(like => like.UserID === this.profilo.ID);}
+            foto.initiallyLiked = foto.isLiked;
+
+            foto.likeCount = foto.Likes != null ? foto.Likes.length : 0;
           }  
         }
       }
@@ -50,13 +57,31 @@ export default{
         alert(this.errormsg);
       }
     },
-    async gestioneMiPiace(photoID){
+    fotoPiaciuta(photoID)
+    {
+      var foto = this.stream.find(foto => foto.PhotoID === photoID);
+      return foto.isLiked ? STATOLIKE[1] : STATOLIKE[0]
+    },
+    likePhoto(photoID)
+    {
+      var foto = this.stream.find(foto => foto.PhotoID === photoID);
+      foto.isLiked = !foto.isLiked;
+      if (foto.isLiked) {foto.likeCount += 1}
+      else {foto.likeCount -= 1}
+    },
+    async salvaMiPiace()
+    {
       try
       {
-        var foto = this.stream.find(foto => foto.PhotoID === photoID);
-        if (foto.Likes == null || !foto.Likes.some(like => like.UserID === this.profilo.ID)) {await this.$axios.post('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.profilo.ID} });}
-        else {await this.$axios.delete('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.profilo.ID} });}
-        this.refresh();
+        for (let i = 0; i < this.stream.length; i++)
+        {
+          var foto = this.stream[i];
+          if (foto.isLiked !== foto.initiallyLiked)
+          {
+            if (foto.isLiked) { await this.$axios.post('/userProfile/' + this.profilo.ID + '/stream/' + foto.PhotoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.profilo.ID} });}
+            else {await this.$axios.delete('/userProfile/' + this.profilo.ID + '/stream/' + foto.PhotoID + '/likes/', { headers: {Authorization: "Bearer " + this.profilo.ID} });}
+          }
+        }
       }
       catch(e)
       {
@@ -64,24 +89,24 @@ export default{
         alert(this.errormsg);       
       }
     },
-    fotoPiaciuta(photoID){
-      var foto = this.stream.find(foto => foto.PhotoID === photoID);
-      if (foto.Likes == null) {return STATOLIKE[0];}
-      return foto.Likes.some(like => like.UserID === this.profilo.ID) ? STATOLIKE[1] : STATOLIKE[0];
-    },
+    /////////////////////////////////////// METODI PER RAGGIUNGERE ALTRE PAGINE /////////////////////////////////////
     async visitaProfilo(checkID){
+      await this.salvaMiPiace();
       localStorage.setItem('IDCercato', checkID);
       this.$router.push({path: '/userProfile/' + checkID });
     },
     async visitaSeguiti(){
+      await this.salvaMiPiace();
       localStorage.setItem('IDCercato', this.profilo.ID);
       this.$router.push({path: '/userProfile/' + this.profilo.ID + '/followeds'});
     },
     async visitaSeguaci(){
+      await this.salvaMiPiace();
       localStorage.setItem('IDCercato', this.profilo.ID);
       this.$router.push({path: '/userProfile/' + this.profilo.ID + '/following'});
     },
     async logout(){
+      await this.salvaMiPiace();
       localStorage.removeItem('IDCercato');
       localStorage.removeItem('identifier');
       localStorage.removeItem('username');
@@ -136,7 +161,7 @@ export default{
           <div class = zona-foto>
             <h4 height = 40px style = "font-weight: bold; padding-top: 5px; padding-left: 5px; cursor: pointer;" @click = visitaProfilo(foto.PublisherID)> {{foto.PublisherName}}</h4>
             <img class = immagine :src = foto.File>
-            <button class = like-stream  @click = gestioneMiPiace(foto.PhotoID)> <i class="material-icons">favorite</i> {{fotoPiaciuta(foto.PhotoID)}} </button>
+            <button class = like-stream  @click = likePhoto(foto.PhotoID)> <i class="material-icons">favorite</i> {{fotoPiaciuta(foto.PhotoID)}} : {{foto.likeCount}} </button>
           </div>
           <div class = sezioneCommenti>
             <div v-for = "commento in foto.Commenti">
@@ -155,7 +180,7 @@ export default{
     <div class = risultato v-else>
       <div class= utenti-ricercati v-for = "user in this.utenti" :key = user.UserID>
         <div class = utente-trovato>
-          <h2 style = "font-weight: bold; padding-left:10px" @click = "visitaProfilo(user.UserID)"> {{user.Username}} </h2>
+          <h3 style = "font-weight: bold; padding-left:10px" @click = "visitaProfilo(user.UserID)"> {{user.Username}}</h3>
         </div>
       </div>
     </div>
