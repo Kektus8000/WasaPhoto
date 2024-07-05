@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -16,7 +15,6 @@ func (rt *_router) UnBanUser(w http.ResponseWriter, r *http.Request, ps httprout
 	// Check ID dell'Utente
 	userID := Authenticate(r.Header.Get("Authorization"))
 	if userID == -1 {
-		fmt.Println("Autorizzazione")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -24,14 +22,12 @@ func (rt *_router) UnBanUser(w http.ResponseWriter, r *http.Request, ps httprout
 	// Check ID dell'Utente interessato
 	bannedID, errConv := strconv.Atoi(ps.ByName("bannedID"))
 	if errConv != nil {
-		fmt.Println(errConv)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	errUpdate := rt.db.UnbanUser(userID, bannedID)
 	if errUpdate != nil {
-		fmt.Println(errUpdate)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

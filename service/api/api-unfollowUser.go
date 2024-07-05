@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -22,14 +21,12 @@ func (rt *_router) UnfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	// Check ID dell'Utente interessato
 	followerID, errConv := strconv.Atoi(ps.ByName("followerID"))
 	if errConv != nil {
-		fmt.Println(errConv)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	errUpdate := rt.db.UnFollowUser(userID, followerID)
 	if errUpdate != nil {
-		fmt.Println(errUpdate)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
