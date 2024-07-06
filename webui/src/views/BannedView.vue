@@ -8,7 +8,6 @@ export default{
   },
   methods:{
     async refresh(){
-      console.log(this.bannati);
     },
     async unBanUser(banned){
       try

@@ -20,8 +20,8 @@ func (rt *_router) DeletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	// Recupera l'ID della foto da cancellare, ottenendo errore 400 se non è possibile recuperarlo
-	photoID, errConv2 := strconv.Atoi(ps.ByName("photoID"))
-	if errConv2 != nil {
+	photoID, errConv := strconv.Atoi(ps.ByName("photoID"))
+	if errConv != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

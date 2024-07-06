@@ -37,6 +37,8 @@ export default{
     async refresh(){
       await this.recuperaInfo();
       if (this.visitor.visitorID != this.profilo.ID) {this.visitorInfo();}
+      console.log(this.visitor.visitorID);
+      console.log(this.profilo.ID);
     },
     ///////////////////////////// FUNZIONI VISITOR ////////////////////////////////////////////
     async visitorInfo(){
@@ -63,7 +65,6 @@ export default{
         this.visitor.hasBanned = false;
         document.getElementById('banButton').value = STATOBAN[0];
       }
-      console.log(this.visitor.initialFollowing);
     },
     gestioneBan(){
       this.visitor.hasBanned = !this.visitor.hasBanned;
@@ -184,6 +185,20 @@ export default{
         alert(this.errormsg);
       }
     },
+    async deletePhoto(photoID){
+      try
+      {
+        await this.$axios.delete('/userProfile/' + this.profilo.ID + '/publishedPhotos/' + photoID,
+        { headers: {Authorization: "Bearer " + this.profilo.ID} });
+        alert("Foto cancellata");
+        this.refresh();
+      }
+      catch(e)
+      {
+        this.errormsg = e.toString();
+        alert(this.errormsg);
+      }
+    },
     async mostraDialog(){ document.getElementById("cambiaNome").style.display = "inline"; },
     
     async chiudiDialog(){
@@ -242,7 +257,10 @@ export default{
 
     <div class = fotoCondivise>
       <div v-for = "immagine in this.profilo.fotoPubblicate">
-        <img class = foto-profilo :src = "immagine.File">
+        <img class = foto-profilo :src = "immagine.File" :key = immagine.PhotoID>
+        <button class = photo-delete-button 
+        @click= deletePhoto(immagine.PhotoID)
+        v-if = "Number(this.profilo.ID) === Number(this.visitor.visitorID)">Cancella </button>
       </div>
     </div>
     
@@ -340,5 +358,17 @@ export default{
     display: flex;
     align-items: center;
     justify-content:space-evenly;
+  }
+
+  .photo-delete-button{
+    position: relative;
+    transform: translate(+390%, -120%);
+    border-radius: 10px;
+    border: 2px solid white;
+    height:40px;
+    width: 100px;
+
+    background-color: rgb(178, 34, 34);
+    color:white;
   }
 </style>
