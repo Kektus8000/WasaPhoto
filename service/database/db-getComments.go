@@ -3,14 +3,14 @@ package database
 func (db *appdbimpl) GetComments(photoID int) ([]Comment, error) {
 
 	var comments []Comment
-	rows, err := db.c.Query(`SELECT * FROM Comment WHERE photoID = ?`, photoID)
+	rows, err := db.c.Query(`SELECT commentID, comment, publisherID, photoID FROM Comment WHERE photoID = ?`, photoID)
 	if err != nil {
 		return nil, err
 	}
 
 	for rows.Next() {
 		var comm Comment
-		errScan := rows.Scan(&comm)
+		errScan := rows.Scan(&comm.CommentID, &comm.Text, &comm.PublisherID, &comm.PhotoID)
 		if errScan != nil {
 			return nil, errScan
 		}

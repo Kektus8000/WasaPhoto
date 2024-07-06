@@ -1,13 +1,17 @@
 <script>
 
 const STATOLIKE = ["Mi Piace", "Ti Piace"]
+const STATOUTENTE = ["Bannato", "Lo Segui", "Ti Segue"]
 
 export default{
   data(){
     return{
       ricerca: "",
+
       errormsg: "",
       
+      nuovoCommento : "",
+
       stream: [],
       
       utenti: [],
@@ -41,6 +45,15 @@ export default{
             
             let temp2 = await this.$axios.get('/user/' + foto.PublisherID, {});
             foto.PublisherName = temp2.data.Username;
+
+            foto.isLiked = false;
+            if (foto.Likes != null) {foto.isLiked = foto.Likes.some(like => like.UserID === this.profilo.ID);}
+            foto.initiallyLiked = foto.isLiked;
+
+            foto.likeCount = foto.Likes != null ? foto.Likes.length : 0;
+            console.log(foto.Commenti);
+            foto.commentCount = foto.Commenti != null ? foto.Commenti.length : 0;
+            foto.newComment = '';
           }  
         }
       }
@@ -50,12 +63,49 @@ export default{
         alert(this.errormsg);
       }
     },
-    async gestioneMiPiace(photoID){
+    fotoPiaciuta(photoID)
+    {
+      var foto = this.stream.find(foto => foto.PhotoID === photoID);
+      return foto.isLiked ? STATOLIKE[1] : STATOLIKE[0]
+    },
+    likePhoto(photoID)
+    {
+      var foto = this.stream.find(foto => foto.PhotoID === photoID);
+      foto.isLiked = !foto.isLiked;
+      if (foto.isLiked) {foto.likeCount += 1}
+      else {foto.likeCount -= 1}
+    },
+    async salvaMiPiace()
+    {
       try
       {
-        var foto = this.stream.find(foto => foto.PhotoID === photoID);
-        if (foto.Likes == null || !foto.Likes.some(like => like.UserID === this.profilo.ID)) {await this.$axios.post('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.profilo.ID} });}
-        else {await this.$axios.delete('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.profilo.ID} });}
+        for (let i = 0; i < this.stream.length; i++)
+        {
+          var foto = this.stream[i];
+          if (foto.isLiked !== foto.initiallyLiked)
+          {
+            if (foto.isLiked) { await this.$axios.post('/userProfile/' + this.profilo.ID + '/stream/' + foto.PhotoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.profilo.ID} });}
+            else {await this.$axios.delete('/userProfile/' + this.profilo.ID + '/stream/' + foto.PhotoID + '/likes/', { headers: {Authorization: "Bearer " + this.profilo.ID} });}
+          }
+        }
+      }
+      catch(e)
+      {
+        this.errormsg = e.toString();
+        alert(this.errormsg);       
+      }
+    },
+    async pubblicaCommento(photoID)
+    {
+      try
+      {
+        var foto = this.stream.find(foto => Number(foto.PhotoID) === Number(photoID));
+        var commento = foto.newComment;
+        await this.$axios.put('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/comments/',
+        {content: commento},
+        { headers: {Authorization: "Bearer " + this.profilo.ID} });
+        foto.newComment = ""; 
+        this.salvaMiPiace();
         this.refresh();
       }
       catch(e)
@@ -64,24 +114,24 @@ export default{
         alert(this.errormsg);       
       }
     },
-    fotoPiaciuta(photoID){
-      var foto = this.stream.find(foto => foto.PhotoID === photoID);
-      if (foto.Likes == null) {return STATOLIKE[0];}
-      return foto.Likes.some(like => like.UserID === this.profilo.ID) ? STATOLIKE[1] : STATOLIKE[0];
-    },
+    /////////////////////////////////////// METODI PER RAGGIUNGERE ALTRE PAGINE /////////////////////////////////////
     async visitaProfilo(checkID){
+      await this.salvaMiPiace();
       localStorage.setItem('IDCercato', checkID);
       this.$router.push({path: '/userProfile/' + checkID });
     },
     async visitaSeguiti(){
+      await this.salvaMiPiace();
       localStorage.setItem('IDCercato', this.profilo.ID);
       this.$router.push({path: '/userProfile/' + this.profilo.ID + '/followeds'});
     },
     async visitaSeguaci(){
+      await this.salvaMiPiace();
       localStorage.setItem('IDCercato', this.profilo.ID);
       this.$router.push({path: '/userProfile/' + this.profilo.ID + '/following'});
     },
     async logout(){
+      await this.salvaMiPiace();
       localStorage.removeItem('IDCercato');
       localStorage.removeItem('identifier');
       localStorage.removeItem('username');
@@ -133,21 +183,26 @@ export default{
     <div class= contenuto v-if = "this.ricerca == '' ">
       <div v-for = "foto in this.stream" :key = foto.PhotoID>
         <div class = pubblicazione>
-          <div class = zona-foto>
+          <section class = sezione-foto>
             <h4 height = 40px style = "font-weight: bold; padding-top: 5px; padding-left: 5px; cursor: pointer;" @click = visitaProfilo(foto.PublisherID)> {{foto.PublisherName}}</h4>
             <img class = immagine :src = foto.File>
-            <button class = like-stream  @click = gestioneMiPiace(foto.PhotoID)> <i class="material-icons">favorite</i> {{fotoPiaciuta(foto.PhotoID)}} </button>
-          </div>
-          <div class = sezioneCommenti>
-            <div v-for = "commento in foto.Commenti">
+            <button class = like-stream  @click = likePhoto(foto.PhotoID)> <i class="material-icons">favorite</i> {{fotoPiaciuta(foto.PhotoID)}} : {{foto.likeCount}} </button>
+          </section>
+          <section class = sezioneCommenti>
+            <h3 height = 40px style = "top: 0; padding-top: 5px; border-bottom: 1px solid black;"> Commenti : {{foto.commentCount}} </h3>
+            <div height = 400px v-for = "commento in foto.Commenti" :key = commento.CommentID>
               <div class = commento>
                 <div class = commentatore>
                   <h5 style = "font-weight: bold; padding-top: 5px;">{{this.profilo.nome}}</h5>
                 </div>
-                <h4 style = "font-family: italic; padding-left: 5px;">{{commento}}</h4>
+                <h4 style = "font-family: italic; padding-left: 5px;">{{commento.Text}}</h4>
               </div>
             </div>
-          </div>
+            <div class = aggiungi-commento height = 40px>
+              <input v-model = foto.newComment height = 40px width = 400>
+              <button @click = pubblicaCommento(foto.PhotoID)> Pubblica </button>
+            </div>
+          </section>
         </div>
       </div>
     </div>
@@ -155,7 +210,7 @@ export default{
     <div class = risultato v-else>
       <div class= utenti-ricercati v-for = "user in this.utenti" :key = user.UserID>
         <div class = utente-trovato>
-          <h2 style = "font-weight: bold; padding-left:10px" @click = "visitaProfilo(user.UserID)"> {{user.Username}} </h2>
+          <h3 style = "font-weight: bold; padding-left:10px" @click = "visitaProfilo(user.UserID)"> {{user.Username}}</h3>
         </div>
       </div>
     </div>
@@ -234,7 +289,7 @@ export default{
     border: 1px solid black;
   }
 
-  .zona-foto{
+  .sezione-foto{
     width: 50%;
   }
   .immagine{
@@ -242,14 +297,11 @@ export default{
     height: 455px;
   }
 
-
   .sezioneCommenti{
     border-left: 1px solid black;
-    top:40px;
     width:50%;
     height:100%;
     display:inline;
-    flex-wrap: wrap;
     overflow-y:scroll;
   }
 
@@ -274,6 +326,12 @@ export default{
   .like-stream:hover{
     color: white;
     background-color: rgb(80, 200, 120);
+  }
+
+  .aggiungi-commento{
+    border-top: 1px solid black;
+    bottom: 0;
+    width: 100%;
   }
 
 </style>

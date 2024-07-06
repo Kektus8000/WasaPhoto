@@ -117,13 +117,17 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 			temp2 := comms[i]
 			var comm Comment
 			comm.CommentID = temp2.CommentID
-			comm.Comment = temp2.Comment
+			comm.Text = temp2.Text
 			comm.PhotoID = temp2.PhotoID
 			comm.PublisherID = temp2.PublisherID
 			photo.Comments = append(photo.Comments, comm)
 		}
 
-		likes, errComm := rt.db.GetLikes(photo.PhotoID)
+		likes, errLike := rt.db.GetLikes(photo.PhotoID)
+		if errLike != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		for k := 0; k < len(likes); k++ {
 			temp3 := likes[k]
 			var lover User

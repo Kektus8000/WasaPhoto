@@ -21,8 +21,8 @@ func (rt *_router) CommentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	// Check dell'ID della Foto
-	photoID, errConv2 := strconv.Atoi(ps.ByName("photoID"))
-	if errConv2 != nil {
+	photoID, errConv := strconv.Atoi(ps.ByName("photoID"))
+	if errConv != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -38,8 +38,8 @@ func (rt *_router) CommentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	// Controlla se l'utente è stato bannato dall'utente pubblicante, ritornando errore 403 se risulta bannato o errore 500 per problemi di query
-	banned, errQuery2 := rt.db.CheckBanned(publisherID, userID)
-	if errQuery2 != nil {
+	banned, errQuery := rt.db.CheckBanned(publisherID, userID)
+	if errQuery != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	} else if banned == true {
@@ -50,20 +50,19 @@ func (rt *_router) CommentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	// Legge il request body, ritornando errore 500 se vi sono problemi con la query
 
 	var word Comment
-	err := json.NewDecoder(r.Body).Decode(&word.Comment)
+	err := json.NewDecoder(r.Body).Decode(&word)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// Controlla la lunghezza del commento, ritornando errore 400 se non adatta
-	if len(word.Comment) < 6 || len(word.Comment) > 160 {
+	if len(word.Text) < 6 || len(word.Text) > 160 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	// Aggiunge il commento nella tabella del database, ritornando errore 500 se non possibile
-	_, errComm := rt.db.CommentPhoto(photoID, word.Comment, userID)
+	errComm := rt.db.CommentPhoto(photoID, word.Text, userID)
 	if errComm != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

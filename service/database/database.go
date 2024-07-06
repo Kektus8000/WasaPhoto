@@ -16,7 +16,7 @@ type User struct {
 
 type Comment struct {
 	CommentID   int
-	Comment     string
+	Text        string
 	PublisherID int
 	PhotoID     int
 }
@@ -64,7 +64,7 @@ type AppDatabase interface {
 	// Metodi PUT
 	SearchUsers(searcherID int, searchedName string) ([]User, error)
 	UploadPhoto(userID int) (int, error)
-	CommentPhoto(commentorID int, comment string, photoID int) (int, error)
+	CommentPhoto(commentorID int, comment string, photoID int) error
 
 	// Metodi DELETE
 	UnFollowUser(followerID int, tofollowID int) error
