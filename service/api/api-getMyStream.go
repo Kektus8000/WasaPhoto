@@ -51,7 +51,6 @@ func (rt *_router) GetMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 			comm.PublisherID = temp2.PublisherID
 			photo.Comments = append(photo.Comments, comm)
 		}
-
 		likes, errLike := rt.db.GetLikes(photo.PhotoID)
 		if errLike != nil {
 			w.WriteHeader(http.StatusInternalServerError)

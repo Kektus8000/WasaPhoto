@@ -51,7 +51,6 @@ export default{
             foto.initiallyLiked = foto.isLiked;
 
             foto.likeCount = foto.Likes != null ? foto.Likes.length : 0;
-            console.log(foto.Commenti);
             foto.commentCount = foto.Commenti != null ? foto.Commenti.length : 0;
             foto.newComment = '';
           }  

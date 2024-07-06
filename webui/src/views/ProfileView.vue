@@ -116,7 +116,6 @@ export default{
             var temp = {UserID : this.profilo.ID, Username: this.profilo.nome};
             if (this.visitor.visitorBannati == null) {this.visitor.visitorBannati = [temp];}
             else {this.visitor.visitorBannati.push(temp);}
-            console.log("Bannato");
           }
           else
           {
@@ -125,7 +124,6 @@ export default{
             // L'utente viene rimosso dai bannati
             let indice = this.visitor.visitorBannati.map(user => user.UserID).indexOf(this.profilo.ID);
             this.visitor.visitorBannati.splice(indice, 1);
-            console.log("Unban");
           }
         }
 
