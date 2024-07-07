@@ -43,7 +43,7 @@ func (rt *_router) GetMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		}
 
 		for j := 0; j < len(result); j++ {
-			temp2 := result[i]
+			temp2 := result[j]
 			var comm Comment
 			comm.CommentID = temp2.CommentID
 			comm.Text = temp2.Text

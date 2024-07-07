@@ -54,15 +54,7 @@ export default{
 
             foto.commentCount = foto.Comments != null ? foto.Comments.length : 0;
             foto.newComment = '';
-            if (foto.Comments != null)
-            {
-              for (let k = 0; k < foto.Comments.length; k++)
-              {
-                var comm = foto.Comments[k];
-                let responseComm = await this.$axios.get('/user/' + comm.PublisherID, { headers: {Authorization: "Bearer " + this.profilo.ID}});
-                comm.CommentorName = responseComm.data.Username;
-              }
-            }
+            console.log(foto.Comments);
           }  
         }
       }
@@ -122,7 +114,7 @@ export default{
         alert(this.errormsg);       
       }
     },
-    async cancellaCommento(photoID, commentID)
+    async uncommentPhoto(photoID, commentID)
     {
       try
       {
@@ -216,9 +208,9 @@ export default{
             <div height = 400px v-for = "comm in foto.Comments" :key = comm.CommentID>
               <div class = commento>
                 <div class = commentatore style = "display: flex; justify-content: space-between">
-                  <h5 style = "font-weight: bold; padding-top: 5px;"> {{comm.CommentorName}}</h5>
+                  <h5 style = "font-weight: bold; padding-top: 5px;"> {{comm.PublisherName}}</h5>
                   <button v-if = "Number(comm.PublisherID) === Number(this.profilo.ID)"
-                  @click = "cancellaCommento(foto.PhotoID, comm.CommentID)" style = "background-color: rgb(178, 34, 34); color: white;"> Cancella </button>
+                  @click = "uncommentPhoto(foto.PhotoID, comm.CommentID)" style = "background-color: rgb(178, 34, 34); color: white;"> Cancella </button>
                 </div>
                 <h4 style = "font-family: italic; padding-left: 5px;">{{comm.Text}}</h4>
               </div>

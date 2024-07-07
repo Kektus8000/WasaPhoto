@@ -6,7 +6,7 @@ func (db *appdbimpl) GetComments(photoID int) ([]Comment, error) {
 	rows, err := db.c.Query(`SELECT cm.commentID, cm.comment, cm.publisherID, ut.username, cm.photoID 
 	FROM Comment cm, User ut
 	WHERE photoID = ?
-	AND cm.publisherID = ut.username`, photoID)
+	AND cm.publisherID = ut.userID`, photoID)
 	if err != nil {
 		return nil, err
 	}
