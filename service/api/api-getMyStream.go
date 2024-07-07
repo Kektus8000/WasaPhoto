@@ -34,10 +34,16 @@ func (rt *_router) GetMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		photo.PhotoID = temp.PhotoID
 		photo.PublisherID = temp.PublisherID
 		photo.PublicationDate = temp.PublicationDate
-		photo.PublisherName = temp.PublisherName
-		photo.File = PHOTOFOLDER + strconv.Itoa(photo.PublisherID) + PUBLISHEDFOLDER + strconv.Itoa(photo.PhotoID)
-		result, errComm := rt.db.GetComments(photo.PhotoID)
 
+		userF, errNome := rt.db.GetUserByID(photo.PublisherID)
+		if errNome != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		photo.PublisherName = userF.Username
+		photo.File = PHOTOFOLDER + strconv.Itoa(photo.PublisherID) + PUBLISHEDFOLDER + strconv.Itoa(photo.PhotoID)
+
+		result, errComm := rt.db.GetComments(photo.PhotoID)
 		if errComm != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return

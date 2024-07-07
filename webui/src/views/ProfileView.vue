@@ -3,6 +3,7 @@
 const READER = new FileReader();
 const STATOBAN = ["BAN", "UNBAN"];
 const STATOFOLLOW = ["FOLLOW", "UNFOLLOW"];
+const STATOLIKE = ["Mi Piace", "Ti Piace"];
 
 export default{
   data(){
@@ -37,8 +38,6 @@ export default{
     async refresh(){
       await this.recuperaInfo();
       if (this.visitor.visitorID != this.profilo.ID) {this.visitorInfo();}
-      console.log(this.visitor.visitorID);
-      console.log(this.profilo.ID);
     },
     ///////////////////////////// FUNZIONI VISITOR ////////////////////////////////////////////
     async visitorInfo(){
@@ -81,56 +80,68 @@ export default{
       try
       {
         //Aggiornamento del Follow
-        if (this.visitor.isFollowing !== this.visitor.initialFollowing)
+        if (Number(this.visitor.visitorID) != Number(this.profilo.ID))
         {
-          // Se il visitatore segue il propritario ma prima no...
-          if (this.visitor.isFollowing)
+          if (this.visitor.isFollowing !== this.visitor.initialFollowing)
           {
-            await this.$axios.post('/userProfile/' + this.visitor.visitorID + '/following/' + this.profilo.ID, {}, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} );
-            var temp = {UserID : this.profilo.ID, Username: this.profilo.nome};
-            if (this.visitor.visitorSeguiti == null) {this.visitor.visitorSeguiti = [temp];}
-            else {this.visitor.visitorSeguiti.push(temp);}
-          }
-          // Se il visitatore seguiva il proprietario e ora non più...
-          else
-          {
-            await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/following/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} ); 
-            let indice = this.visitor.visitorSeguiti.map(user => user.UserID).indexOf(this.profilo.ID);
-            this.visitor.visitorSeguiti.splice(indice, 1);
-          }
-        }
-        //Aggiornamento del Ban
-        if (this.visitor.hasBanned !== this.visitor.initalBanned)
-        {
-          // Se il visitatore ha bannato il proprietario...
-          if (this.visitor.hasBanned)
-          {
-            await this.$axios.post('/userProfile/' + this.visitor.visitorID  + '/banList/' + this.profilo.ID, {}, {headers: {Authorization: "Bearer " + this.visitor.visitorID }} );
-
-            // L'utente bannato viene rimosso dai seguiti (se vi è)...
-            if (this.visitor.visitorSeguiti != null && this.visitor.visitorSeguiti.some(fl => Number(fl.UserID) === this.profilo.ID))
+            // Se il visitatore segue il propritario ma prima no...
+            if (this.visitor.isFollowing)
             {
-              let indice = this.visitor.visitorSeguiti.map(user => user.UserID).indexOf(this.profilo.ID);
-              if (indice != -1) {this.visitor.visitorSeguiti.splice(indice, 1);}
+              await this.$axios.post('/userProfile/' + this.visitor.visitorID + '/following/' + this.profilo.ID, {}, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} );
+              var temp = {UserID : this.profilo.ID, Username: this.profilo.nome};
+              if (this.visitor.visitorSeguiti == null) {this.visitor.visitorSeguiti = [temp];}
+              else {this.visitor.visitorSeguiti.push(temp);}
             }
-            // ...e viene aggiunto ai bannati
-            var temp = {UserID : this.profilo.ID, Username: this.profilo.nome};
-            if (this.visitor.visitorBannati == null) {this.visitor.visitorBannati = [temp];}
-            else {this.visitor.visitorBannati.push(temp);}
+            // Se il visitatore seguiva il proprietario e ora non più...
+            else
+            {
+              await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/following/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} ); 
+              let indice = this.visitor.visitorSeguiti.map(user => user.UserID).indexOf(this.profilo.ID);
+              this.visitor.visitorSeguiti.splice(indice, 1);
+            }
           }
-          else
+          //Aggiornamento del Ban
+          if (this.visitor.hasBanned !== this.visitor.initalBanned)
           {
-            await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/banList/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} );
+            // Se il visitatore ha bannato il proprietario...
+            if (this.visitor.hasBanned)
+            {
+              await this.$axios.post('/userProfile/' + this.visitor.visitorID  + '/banList/' + this.profilo.ID, {}, {headers: {Authorization: "Bearer " + this.visitor.visitorID }} );
+
+              // L'utente bannato viene rimosso dai seguiti (se vi è)...
+              if (this.visitor.visitorSeguiti != null && this.visitor.visitorSeguiti.some(fl => Number(fl.UserID) === this.profilo.ID))
+              {
+                let indice = this.visitor.visitorSeguiti.map(user => user.UserID).indexOf(this.profilo.ID);
+                if (indice != -1) {this.visitor.visitorSeguiti.splice(indice, 1);}
+              }
+              // ...e viene aggiunto ai bannati
+              var temp = {UserID : this.profilo.ID, Username: this.profilo.nome};
+              if (this.visitor.visitorBannati == null) {this.visitor.visitorBannati = [temp];}
+              else {this.visitor.visitorBannati.push(temp);}
+            }
+            else
+            {
+              await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/banList/' + this.profilo.ID, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} );
             
-            // L'utente viene rimosso dai bannati
-            let indice = this.visitor.visitorBannati.map(user => user.UserID).indexOf(this.profilo.ID);
-            this.visitor.visitorBannati.splice(indice, 1);
+              // L'utente viene rimosso dai bannati
+              let indice = this.visitor.visitorBannati.map(user => user.UserID).indexOf(this.profilo.ID);
+              this.visitor.visitorBannati.splice(indice, 1);
+            }
+          }
+          // Aggiornamento del localStorage
+          localStorage.setItem('SeguitiSessione', JSON.stringify(this.visitor.visitorSeguiti));
+          localStorage.setItem('BannatiSessione', JSON.stringify(this.visitor.visitorBannati));
+        }
+        
+        for (let i = 0; i < this.profilo.fotoPubblicate.length; i++)
+        {
+          var foto = this.profilo.fotoPubblicate[i];
+          if (foto.isLiked !== foto.initiallyLiked)
+          {
+            if (foto.isLiked) { await this.$axios.post('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.profilo.ID} });}
+            else {await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', { headers: {Authorization: "Bearer " + this.visitor.visitorID} });}
           }
         }
-
-        // Aggiornamento del localStorage
-        localStorage.setItem('SeguitiSessione', JSON.stringify(this.visitor.visitorSeguiti));
-        localStorage.setItem('BannatiSessione', JSON.stringify(this.visitor.visitorBannati));
       }
       catch(e)
       {
@@ -159,6 +170,11 @@ export default{
             {responseType: 'blob',
             headers: {Authorization: "Bearer " + this.visitor.visitorID}});
             foto.File = URL.createObjectURL(temp.data);
+
+            foto.isLiked = false;
+            if (foto.Likes != null) {foto.isLiked = foto.Likes.some(like => like.UserID === this.profilo.ID);}
+            foto.initiallyLiked = foto.isLiked;
+            foto.likeCount = foto.Likes != null ? foto.Likes.length : 0;
           }  
         }
       }
@@ -199,6 +215,18 @@ export default{
         alert(this.errormsg);
       }
     },
+    fotoPiaciuta(photoID)
+    {
+      var foto = this.profilo.fotoPubblicate.find(foto => foto.PhotoID === photoID);
+      return foto.isLiked ? STATOLIKE[1] : STATOLIKE[0]
+    },
+    likePhoto(photoID)
+    {
+      var foto = this.profilo.fotoPubblicate.find(foto => foto.PhotoID === photoID);
+      foto.isLiked = !foto.isLiked;
+      if (foto.isLiked) {foto.likeCount += 1}
+      else {foto.likeCount -= 1}
+    },
     async mostraDialog(){ document.getElementById("cambiaNome").style.display = "inline"; },
     
     async chiudiDialog(){
@@ -224,7 +252,7 @@ export default{
     },
     async controllaBannati(){ this.$router.push({path: '/userProfile/'+ this.profilo.ID + '/banList'});},
     async tornaHomePage(){
-      if (this.visitor.visitorID != this.profilo.ID) {this.salvaStato();}
+      this.salvaStato();
       localStorage.removeItem('IDCercato');
       this.$router.replace('/session');
     }
@@ -236,6 +264,9 @@ export default{
 </script>
 
 <template>
+  <head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  </head>
   <body>
     <header class=intestazione>
       <h4 @click = "tornaHomePage" style= "padding-left : 10px; font-weight: bold;">Torna alla HomePage</h4>
@@ -256,11 +287,14 @@ export default{
     </dialog>
 
     <div class = fotoCondivise>
-      <div v-for = "immagine in this.profilo.fotoPubblicate">
-        <img class = foto-profilo :src = "immagine.File" :key = immagine.PhotoID>
-        <button class = photo-delete-button 
-        @click= deletePhoto(immagine.PhotoID)
-        v-if = "Number(this.profilo.ID) === Number(this.visitor.visitorID)">Cancella </button>
+      <div v-for = "immagine in this.profilo.fotoPubblicate" :key = immagine.PhotoID>
+        <img class = foto-profilo :src = "immagine.File">
+        <div class = ops-foto style = "display: flex; justify-content: space-between; transform: translate(0%, -110%);">
+          <button class = like-profilo  @click = likePhoto(immagine.PhotoID)> <i class="material-icons">favorite</i> {{fotoPiaciuta(immagine.PhotoID)}} : {{immagine.likeCount}} </button>
+          <button class = photo-delete-button 
+          @click= deletePhoto(immagine.PhotoID)
+          v-if = "Number(this.profilo.ID) === Number(this.visitor.visitorID)">Cancella </button>
+        </div>
       </div>
     </div>
     
@@ -361,8 +395,6 @@ export default{
   }
 
   .photo-delete-button{
-    position: relative;
-    transform: translate(+390%, -120%);
     border-radius: 10px;
     border: 2px solid white;
     height:40px;
@@ -370,5 +402,20 @@ export default{
 
     background-color: rgb(178, 34, 34);
     color:white;
+  }
+
+  .like-profilo{
+    font-size: 20px;
+
+    border-radius:10px;
+    border: 1px solid black;
+    color: rgb(80, 200, 120);
+    cursor: pointer;
+    background-color: white;
+  }
+
+  .like-profilo:hover{
+    color: white;
+    background-color: rgb(80, 200, 120);
   }
 </style>

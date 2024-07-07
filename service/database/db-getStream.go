@@ -3,7 +3,7 @@ package database
 func (db *appdbimpl) GetStream(userID int) ([]Photo, error) {
 
 	var photos []Photo
-	rows, errQuery := db.c.Query(`SELECT pht.file, pht.photoID, pht.publisherID, pht.publicationDate, us.username
+	rows, errQuery := db.c.Query(`SELECT pht.file, pht.photoID, pht.publisherID, pht.publicationDate
 	FROM Photo pht, User us, Following fl
 	WHERE pht.publisherID = fl.followingID
 	AND fl.followerID = us.userID
@@ -15,7 +15,7 @@ func (db *appdbimpl) GetStream(userID int) ([]Photo, error) {
 
 	for rows.Next() {
 		var photo Photo
-		errScan := rows.Scan(&photo.File, &photo.PhotoID, &photo.PublisherID, &photo.PublicationDate, &photo.PublisherName)
+		errScan := rows.Scan(&photo.File, &photo.PhotoID, &photo.PublisherID, &photo.PublicationDate)
 		if errScan != nil {
 			return nil, errScan
 		}

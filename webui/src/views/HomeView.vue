@@ -93,7 +93,7 @@ export default{
         alert(this.errormsg);       
       }
     },
-    async pubblicaCommento(photoID)
+    async commentPhoto(photoID)
     {
       try
       {
@@ -213,8 +213,8 @@ export default{
               </div>
             </div>
             <div class = aggiungi-commento height = 40px>
-              <input v-model = foto.newComment height = 40px width = 400>
-              <button @click = pubblicaCommento(foto.PhotoID)> Pubblica </button>
+              <input v-model = foto.newComment height = 40px>
+              <button @click = commentPhoto(foto.PhotoID)> Pubblica </button>
             </div>
           </section>
         </div>
@@ -319,7 +319,15 @@ export default{
     overflow-y:scroll;
   }
 
+  .aggiungi-commento{
+    z-index:1;
+    border-top: 1px solid black;
+    bottom: 0;
+    width: 100%;
+  }
+
   .commento{
+    z-index: 0;
     border: 1px solid black;
     word-wrap:break-word;
   }
@@ -342,10 +350,6 @@ export default{
     background-color: rgb(80, 200, 120);
   }
 
-  .aggiungi-commento{
-    border-top: 1px solid black;
-    bottom: 0;
-    width: 100%;
-  }
+
 
 </style>
