@@ -42,6 +42,7 @@ type UserProfile struct {
 
 type AppDatabase interface {
 	// Metodi GET
+	AlreadyInUse(userID int, username string) (bool, error)
 	GetUserByID(userID int) (User, error)
 	GetUserByUsername(username string) (User, error)
 	GetFollowers(userID int) ([]User, error)

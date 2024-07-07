@@ -25,11 +25,11 @@ func (rt *_router) SetMyUsername(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	user2, errQuery := rt.db.GetUserByUsername(newUser.Username)
+	result, errQuery := rt.db.AlreadyInUse(userID, newUser.Username)
 	if errQuery != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	} else if userID != user2.UserID && user2.Username == newUser.Username {
+	} else if result {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
