@@ -62,7 +62,7 @@ func (rt *_router) CommentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	// Aggiunge il commento nella tabella del database, ritornando errore 500 se non possibile
-	errComm := rt.db.CommentPhoto(photoID, word.Text, userID)
+	errComm := rt.db.CommentPhoto(userID, photoID, word.Text)
 	if errComm != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

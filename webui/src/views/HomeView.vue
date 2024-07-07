@@ -36,7 +36,8 @@ export default{
         let response = await this.$axios.get('/userProfile/' + this.profilo.ID + '/stream/', { headers: {Authorization: "Bearer " + this.profilo.ID} });
         if (response.data != null) {
           this.stream = response.data;
-          for (let i = 0; i < this.stream.length; i++){
+          for (let i = 0; i < this.stream.length; i++)
+          {
             var foto = this.stream[i];
             let temp = await this.$axios.get('/userProfile/' + foto.PublisherID + '/publishedPhotos/' + foto.PhotoID, 
             {responseType: 'blob',
@@ -49,10 +50,19 @@ export default{
             foto.isLiked = false;
             if (foto.Likes != null) {foto.isLiked = foto.Likes.some(like => like.UserID === this.profilo.ID);}
             foto.initiallyLiked = foto.isLiked;
-
             foto.likeCount = foto.Likes != null ? foto.Likes.length : 0;
-            foto.commentCount = foto.Commenti != null ? foto.Commenti.length : 0;
+
+            foto.commentCount = foto.Comments != null ? foto.Comments.length : 0;
             foto.newComment = '';
+            if (foto.Comments != null)
+            {
+              for (let k = 0; k < foto.Comments.length; k++)
+              {
+                var comm = foto.Comments[k];
+                let responseComm = await this.$axios.get('/user/' + comm.PublisherID, { headers: {Authorization: "Bearer " + this.profilo.ID}});
+                comm.CommentorName = responseComm.data.Username;
+              }
+            }
           }  
         }
       }
@@ -99,11 +109,25 @@ export default{
       try
       {
         var foto = this.stream.find(foto => Number(foto.PhotoID) === Number(photoID));
-        var commento = foto.newComment;
         await this.$axios.put('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/comments/',
-        {content: commento},
+        { Text : foto.newComment},
         { headers: {Authorization: "Bearer " + this.profilo.ID} });
         foto.newComment = ""; 
+        this.salvaMiPiace();
+        this.refresh();
+      }
+      catch(e)
+      {
+        this.errormsg = e.toString();
+        alert(this.errormsg);       
+      }
+    },
+    async cancellaCommento(photoID, commentID)
+    {
+      try
+      {
+        await this.$axios.delete('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/comments/' + commentID, 
+        { headers: {Authorization: "Bearer " + this.profilo.ID} });
         this.salvaMiPiace();
         this.refresh();
       }
@@ -189,12 +213,14 @@ export default{
           </section>
           <section class = sezioneCommenti>
             <h3 height = 40px style = "top: 0; padding-top: 5px; border-bottom: 1px solid black;"> Commenti : {{foto.commentCount}} </h3>
-            <div height = 400px v-for = "commento in foto.Commenti" :key = commento.CommentID>
+            <div height = 400px v-for = "comm in foto.Comments" :key = comm.CommentID>
               <div class = commento>
-                <div class = commentatore>
-                  <h5 style = "font-weight: bold; padding-top: 5px;">{{this.profilo.nome}}</h5>
+                <div class = commentatore style = "display: flex; justify-content: space-between">
+                  <h5 style = "font-weight: bold; padding-top: 5px;"> {{comm.CommentorName}}</h5>
+                  <button v-if = "Number(comm.PublisherID) === Number(this.profilo.ID)"
+                  @click = "cancellaCommento(foto.PhotoID, comm.CommentID)" style = "background-color: rgb(178, 34, 34); color: white;"> Cancella </button>
                 </div>
-                <h4 style = "font-family: italic; padding-left: 5px;">{{commento.Text}}</h4>
+                <h4 style = "font-family: italic; padding-left: 5px;">{{comm.Text}}</h4>
               </div>
             </div>
             <div class = aggiungi-commento height = 40px>

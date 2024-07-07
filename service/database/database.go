@@ -64,7 +64,7 @@ type AppDatabase interface {
 	// Metodi PUT
 	SearchUsers(searcherID int, searchedName string) ([]User, error)
 	UploadPhoto(userID int) (int, error)
-	CommentPhoto(commentorID int, comment string, photoID int) error
+	CommentPhoto(commentorID int, photoID int, comment string) error
 
 	// Metodi DELETE
 	UnFollowUser(followerID int, tofollowID int) error
@@ -145,8 +145,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 			comment TEXT NOT NULL, 
 			publisherID INTEGER NOT NULL,
 			photoID INTEGER NOT NULL,
-			FOREIGN KEY(publisherID) REFERENCES User(userID),
-			FOREIGN KEY(photoID) REFERENCES Photo(photoID)
+			FOREIGN KEY(publisherID) REFERENCES User (userID),
+			FOREIGN KEY(photoID) REFERENCES Photo (photoID)
 			);`)
 
 		if err5 != nil {
