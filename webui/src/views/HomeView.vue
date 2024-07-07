@@ -43,9 +43,6 @@ export default{
             {responseType: 'blob',
             headers: {Authorization: "Bearer " + this.profilo.ID} });
             foto.File = URL.createObjectURL(temp.data);
-            
-            let temp2 = await this.$axios.get('/user/' + foto.PublisherID, {});
-            foto.PublisherName = temp2.data.Username;
 
             foto.isLiked = false;
             if (foto.Likes != null) {foto.isLiked = foto.Likes.some(like => like.UserID === this.profilo.ID);}

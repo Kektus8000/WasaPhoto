@@ -105,6 +105,7 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		photo.PhotoID = temp.PhotoID
 		photo.PublisherID = temp.PublisherID
 		photo.PublicationDate = temp.PublicationDate
+		photo.PublisherName = temp.PublisherName
 		photo.File = PHOTOFOLDER + strconv.Itoa(photo.PublisherID) + PUBLISHEDFOLDER + strconv.Itoa(photo.PhotoID)
 
 		comms, errComm := rt.db.GetComments(photo.PhotoID)

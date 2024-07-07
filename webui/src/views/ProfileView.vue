@@ -174,7 +174,7 @@ export default{
         let foto = document.getElementById('upload');
         READER.readAsArrayBuffer(foto.files[0]);
         READER.onload = async () => {
-          let response = await this.$axios.put('/userProfile/${this.visitorID}/publishedPhotos/', READER.result, { headers: {Authorization: "Bearer " + this.visitor.visitorID} });
+          await this.$axios.put('/userProfile/${this.visitorID}/publishedPhotos/', READER.result, { headers: {Authorization: "Bearer " + this.visitor.visitorID} });
         };
         alert("Foto pubblicata!");
         this.refresh();
@@ -206,10 +206,10 @@ export default{
       document.getElementById("cambiaNome").style.display = "none"; 
     },
     
-    async cambiaUsername(){
+    async setMyUsername(){
       try
       {
-        let response = await this.$axios.post('/user/' + this.profilo.ID + '/username', {username: this.newUsername}, { headers: {Authorization: "Bearer " + this.visitor.visitorID} })
+        await this.$axios.post('/user/' + this.profilo.ID + '/username', {username: this.newUsername}, { headers: {Authorization: "Bearer " + this.visitor.visitorID} })
         this.profilo.nome = this.newUsername;
         localStorage.setItem('username', this.newUsername);
         this.newUsername = "";
@@ -250,7 +250,7 @@ export default{
       <h3 style = "text-align: center;"> Scrivi il tuo nuovo username </h3>
       <div style = "align-self: center;">
         <input placeholder="Nuovo username" v-model = this.newUsername style = "text-align: center;">
-        <button @click = "cambiaUsername" :disabled= "this.newUsername.length > 16 || this.newUsername.length < 3">Cambia</button>
+        <button @click = "setMyUsername()" :disabled= "this.newUsername.length > 16 || this.newUsername.length < 3">Cambia</button>
         <button @click = "chiudiDialog" > Chiudi </button>
       </div>
     </dialog>

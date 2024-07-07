@@ -3,8 +3,10 @@ package database
 func (db *appdbimpl) GetPublishedPhotos(userID int) ([]Photo, error) {
 
 	var photos []Photo
-	rows, errQuery := db.c.Query(`SELECT file, photoID, publisherID, publicationDate
-	FROM Photo WHERE publisherID = ?
+	rows, errQuery := db.c.Query(`SELECT pht.file, pht.photoID, pht.publisherID, pht.publicationDate, ut.username
+	FROM Photo pht, User ut
+	WHERE pht.publisherID = ?
+	AND pht.publisherID = ut.userID
 	ORDER BY publicationDate DESC`, userID)
 	if errQuery != nil {
 		return nil, errQuery
@@ -12,7 +14,7 @@ func (db *appdbimpl) GetPublishedPhotos(userID int) ([]Photo, error) {
 
 	for rows.Next() {
 		var photo Photo
-		errScan := rows.Scan(&photo.File, &photo.PhotoID, &photo.PublisherID, &photo.PublicationDate)
+		errScan := rows.Scan(&photo.File, &photo.PhotoID, &photo.PublisherID, &photo.PublicationDate, &photo.PublisherName)
 		if errScan != nil {
 			return nil, errScan
 		}

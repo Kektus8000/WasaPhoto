@@ -26,6 +26,7 @@ type Photo struct {
 	File            string
 	PhotoID         int
 	PublisherID     int
+	PublisherName   string
 	PublicationDate time.Time
 	Comments        []Comment
 	Likes           []User
