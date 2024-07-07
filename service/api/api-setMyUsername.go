@@ -29,7 +29,7 @@ func (rt *_router) SetMyUsername(w http.ResponseWriter, r *http.Request, ps http
 	if errQuery != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	} else if userID != user2.UserID {
+	} else if userID != user2.UserID && user2.Username == newUser.Username {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}

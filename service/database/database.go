@@ -15,10 +15,11 @@ type User struct {
 }
 
 type Comment struct {
-	CommentID   int
-	Text        string
-	PublisherID int
-	PhotoID     int
+	CommentID     int
+	Text          string
+	PublisherID   int
+	PublisherName string
+	PhotoID       int
 }
 
 type Photo struct {

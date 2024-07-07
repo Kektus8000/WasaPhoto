@@ -120,6 +120,7 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 			comm.Text = temp2.Text
 			comm.PhotoID = temp2.PhotoID
 			comm.PublisherID = temp2.PublisherID
+			comm.PublisherName = temp2.PublisherName
 			photo.Comments = append(photo.Comments, comm)
 		}
 
