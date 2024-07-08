@@ -2,6 +2,7 @@
 export default{
   data(){
     return{
+      visitorID : Number(localStorage.getItem('identifier')),
       ID : Number(localStorage.getItem('IDCercato')),
       bannati : JSON.parse(localStorage.getItem('BannatiSessione'))
     }
@@ -12,7 +13,7 @@ export default{
     async unBanUser(banned){
       try
       {
-        await this.$axios.delete('/userProfile/' + this.ID + '/banList/' + banned.UserID, {headers: {Authorization: "Bearer " + this.ID}} );
+        await this.$axios.delete('/userProfile/' + this.ID + '/banList/' + banned.UserID, {headers: {Authorization: "Bearer " + this.visitorID}} );
         let indice = this.bannati.map(user => user.UserID).indexOf(banned.UserID);
         this.bannati.splice(indice, 1);
         alert(banned.Username + " non è più bannato!");
@@ -26,12 +27,13 @@ export default{
         alert(this.errormsg);
       }
     },
+    async visitaProfilo(checkID){
+      localStorage.setItem('IDCercato', checkID);
+      this.$router.push({path: '/userProfile/' + checkID });
+    },
   },
   mounted (){
     this.refresh();
-  },
-  computed:{
-    lunghezzaBannati() {return this.bannati != null ? this.bannati.length : 0;}
   }
 }
 </script>
@@ -42,12 +44,12 @@ export default{
       <h2 style = "font-weight: bold; padding-left: 20px; cursor:pointer;"
       @click = "() => {this.$router.back();}"> Torna indietro </h2>
       <h1 style = "font-weight: bold;">Account Bannati</h1>
-      <h2 style = "padding-right: 20px;"> Bannati : {{lunghezzaBannati}}</h2>
+      <h2 style = "padding-right: 20px;"> Bannati : {{this.bannati != null ? this.bannati.length : 0}}</h2>
     </header>
 
     <section class = lista-bannati>
       <div class = utente-bannato v-for = "utente in this.bannati" :key = "utente.UserID">
-        <h2>{{utente.Username}}</h2>
+        <h2 style = "cursor: pointer; font-weight: bold;" @click = visitaProfilo(utente.UserID)>{{utente.Username}}</h2>
         <button class = blocca style = "color:red" @click = unBanUser(utente) show = "this.ID === Number(localStorage.getItem('identifier'))"> Unban </button>
       </div>
     </section>

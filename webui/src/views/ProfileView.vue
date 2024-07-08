@@ -199,8 +199,7 @@ export default{
       }
       catch(e)
       {
-        this.errormsg = e.toString();
-        alert(this.errormsg);
+        alert(e.toString());
       }
     },
     async uploadPhoto(){
@@ -230,8 +229,7 @@ export default{
       }
       catch(e)
       {
-        this.errormsg = e.toString();
-        alert(this.errormsg);
+        alert(e.toString());
       }
     },
     async mostraDialog(){ document.getElementById("cambiaNome").style.display = "inline"; },
@@ -253,8 +251,11 @@ export default{
       }
       catch(e)
       {
-        this.errormsg = e.toString();
-        alert(this.errormsg);
+        if (e.response && e.response.status == 403)
+        {
+          alert("Non puoi inserire quell'username perchè è già in un uso da un altro utente!");
+        }
+
       }
     },
     async controllaBannati(){ this.$router.push({path: '/userProfile/'+ this.profilo.ID + '/banList'});},

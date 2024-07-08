@@ -2,6 +2,7 @@
 export default{
   data(){
     return{
+      visitorID : Number(localStorage.getItem('identifier')),
       ID : localStorage.getItem('IDCercato'),
       seguiti: JSON.parse(localStorage.getItem('SeguitiSessione')),
       bannati : JSON.parse(localStorage.getItem('BannatiSessione'))
@@ -17,7 +18,7 @@ export default{
         alert("Hai bloccato " + banned.Username);
         localStorage.setItem('SeguitiSessione', JSON.stringify(this.seguiti));
 
-        await this.$axios.post('/userProfile/' + this.ID + '/banList/' + banned.UserID, {}, {headers: {Authorization: "Bearer " + this.ID}} );
+        await this.$axios.post('/userProfile/' + this.ID + '/banList/' + banned.UserID, {}, {headers: {Authorization: "Bearer " + this.visitorID}} );
 
         var temp = {UserID : banned.UserID, Username: banned.nome};
         if (this.bannati == null) {this.bannati = [temp];}
@@ -34,7 +35,7 @@ export default{
     async rimuoviFollow(remove){
       try
       {
-        await this.$axios.delete('/userProfile/' + this.ID + '/following/' + remove.UserID, {headers: {Authorization: "Bearer " + this.ID}} ); 
+        await this.$axios.delete('/userProfile/' + this.ID + '/following/' + remove.UserID, {headers: {Authorization: "Bearer " + this.visitorID}} ); 
         let indice = this.seguiti.map(user => user.UserID).indexOf(remove.UserID);
         this.seguiti.splice(indice, 1);
         alert("Non segui più " + remove.Username);
@@ -46,6 +47,10 @@ export default{
         this.errormsg = e.toString();
         alert(this.errormsg);
       }
+    },
+    async visitaProfilo(checkID){
+      localStorage.setItem('IDCercato', checkID);
+      this.$router.push({path: '/userProfile/' + checkID });
     },
     mounted(){
       this.refresh();
@@ -65,7 +70,7 @@ export default{
 
     <section class = lista-seguiti>
       <div class = followed v-for = "utente in this.seguiti" :key = utente.UserID>
-        <h2>{{utente.Username}}</h2>
+        <h2 style = "cursor: pointer; font-weight: bold;" @click = visitaProfilo(utente.UserID)>{{utente.Username}}</h2>
         <button width = "15%" @click = rimuoviFollow(utente)>Smetti di Seguire</button>
         <button class = blocca style = "color:red" @click= banUser(utente)>Banna</button>
       </div>

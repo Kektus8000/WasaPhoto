@@ -93,7 +93,7 @@ export default{
         <div height = 400px class = statistiche-foto>
             <section class = sezione-like>
                 <h4 height = 40px style = "top: 0; padding-top: 5px; border-bottom: 1px solid black;"> Like Ricevuti : {{this.profilo.foto.Likes ? this.profilo.foto.Likes.length : 0}} </h4>
-                <div height = 400px style = "border-bottom: 1px solid black;" v-for = "like in this.profilo.foto.Likes" :key = this.profilo.foto.Likes.UserID>
+                <div height = 400px style = "border-bottom: 1px solid black;" v-for = "like in this.profilo.foto.Likes" :key = like.UserID>
                     <h3 class= like style = "font-weight: bold; padding-top: 5px; cursor: pointer;" height = 40px
                     @click = visitaProfilo(like.UserID)> {{like.Username}} </h3>
                 </div>
