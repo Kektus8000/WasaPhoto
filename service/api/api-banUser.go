@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -22,7 +21,6 @@ func (rt *_router) BanUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	// Recupera l'ID dell'utente da bannare dai parametri, ritornando 500 se vi sono errori
 	bannedID, errConv := strconv.Atoi(ps.ByName("bannedID"))
 	if errConv != nil {
-		fmt.Println(errConv)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -30,7 +28,6 @@ func (rt *_router) BanUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	// Aggiunge l'utente alla lista di utenti bannati, ritornando 500 se vi sono errori nella query
 	errUpdate := rt.db.BanUser(bannerID, bannedID)
 	if errUpdate != nil {
-		fmt.Println(errUpdate)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -38,14 +35,12 @@ func (rt *_router) BanUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	// Vengono rimossi i follow tra i due utenti, ritornando 500 se vi sono errori nella query
 	errUnfollow := rt.db.UnFollowUser(bannerID, bannedID)
 	if errUnfollow != nil {
-		fmt.Println(errUnfollow)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	errUnfollow2 := rt.db.UnFollowUser(bannedID, bannerID)
 	if errUnfollow2 != nil {
-		fmt.Println(errUnfollow2)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -54,7 +49,6 @@ func (rt *_router) BanUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	// ritornando 500 se vi sono errori nella query
 	errRemove1 := rt.db.RemoveAllComments(bannerID, bannedID)
 	if errRemove1 != nil {
-		fmt.Println(errRemove1)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -63,7 +57,6 @@ func (rt *_router) BanUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	// ritornando 500 se vi sono errori nella query
 	errRemove2 := rt.db.RemoveAllLikes(bannerID, bannedID)
 	if errRemove2 != nil {
-		fmt.Println(errRemove2)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
