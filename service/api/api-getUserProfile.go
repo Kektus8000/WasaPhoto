@@ -115,7 +115,7 @@ func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		}
 
 		for j := 0; j < len(comms); j++ {
-			temp2 := comms[i]
+			temp2 := comms[j]
 			var comm Comment
 			comm.CommentID = temp2.CommentID
 			comm.Text = temp2.Text

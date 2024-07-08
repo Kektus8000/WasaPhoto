@@ -138,7 +138,7 @@ export default{
           var foto = this.profilo.fotoPubblicate[i];
           if (foto.isLiked !== foto.initiallyLiked)
           {
-            if (foto.isLiked) { await this.$axios.post('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.profilo.ID} });}
+            if (foto.isLiked) { await this.$axios.post('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.visitor.visitorID} });}
             else {await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', { headers: {Authorization: "Bearer " + this.visitor.visitorID} });}
           }
         }
@@ -148,6 +148,25 @@ export default{
         this.errormsg = e.toString();
         alert(this.errormsg);
       }
+    },
+    fotoPiaciuta(photoID)
+    {
+      var foto = this.profilo.fotoPubblicate.find(foto => foto.PhotoID === photoID);
+      return foto.isLiked ? STATOLIKE[1] : STATOLIKE[0];
+    },
+    likePhoto(photoID)
+    {
+      var foto = this.profilo.fotoPubblicate.find(foto => foto.PhotoID === photoID);
+      foto.isLiked = !foto.isLiked;
+      if (foto.isLiked) {foto.likeCount += 1}
+      else {foto.likeCount -= 1}
+    },
+    async infoFoto(photoID)
+    {
+      this.salvaStato();
+      var foto = this.profilo.fotoPubblicate.find(foto => Number(foto.PhotoID) === Number(photoID));
+      localStorage.setItem('FotoAnalizzata', JSON.stringify(foto));
+      this.$router.push({path: '/userProfile/' + this.profilo.ID + '/publishedPhotos/' + photoID});
     },
     ////////////////////////////// FUNZIONI OWNER //////////////////////////////////////////////
     async recuperaInfo(){
@@ -169,10 +188,10 @@ export default{
             let temp = await this.$axios.get('/userProfile/' + this.profilo.ID + '/publishedPhotos/' + foto.PhotoID, 
             {responseType: 'blob',
             headers: {Authorization: "Bearer " + this.visitor.visitorID}});
-            foto.File = URL.createObjectURL(temp.data);
+            foto.Path = URL.createObjectURL(temp.data);
 
             foto.isLiked = false;
-            if (foto.Likes != null) {foto.isLiked = foto.Likes.some(like => like.UserID === this.profilo.ID);}
+            if (foto.Likes != null) {foto.isLiked = foto.Likes.some(like => like.UserID === this.visitor.visitorID);}
             foto.initiallyLiked = foto.isLiked;
             foto.likeCount = foto.Likes != null ? foto.Likes.length : 0;
           }  
@@ -214,18 +233,6 @@ export default{
         this.errormsg = e.toString();
         alert(this.errormsg);
       }
-    },
-    fotoPiaciuta(photoID)
-    {
-      var foto = this.profilo.fotoPubblicate.find(foto => foto.PhotoID === photoID);
-      return foto.isLiked ? STATOLIKE[1] : STATOLIKE[0]
-    },
-    likePhoto(photoID)
-    {
-      var foto = this.profilo.fotoPubblicate.find(foto => foto.PhotoID === photoID);
-      foto.isLiked = !foto.isLiked;
-      if (foto.isLiked) {foto.likeCount += 1}
-      else {foto.likeCount -= 1}
     },
     async mostraDialog(){ document.getElementById("cambiaNome").style.display = "inline"; },
     
@@ -288,7 +295,7 @@ export default{
 
     <div class = fotoCondivise>
       <div v-for = "immagine in this.profilo.fotoPubblicate" :key = immagine.PhotoID>
-        <img class = foto-profilo :src = "immagine.File">
+        <img class = foto-profilo :src = "immagine.Path" @click = infoFoto(immagine.PhotoID)>
         <div class = ops-foto style = "display: flex; justify-content: space-between; transform: translate(0%, -110%);">
           <button class = like-profilo  @click = likePhoto(immagine.PhotoID)> <i class="material-icons">favorite</i> {{fotoPiaciuta(immagine.PhotoID)}} : {{immagine.likeCount}} </button>
           <button class = photo-delete-button 

@@ -51,7 +51,6 @@ export default{
 
             foto.commentCount = foto.Comments != null ? foto.Comments.length : 0;
             foto.newComment = '';
-            console.log(foto.Comments);
           }  
         }
       }
@@ -205,15 +204,15 @@ export default{
             <div height = 400px v-for = "comm in foto.Comments" :key = comm.CommentID>
               <div class = commento>
                 <div class = commentatore style = "display: flex; justify-content: space-between">
-                  <h5 style = "font-weight: bold; padding-top: 5px;"> {{comm.PublisherName}}</h5>
-                  <button v-if = "Number(comm.PublisherID) === Number(this.profilo.ID)"
+                  <h5 style = "font-weight: bold; cursor:pointer;" @click = "visitaProfilo(comm.PublisherID)"> {{comm.PublisherName}}</h5>
+                  <button v-if = "Number(comm.PublisherID) === Number(this.profilo.ID) || Number(this.profilo.ID) === Number(foto.PublisherID)"
                   @click = "uncommentPhoto(foto.PhotoID, comm.CommentID)" style = "background-color: rgb(178, 34, 34); color: white;"> Cancella </button>
                 </div>
                 <h4 style = "font-family: italic; padding-left: 5px;">{{comm.Text}}</h4>
               </div>
             </div>
             <div class = aggiungi-commento height = 40px>
-              <input v-model = foto.newComment height = 40px>
+              <input v-model = foto.newComment height = 40px size = 60>
               <button @click = commentPhoto(foto.PhotoID)> Pubblica </button>
             </div>
           </section>
@@ -349,7 +348,4 @@ export default{
     color: white;
     background-color: rgb(80, 200, 120);
   }
-
-
-
 </style>
