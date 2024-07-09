@@ -16,20 +16,19 @@ export default{
         let indice = this.seguaci.map(user => user.UserID).indexOf(banned.UserID);
         this.seguaci.splice(indice, 1);
         alert("Hai bloccato " + banned.Username);
-        localStorage.setItem('SeguitiSessione', JSON.stringify(this.seguaci));
+        localStorage.setItem('SeguaciSessione', JSON.stringify(this.seguaci));
 
         await this.$axios.post('/userProfile/' + this.ID + '/banList/' + banned.UserID, {}, {headers: {Authorization: "Bearer " + this.visitorID}} );
 
-        var temp = {UserID : banned.UserID, Username: banned.nome};
-        if (this.bannati == null) {this.bannati = [temp];}
+        var temp = {UserID : banned.UserID, Username: banned.Username};
+        if (this.bannati == null) {this.bannati = temp;}
         else {this.bannati.push(temp);}
         localStorage.setItem('BannatiSessione', JSON.stringify(this.bannati));
         this.refresh();
       }
       catch(e)
       {
-        this.errormsg = e.toString();
-        alert(this.errormsg);
+        if (e.response != null && e.response.status == 500) {alert("Un errore nel server impedisce l'operazione!");}
       }
     },
     async visitaProfilo(checkID){

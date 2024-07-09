@@ -9,6 +9,7 @@ export default{
   },
   methods:{
     async refresh(){
+      console.log(this.bannati);
     },
     async unBanUser(banned){
       try
@@ -17,14 +18,15 @@ export default{
         let indice = this.bannati.map(user => user.UserID).indexOf(banned.UserID);
         this.bannati.splice(indice, 1);
         alert(banned.Username + " non è più bannato!");
-        if (this.bannati.length == 0) {this.bannati = null;}
         localStorage.setItem('BannatiSessione', JSON.stringify(this.bannati));
         this.refresh();
       }
       catch(e)
       {
-        this.errormsg = e.toString();
-        alert(this.errormsg);
+        if (e.response != null && e.response.status == 500)
+        {
+          alert("Un errore nel server impedisce l'operazione!");
+        }
       }
     },
     async visitaProfilo(checkID){

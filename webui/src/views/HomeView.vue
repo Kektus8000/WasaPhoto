@@ -9,8 +9,6 @@ export default{
       ricerca: "",
 
       errormsg: "",
-      
-      nuovoCommento : "",
 
       stream: [],
       
@@ -56,8 +54,7 @@ export default{
       }
       catch(e)
       {
-        this.errormsg = e.toString();
-        alert(this.errormsg);
+        if (e.response != null && e.response.status == 500) {alert("Un errore nel server impedisce l'operazione!");}
       }
     },
     fotoPiaciuta(photoID)
@@ -88,8 +85,7 @@ export default{
       }
       catch(e)
       {
-        this.errormsg = e.toString();
-        alert(this.errormsg);       
+        if (e.response != null && e.response.status == 500) {alert("Un errore nel server impedisce l'operazione!");}      
       }
     },
     async commentPhoto(photoID)
@@ -106,8 +102,8 @@ export default{
       }
       catch(e)
       {
-        this.errormsg = e.toString();
-        alert(this.errormsg);       
+        if (e.response != null && e.response.status == 400) {alert("La lunghezza del commento non è corretta!\n(Minimo 6 caratteri, massimo 160 caratteri)");}
+        else if (e.response != null && e.response.status == 500) {alert("Un errore nel server impedisce l'operazione!");}
       }
     },
     async uncommentPhoto(photoID, commentID)
@@ -121,8 +117,7 @@ export default{
       }
       catch(e)
       {
-        this.errormsg = e.toString();
-        alert(this.errormsg);       
+        if (e.response != null && e.response.status == 500) {alert("Un errore nel server impedisce l'operazione!");}     
       }
     },
     /////////////////////////////////////// METODI PER RAGGIUNGERE ALTRE PAGINE /////////////////////////////////////
