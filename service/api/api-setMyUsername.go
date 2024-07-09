@@ -14,7 +14,7 @@ func (rt *_router) SetMyUsername(w http.ResponseWriter, r *http.Request, ps http
 	// Check ID dell'Utente
 	userID := Authenticate(r.Header.Get("Authorization"))
 	if userID == -1 {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 

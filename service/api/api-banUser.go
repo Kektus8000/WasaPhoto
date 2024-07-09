@@ -14,7 +14,7 @@ func (rt *_router) BanUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	// Recupera l'ID dell'utente della sessione, ritornadno 400 se impossibile
 	bannerID := Authenticate(r.Header.Get("Authorization"))
 	if bannerID == -1 {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 

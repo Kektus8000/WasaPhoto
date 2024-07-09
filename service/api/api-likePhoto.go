@@ -14,20 +14,20 @@ func (rt *_router) LikePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	// Check dell'ID dell'Utente
 	userID := Authenticate(r.Header.Get("Authorization"))
 	if userID == -1 {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
 	// Check dell'ID della Foto
 	photoID, errConv2 := strconv.Atoi(ps.ByName("photoID"))
 	if errConv2 != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	publisherID, errQuery := rt.db.GetPhotoPublisher(photoID)
 	if errQuery != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 

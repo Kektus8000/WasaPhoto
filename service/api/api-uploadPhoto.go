@@ -16,7 +16,7 @@ func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// Check dell'ID dell'Utente
 	userID := Authenticate(r.Header.Get("Authorization"))
 	if userID == -1 {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 

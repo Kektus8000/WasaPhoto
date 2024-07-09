@@ -15,7 +15,7 @@ func (rt *_router) GetMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 	// Recupera l'ID dell'utente che effettua la richiesta
 	userID := Authenticate(r.Header.Get("Authorization"))
 	if userID == -1 {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 

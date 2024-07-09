@@ -16,14 +16,13 @@ func (rt *_router) FollowUser(w http.ResponseWriter, r *http.Request, ps httprou
 	// Check ID dell'Utente
 	userID := Authenticate(r.Header.Get("Authorization"))
 	if userID == -1 {
-
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
 	tofollow, errConv := strconv.Atoi(ps.ByName("followerID"))
 	if errConv != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 

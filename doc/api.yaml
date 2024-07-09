@@ -256,7 +256,7 @@ paths:
         '403':
           description: There is an user with already that name
         '404':  
-          description: The user wasn't in the system
+          description: Authentication error
         '500':
           description: The username couldn't be changed due to a server error
       security:
@@ -289,7 +289,7 @@ paths:
         '403':
           description: You can't add the user in you following list because you are in its banList
         '404':
-          description: The user wasn't in the system
+          description: Authentication error
         '500':
           description: The user couldn't be followed due to a server error
       security:
@@ -304,7 +304,7 @@ paths:
         '204':
           description: The user has been removed from the following list
         '404':
-          description: The user wasn't in the following list
+          description: Authentication error
         '500':
           description: The user couldn't be unfollowed due to a server error
       security:
@@ -329,6 +329,8 @@ paths:
           content:
             image/jpeg:
               schema: {$ref: '#/components/schemas/userProfile/properties/stream'}
+        '404':
+          description: Authentication error
         '500':
           description: The stream couldn't be retrieved due to a server error
       security:
@@ -357,10 +359,8 @@ paths:
       responses:
         '204':
           description: The user has been added to the banList
-        '403':
-          description: The user was already in the banlist
         '404':
-          description: The user doesn't exist in the system
+          description: Authentication error
         '500':
           description: The user couldn't be banned due to a server error
         
@@ -376,7 +376,7 @@ paths:
         '204':
           description: The user has been removed from the banlist.
         '404':
-          description: The user wasn't in the banlist, so he can't be removed.
+          description: Authentication error
         '500':
           description: The user couldn't be unbanned due to a server error
       security:
@@ -408,6 +408,8 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/photo'}
+        '404':
+          description: Authentication error
         '500':
           description: The photo couldn't be uploaded due to a server error
       security:
@@ -438,7 +440,7 @@ paths:
         '403':
           description: You can't delete the photo because it isn't your photo
         '404':
-          description: There isn't a photo with that ID, so it can't be removed.
+          description: Authentication error
         '500':
           description: The photo couldn't be deleted due to a server error
       security:
@@ -473,7 +475,7 @@ paths:
             '403':
               description: Cannot like the photo because you've been banned by the user.
             '404':
-              description: The photo hasn't been found, so the like cannot be added
+              description: Authentication error
             '500':
              description: The photo couldn't be liked due to a server error
         security:
@@ -487,10 +489,8 @@ paths:
           responses:
             '204':
               description: The like has been removed from the photo.
-            '400':
-              description: You didn't like the photo, so you can't unlike it
             '404':
-              description: The photo hasn't been found, so the like cannot be removed.
+              description: Authentication error
             '500':
               description: The photo couldn't be unliked due to a server error
           security:
@@ -534,9 +534,11 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/comment"}
         '400':
-          description: The comment hasn't been added to the photo due to an error
+          description: The comment length isn't right
         '403':
           description: The comment hasn't been added because you are in user banned list
+        '404':
+          description: Authentication error
         '500':
           description: The comment couldn't be uploaded due to a server error
       security:
@@ -571,7 +573,7 @@ paths:
         '204':
           description: The comment has been removed from the photo
         '404':
-          description: The comment hasn't been found in photo's comments
+          description: Authentication error
         '500':
           description: The comment couldn't be deleted due to a server error
       security:
