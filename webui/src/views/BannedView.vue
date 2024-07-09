@@ -9,7 +9,6 @@ export default{
   },
   methods:{
     async refresh(){
-      console.log(this.bannati);
     },
     async unBanUser(banned){
       try
@@ -19,7 +18,6 @@ export default{
         this.bannati.splice(indice, 1);
         alert(banned.Username + " non è più bannato!");
         localStorage.setItem('BannatiSessione', JSON.stringify(this.bannati));
-        this.refresh();
       }
       catch(e)
       {

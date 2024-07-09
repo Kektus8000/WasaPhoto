@@ -15,6 +15,8 @@ export default{
         visitorBannati : JSON.parse(localStorage.getItem('BannatiSessione'))
       },
 
+      comments: [],
+
       profilo : {
         ID : Number(localStorage.getItem('IDCercato')),
         foto: JSON.parse(localStorage.getItem('FotoAnalizzata'))
@@ -33,16 +35,26 @@ export default{
 
         this.profilo.foto.commentCount = this.profilo.foto.Comments != null ? this.profilo.foto.Comments.length : 0;
         this.profilo.foto.newComment = "";
+        if (this.profilo.foto.Comments != null) {this.comments = this.profilo.foto.Comments;}
     },
     async commentPhoto(photoID)
     {
       try
       {
-        await this.$axios.put('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/comments/',
+        let response = await this.$axios.put('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/comments/',
         { Text : this.profilo.foto.newComment},
         { headers: {Authorization: "Bearer " + this.visitor.visitorID } });
-        this.profilo.foto.newComment = ""; 
-        this.refresh();
+        
+        var commento = {CommentID : response.data,
+        Text : this.profilo.foto.newComment,
+        PhotoID: this.profilo.foto.PhotoID,
+        PublisherID : this.visitor.visitorID, 
+        PublisherName: this.visitor.visitorNome};
+        this.profilo.foto.newComment = "";
+        
+        if (this.comments == null) {this.comments = commento;}
+        else {this.comments.push(commento);}
+        this.profilo.foto.commentCount += 1;
       }
       catch(e)
       {
@@ -56,7 +68,10 @@ export default{
       {
         await this.$axios.delete('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/comments/' + commentID, 
         { headers: {Authorization: "Bearer " + this.visitor.visitorID } });
-        this.refresh();
+        let indice = this.comments.map(comm => comm.CommentID).indexOf(commentID);
+        this.comments.splice(indice, 1);
+        
+        this.profilo.foto.commentCount -= 1;
       }
       catch(e)
       {
@@ -105,7 +120,7 @@ export default{
 
             <section class = lista-commenti>
                 <h3 height = 40px style = "top: 0; padding-top: 5px; border-bottom: 1px solid black;"> Commenti : {{this.profilo.foto.commentCount}} </h3>
-                <div style = "border-bottom: 1px solid black;" v-for = "comm in this.profilo.foto.Comments" :key = comm.CommentID>
+                <div style = "border-bottom: 1px solid black;" v-for = "comm in this.comments" :key = comm.CommentID>
                     <div>
                         <div class = commentatore style = "display: flex; justify-content: space-between">
                             <h5 style = "font-weight: bold; padding-top: 5px; cursor: pointer;"

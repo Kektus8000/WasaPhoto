@@ -67,7 +67,7 @@ type AppDatabase interface {
 	// Metodi PUT
 	SearchUsers(searcherID int, searchedName string) ([]User, error)
 	UploadPhoto(userID int) (int, error)
-	CommentPhoto(commentorID int, photoID int, comment string) error
+	CommentPhoto(commentorID int, photoID int, comment string) (int, error)
 
 	// Metodi DELETE
 	UnFollowUser(followerID int, tofollowID int) error
