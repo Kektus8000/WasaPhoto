@@ -37,8 +37,17 @@ export default{
         }
         catch(e)
         {
-            this.errormsg = e.toString();
-            alert(this.errormsg);
+          if (e.response != null)
+          {
+            switch(e.response.status)
+            {
+              case 500 : 
+                alert("Un errore nel server impedisce l'operazione!");
+                break;
+            }
+          }
+          if (e.response != null && e.response.status == 400) {alert("La lunghezza del commento non è corretta!\n(Minimo 6 caratteri, massimo 160 caratteri)");}
+
         }
     }
   }

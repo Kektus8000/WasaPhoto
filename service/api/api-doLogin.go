@@ -15,7 +15,7 @@ func (rt *_router) DoLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	// Recupera le informazioni dell'utente, ritornano errore 400 se impossibile
 	errDecode := json.NewDecoder(r.Body).Decode(&user)
 	if errDecode != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
