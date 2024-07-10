@@ -36,6 +36,9 @@ export default{
   },
   methods: {
     async refresh(){
+      console.log(this.visitor.visitorID);
+      console.log(this.visitor.visitorNome);
+      console.log(this.profilo.ID);
       await this.recuperaInfo();
       if (this.visitor.visitorID != this.profilo.ID) {this.visitorInfo();}
     },

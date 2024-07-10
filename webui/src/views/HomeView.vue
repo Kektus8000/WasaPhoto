@@ -26,6 +26,8 @@ export default{
   methods:{
     async refresh()
     {
+      console.log(this.profilo.ID);
+      console.log(this.profilo.nome);
       await this.recuperaStream();
     },  
     async recuperaStream(){

@@ -8,8 +8,7 @@ export default{
     }
   },
   methods:{
-    async refresh(){
-    },
+    async refresh(){},
     async unBanUser(banned){
       try
       {
