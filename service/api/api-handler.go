@@ -15,12 +15,12 @@ func (rt *_router) Handler() http.Handler {
 
 	// Metodi POST
 	rt.router.POST("/session", rt.wrap(rt.DoLogin))
-	rt.router.POST("/user/:userID/username", rt.wrap(rt.SetMyUsername))
-	rt.router.POST("/user/", rt.wrap(rt.SearchUsers))
+	rt.router.POST("/userProfile/:userID/publishedPhotos/", rt.wrap(rt.UploadPhoto))
+	rt.router.POST("/userProfile/:userID/stream/:photoID/comments/", rt.wrap(rt.CommentPhoto))
 
 	// Metodi PUT
-	rt.router.PUT("/userProfile/:userID/publishedPhotos/", rt.wrap(rt.UploadPhoto))
-	rt.router.PUT("/userProfile/:userID/stream/:photoID/comments/", rt.wrap(rt.CommentPhoto))
+	rt.router.PUT("/user/:userID/username", rt.wrap(rt.SetMyUsername))
+	rt.router.PUT("/user/", rt.wrap(rt.SearchUsers))
 	rt.router.PUT("/userProfile/:userID/banList/:bannedID", rt.wrap(rt.BanUser))
 	rt.router.PUT("/userProfile/:userID/stream/:photoID/likes/", rt.wrap(rt.LikePhoto))
 	rt.router.PUT("/userProfile/:userID/following/:followerID", rt.wrap(rt.FollowUser))

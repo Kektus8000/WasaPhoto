@@ -3,7 +3,7 @@ info:
   title: WasaPhoto 2023/2024
   description: |
     Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! You can upload your photos directly from your PC, and they will be visible to everyone following you
-  version: "14"
+  version: "15"
 
 components:
   schemas:
@@ -75,7 +75,7 @@ components:
           description: The photo's file
           type: string
           format: binary
-          example: newPhoto.png
+          example: /tmp/userProfile/1/publishedPhotos/2
           minLength: 20
           maxLength: 1000
         photoID:
@@ -151,6 +151,7 @@ paths:
           content:
             application/json:
               schema:
+                description: Username used to log-in
                 type: string
                 example: Simone
                 pattern: '^.*?$'
@@ -234,7 +235,7 @@ paths:
         description: User's id to get the profile
         type: integer
   
-    post:
+    put:
       tags: ["setMyUsername"]
       summary: Modify previous username
       description: |
@@ -251,8 +252,8 @@ paths:
               maxLength: 16
               example: Miriam
       responses:
-        '204':
-          description: The username has been updated.
+        '202':
+          description: The username has been updated.ù     
         '403':
           description: There is an user with already that name
         '404':  
@@ -278,13 +279,13 @@ paths:
         description: Follower's Id
         type: integer
 
-    post:
+    put:
       tags: ["followUser"]
       summary: Follow an user
       description: Add an user on your following list
       operationId: followUser
       responses:
-        '204':
+        '202':
           description: The user has been added to the following list
         '403':
           description: You can't add the user in you following list because you are in its banList
@@ -351,13 +352,13 @@ paths:
         description: User's id to ban
         type: integer
     
-    post:
+    put:
       tags: ["banUser"]
       summary: Ban an user
       description: Add an ID in the collection of banneds
       operationId: banUser
       responses:
-        '204':
+        '202':
           description: The user has been added to the banList
         '404':
           description: Authentication error
@@ -391,7 +392,7 @@ paths:
         description: User's id
         type: integer
 
-    put:
+    post:
       tags: ["uploadPhoto"]
       summary: Add a photo
       description: Add a photo to user's list of published photos.
@@ -461,7 +462,7 @@ paths:
         description: Photo's ID
         type: integer
 
-    post:
+    put:
         tags: ["likePhoto"]
         summary: Add like to photo
         description: Add a like to the photo, updating the like counter
@@ -511,7 +512,7 @@ paths:
         description: Publisher's user ID
         type: integer
     
-    put:
+    post:
       tags: ["commentPhoto"]
       summary: Add a comment on a photo
       description: Add a comment to the collection of comment
