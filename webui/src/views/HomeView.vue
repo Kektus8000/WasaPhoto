@@ -26,8 +26,6 @@ export default{
   methods:{
     async refresh()
     {
-      console.log(this.profilo.ID);
-      console.log(this.profilo.nome);
       await this.recuperaStream();
     },  
     async recuperaStream(){
@@ -56,7 +54,18 @@ export default{
       }
       catch(e)
       {
-        if (e.response != null && e.response.status == 500) {alert("Un errore nel server impedisce l'operazione!");}
+        if (e.response != null)
+        {
+          switch (e.response.status)
+          {
+            case 404:
+              alert("Errore nell'autenticazione!");
+              break;
+            case 500:
+              alert("Un errore nel server impedisce l'operazione!");
+              break;
+          }
+        }  
       }
     },
     fotoPiaciuta(photoID)
@@ -87,7 +96,21 @@ export default{
       }
       catch(e)
       {
-        if (e.response != null && e.response.status == 500) {alert("Un errore nel server impedisce l'operazione!");}      
+        if (e.response != null)
+        {
+          switch (e.response.status)
+          {
+            case 403:
+              alert("Non hai i permessi per completare l'operazione!");
+              break;
+            case 404:
+              alert("Errore nell'autenticazione!");
+              break;
+            case 500:
+              alert("Un errore nel server impedisce l'operazione!");
+              break;
+          }
+        }    
       }
     },
     async commentPhoto(photoID)
@@ -95,7 +118,7 @@ export default{
       try
       {
         var foto = this.stream.find(foto => Number(foto.PhotoID) === Number(photoID));
-        await this.$axios.put('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/comments/',
+        await this.$axios.post('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/comments/',
         { Text : foto.newComment},
         { headers: {Authorization: "Bearer " + this.profilo.ID} });
         foto.newComment = ""; 
@@ -104,8 +127,18 @@ export default{
       }
       catch(e)
       {
-        if (e.response != null && e.response.status == 400) {alert("La lunghezza del commento non è corretta!\n(Minimo 6 caratteri, massimo 160 caratteri)");}
-        else if (e.response != null && e.response.status == 500) {alert("Un errore nel server impedisce l'operazione!");}
+        if (e.response != null)
+        {
+          switch (e.response.status)
+          {
+            case 400:
+              alert("La lunghezza del commento non è corretta!\n(Minimo 6 caratteri, massimo 160 caratteri)");
+              break;
+            case 500:
+              alert("Un errore nel server impedisce l'operazione!");
+              break;
+          }
+        }
       }
     },
     async uncommentPhoto(photoID, commentID)
@@ -119,7 +152,21 @@ export default{
       }
       catch(e)
       {
-        if (e.response != null && e.response.status == 500) {alert("Un errore nel server impedisce l'operazione!");}     
+        if (e.response != null)
+        {
+          switch (e.response.status)
+          {
+            case 403:
+              alert("Non puoi rimuovere un commento se non è tuo o se non sei il proprietario della foto!");
+              break;
+            case 404:
+              alert("Errore nell'autenticazione!");
+              break;
+            case 500:
+              alert("Un errore nel server impedisce l'operazione!");
+              break;
+          }
+        }  
       }
     },
     /////////////////////////////////////// METODI PER RAGGIUNGERE ALTRE PAGINE /////////////////////////////////////
@@ -153,13 +200,23 @@ export default{
         {
           try
           {
-            let response = await this.$axios.post('/user/', {username: this.ricerca}, { headers: {Authorization: "Bearer " + this.profilo.ID} });
+            let response = await this.$axios.put('/user/', {username: this.ricerca}, { headers: {Authorization: "Bearer " + this.profilo.ID} });
             this.utenti = response.data;
           }
           catch(e)
           {
-            this.errormsg = e.toString();
-            alert(this.errormsg);
+            if (e.response != null)
+            {
+              switch (e.response.status)
+              {
+              case 400:
+                alert("C'è stato un problema con l'autenticazione!");
+                break;
+              case 500:
+                alert("Un errore nel server impedisce l'operazione!");
+                break;
+              }
+            }
           }
         }
       }

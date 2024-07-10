@@ -46,8 +46,6 @@ export default{
                 break;
             }
           }
-          if (e.response != null && e.response.status == 400) {alert("La lunghezza del commento non è corretta!\n(Minimo 6 caratteri, massimo 160 caratteri)");}
-
         }
     }
   }

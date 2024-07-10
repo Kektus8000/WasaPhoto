@@ -148,8 +148,21 @@ export default{
       }
       catch(e)
       {
-        this.errormsg = e.toString();
-        alert(this.errormsg);
+        if (e.response != null)
+        {
+          switch (e.response.status)
+          {
+            case 403:
+              alert("Non hai i permessi per completare l'operazione!");
+              break;
+            case 404:
+              alert("Errore nell'autenticazione!");
+              break;
+            case 500:
+              alert("Un errore nel server impedisce l'operazione!");
+              break;
+          }
+        } 
       }
     },
     fotoPiaciuta(photoID)
@@ -202,7 +215,21 @@ export default{
       }
       catch(e)
       {
-        alert(e.toString());
+        if (e.response != null)
+        {
+          switch (e.response.status)
+          {
+            case 403:
+              alert("Non puoi accedere al profilo di questo utente perché sei stato bannato da lui!");
+              break;
+            case 404:
+              alert("Errore nell'autenticazione!");
+              break;
+            case 500:
+              alert("Un errore nel server impedisce l'operazione!");
+              break;
+          }
+        }
       }
     },
     async uploadPhoto(){
@@ -211,15 +238,25 @@ export default{
         let foto = document.getElementById('upload');
         READER.readAsArrayBuffer(foto.files[0]);
         READER.onload = async () => {
-          await this.$axios.put('/userProfile/${this.visitorID}/publishedPhotos/', READER.result, { headers: {Authorization: "Bearer " + this.visitor.visitorID} });
+          await this.$axios.post('/userProfile/' + this.visitor.visitorID + '/publishedPhotos/', READER.result, { headers: {Authorization: "Bearer " + this.visitor.visitorID} });
         };
         alert("Foto pubblicata!");
         this.refresh();
       }
       catch(e)
       {
-        this.errormsg = e.toString();
-        alert(this.errormsg);
+        if (e.response != null)
+        {
+          switch (e.response.status)
+          {
+            case 404:
+              alert("Errore nell'autenticazione!");
+              break;
+            case 500:
+              alert("Un errore nel server impedisce l'operazione!");
+              break;
+          }
+        }
       }
     },
     async deletePhoto(photoID){
@@ -232,7 +269,21 @@ export default{
       }
       catch(e)
       {
-        alert(e.toString());
+        if (e.response != null)
+        {
+          switch (e.response.status)
+          {
+            case 403:
+              alert("Soltanto il proprietario della foto può cancellarla!");
+              break;
+            case 404:
+              alert("Errore nell'autenticazione!");
+              break;
+            case 500:
+              alert("Un errore nel server impedisce l'operazione!");
+              break;
+          }
+        }
       }
     },
     async mostraDialog(){ document.getElementById("cambiaNome").style.display = "inline"; },
@@ -245,7 +296,7 @@ export default{
     async setMyUsername(){
       try
       {
-        await this.$axios.post('/user/' + this.profilo.ID + '/username', {username: this.newUsername}, { headers: {Authorization: "Bearer " + this.visitor.visitorID} })
+        await this.$axios.put('/user/' + this.profilo.ID + '/username', {username: this.newUsername}, { headers: {Authorization: "Bearer " + this.visitor.visitorID} })
         this.profilo.nome = this.newUsername;
         localStorage.setItem('username', this.newUsername);
         this.newUsername = "";
@@ -254,11 +305,21 @@ export default{
       }
       catch(e)
       {
-        if (e.response && e.response.status == 403)
+        if (e.response != null)
         {
-          alert("Non puoi inserire quell'username perchè è già in un uso da un altro utente!");
+          switch (e.response.status)
+          {
+            case 403:
+              alert("L'username scelto è già in uso da un altro utente!");
+              break;
+            case 404:
+              alert("Errore nell'autenticazione!");
+              break;
+            case 500:
+              alert("Un errore nel server impedisce l'operazione!");
+              break;
+          }
         }
-
       }
     },
     async controllaBannati(){ this.$router.push({path: '/userProfile/'+ this.profilo.ID + '/banList'});},

@@ -28,10 +28,18 @@ export default{
       }
       catch(e)
       {
-        if (e.response != null && e.response.status == 500)
+        if (e.response != null)
         {
-          alert("Un errore nel server impedisce l'operazione!");
-        }
+          switch (e.response.status)
+          {
+            case 404:
+              alert("Errore nell'autenticazione!");
+              break;
+            case 500:
+              alert("Un errore nel server impedisce l'operazione!");
+              break;
+          }
+        }  
       }
     },
     async rimuoviFollow(remove){
@@ -46,10 +54,18 @@ export default{
       }
       catch(e)
       {
-        if (e.response != null && e.response.status == 500)
+        if (e.response != null)
         {
-          alert("Un errore nel server impedisce l'operazione!");
-        }
+          switch (e.response.status)
+          {
+            case 404:
+              alert("Errore nell'autenticazione!");
+              break;
+            case 500:
+              alert("Un errore nel server impedisce l'operazione!");
+              break;
+          }
+        }  
       }
     },
     async visitaProfilo(checkID){

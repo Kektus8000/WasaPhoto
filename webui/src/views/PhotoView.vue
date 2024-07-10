@@ -5,8 +5,6 @@ const STATOLIKE = ["Mi Piace", "Ti Piace"];
 export default{
   data(){
     return{
-      errormsg: "",
-      
       visitor : {
         visitorID : Number(localStorage.getItem('identifier')),
         visitorNome : localStorage.getItem('username'),
@@ -28,6 +26,8 @@ export default{
         this.retrievePhoto();
     },
     async retrievePhoto(){
+      try
+      {
         let temp = await this.$axios.get('/userProfile/' + this.profilo.ID + '/publishedPhotos/' + this.profilo.foto.PhotoID, 
         {responseType: 'blob',
         headers: {Authorization: "Bearer " + this.visitor.visitorID}});
@@ -36,12 +36,25 @@ export default{
         this.profilo.foto.commentCount = this.profilo.foto.Comments != null ? this.profilo.foto.Comments.length : 0;
         this.profilo.foto.newComment = "";
         if (this.profilo.foto.Comments != null) {this.comments = this.profilo.foto.Comments;}
+      }
+      catch(e)
+      {
+        if (e.response != null)
+          {
+            switch(e.response.status)
+            {
+              case 500 : 
+                alert("Un errore nel server impedisce l'operazione!");
+                break;
+            }
+          }
+      }
     },
     async commentPhoto(photoID)
     {
       try
       {
-        let response = await this.$axios.put('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/comments/',
+        let response = await this.$axios.post('/userProfile/' + this.profilo.ID + '/stream/' + photoID + '/comments/',
         { Text : this.profilo.foto.newComment},
         { headers: {Authorization: "Bearer " + this.visitor.visitorID } });
         
@@ -58,8 +71,18 @@ export default{
       }
       catch(e)
       {
-        if (e.response != null && e.response.status == 400) {alert("La lunghezza del commento non è corretta!\n(Minimo 6 caratteri, massimo 160 caratteri)");}
-        else if (e.response != null && e.response.status == 500) {alert("Un errore nel server impedisce l'operazione!");}  
+        if (e.response != null)
+        {
+          switch (e.response.status)
+          {
+            case 400:
+              alert("La lunghezza del commento non è corretta!\n(Minimo 6 caratteri, massimo 160 caratteri)");
+              break;
+            case 500:
+              alert("Un errore nel server impedisce l'operazione!");
+              break;
+          }
+        }  
       }
     },
     async uncommentPhoto(photoID, commentID)
@@ -75,8 +98,21 @@ export default{
       }
       catch(e)
       {
-        this.errormsg = e.toString();
-        alert(this.errormsg);       
+        if (e.response != null)
+        {
+          switch (e.response.status)
+          {
+            case 403:
+              alert("Non puoi rimuovere un commento se non è tuo o se non sei il proprietario della foto!");
+              break;
+            case 404:
+              alert("Errore nell'autenticazione!");
+              break;
+            case 500:
+              alert("Un errore nel server impedisce l'operazione!");
+              break;
+          }
+        }        
       }
     },
     async tornaIndietro(){

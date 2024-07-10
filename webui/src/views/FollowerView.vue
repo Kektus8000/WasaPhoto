@@ -28,7 +28,18 @@ export default{
       }
       catch(e)
       {
-        if (e.response != null && e.response.status == 500) {alert("Un errore nel server impedisce l'operazione!");}
+        if (e.response != null)
+        {
+          switch (e.response.status)
+          {
+            case 404:
+              alert("Errore nell'autenticazione!");
+              break;
+            case 500:
+              alert("Un errore nel server impedisce l'operazione!");
+              break;
+          }
+        }  
       }
     },
     async visitaProfilo(checkID){
