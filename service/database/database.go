@@ -54,6 +54,7 @@ type AppDatabase interface {
 	GetLikes(photoID int) ([]User, error)
 	CheckBanned(bannerID int, bannedID int) (bool, error)
 	GetStream(userID int) ([]Photo, error)
+	GetComment(commentID int) (Comment, error)
 	GetComments(photoID int) ([]Comment, error)
 	UserExists(username string) (bool, error)
 

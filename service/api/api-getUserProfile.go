@@ -12,17 +12,17 @@ import (
 func (rt *_router) GetUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
+	// Recupera l'ID dell'utente che effettua la richiesta
+	userID := Authenticate(r.Header.Get("Authorization"))
+	if userID == -1 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	// ID dell'utente a cui si vuole accedere al profilo
 	checkID, errConv := strconv.Atoi(ps.ByName("userID"))
 	if errConv != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	// Recupera l'ID dell'utente che effettua la richiesta
-	userID := Authenticate(r.Header.Get("Authorization"))
-	if userID == -1 {
-		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 

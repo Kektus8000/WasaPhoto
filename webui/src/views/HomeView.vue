@@ -78,7 +78,7 @@ export default{
           var foto = this.stream[i];
           if (foto.isLiked !== foto.initiallyLiked)
           {
-            if (foto.isLiked) { await this.$axios.post('/userProfile/' + this.profilo.ID + '/stream/' + foto.PhotoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.profilo.ID} });}
+            if (foto.isLiked) { await this.$axios.put('/userProfile/' + this.profilo.ID + '/stream/' + foto.PhotoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.profilo.ID} });}
             else {await this.$axios.delete('/userProfile/' + this.profilo.ID + '/stream/' + foto.PhotoID + '/likes/', { headers: {Authorization: "Bearer " + this.profilo.ID} });}
           }
         }
@@ -151,7 +151,7 @@ export default{
         {
           try
           {
-            let response = await this.$axios.put('/user/', {username: this.ricerca}, { headers: {Authorization: "Bearer " + this.profilo.ID} });
+            let response = await this.$axios.post('/user/', {username: this.ricerca}, { headers: {Authorization: "Bearer " + this.profilo.ID} });
             this.utenti = response.data;
           }
           catch(e)

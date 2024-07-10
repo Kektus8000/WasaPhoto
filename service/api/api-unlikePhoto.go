@@ -19,8 +19,8 @@ func (rt *_router) UnlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	// Check dell'ID della Foto
-	photoID, errConv2 := strconv.Atoi(ps.ByName("photoID"))
-	if errConv2 != nil {
+	photoID, errConv := strconv.Atoi(ps.ByName("photoID"))
+	if errConv != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

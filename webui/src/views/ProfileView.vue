@@ -87,7 +87,7 @@ export default{
             // Se il visitatore segue il propritario ma prima no...
             if (this.visitor.isFollowing)
             {
-              await this.$axios.post('/userProfile/' + this.visitor.visitorID + '/following/' + this.profilo.ID, {}, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} );
+              await this.$axios.put('/userProfile/' + this.visitor.visitorID + '/following/' + this.profilo.ID, {}, {headers: {Authorization: "Bearer " + this.visitor.visitorID}} );
               var temp = {UserID : this.profilo.ID, Username: this.profilo.nome};
               if (this.visitor.visitorSeguiti == null) {this.visitor.visitorSeguiti = [temp];}
               else {this.visitor.visitorSeguiti.push(temp);}
@@ -106,7 +106,7 @@ export default{
             // Se il visitatore ha bannato il proprietario...
             if (this.visitor.hasBanned)
             {
-              await this.$axios.post('/userProfile/' + this.visitor.visitorID  + '/banList/' + this.profilo.ID, {}, {headers: {Authorization: "Bearer " + this.visitor.visitorID }} );
+              await this.$axios.put('/userProfile/' + this.visitor.visitorID  + '/banList/' + this.profilo.ID, {}, {headers: {Authorization: "Bearer " + this.visitor.visitorID }} );
 
               // L'utente bannato viene rimosso dai seguiti (se vi è)...
               if (this.visitor.visitorSeguiti != null && this.visitor.visitorSeguiti.some(fl => Number(fl.UserID) === this.profilo.ID))
@@ -138,7 +138,7 @@ export default{
           var foto = this.profilo.fotoPubblicate[i];
           if (foto.isLiked !== foto.initiallyLiked)
           {
-            if (foto.isLiked) { await this.$axios.post('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.visitor.visitorID} });}
+            if (foto.isLiked) { await this.$axios.put('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.visitor.visitorID} });}
             else {await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', { headers: {Authorization: "Bearer " + this.visitor.visitorID} });}
           }
         }
