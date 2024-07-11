@@ -36,14 +36,11 @@ export default{
   },
   methods: {
     async refresh(){
-      console.log(this.visitor.visitorID);
-      console.log(this.visitor.visitorNome);
-      console.log(this.profilo.ID);
       await this.recuperaInfo();
       if (this.visitor.visitorID != this.profilo.ID) {this.visitorInfo();}
     },
     ///////////////////////////// FUNZIONI VISITOR ////////////////////////////////////////////
-    async visitorInfo(){
+    visitorInfo(){
       if (this.visitor.visitorSeguiti != null) {
         this.visitor.isFollowing = this.visitor.visitorSeguiti.some(e => Number(e.UserID) === this.profilo.ID);
         this.visitor.initialFollowing = this.visitor.isFollowing;
@@ -77,6 +74,40 @@ export default{
       {
         this.visitor.isFollowing = false;
         document.getElementById('followButton').value = STATOFOLLOW[0];
+      }
+    },
+    async salvaLike()
+    {
+      try
+      {
+        for (let i = 0; i < this.profilo.fotoPubblicate.length; i++)
+        {
+          var foto = this.profilo.fotoPubblicate[i];
+          if (foto.isLiked !== foto.initiallyLiked)
+          {
+            console.log("Mi piace aggiornato");
+            if (foto.isLiked) { await this.$axios.put('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.visitor.visitorID} });}
+            else {await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', { headers: {Authorization: "Bearer " + this.visitor.visitorID} });}
+          }
+        }
+      }
+      catch(e)
+      {
+        if (e.response != null)
+        {
+          switch (e.response.status)
+          {
+            case 403:
+              alert("Non hai i permessi per completare l'operazione!");
+              break;
+            case 404:
+              alert("Errore nell'autenticazione!");
+              break;
+            case 500:
+              alert("Un errore nel server impedisce l'operazione!");
+              break;
+          }
+        } 
       }
     },
     async salvaStato(){
@@ -135,16 +166,6 @@ export default{
           localStorage.setItem('SeguitiSessione', JSON.stringify(this.visitor.visitorSeguiti));
           localStorage.setItem('BannatiSessione', JSON.stringify(this.visitor.visitorBannati));
         }
-        
-        for (let i = 0; i < this.profilo.fotoPubblicate.length; i++)
-        {
-          var foto = this.profilo.fotoPubblicate[i];
-          if (foto.isLiked !== foto.initiallyLiked)
-          {
-            if (foto.isLiked) { await this.$axios.put('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.visitor.visitorID} });}
-            else {await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', { headers: {Authorization: "Bearer " + this.visitor.visitorID} });}
-          }
-        }
       }
       catch(e)
       {
@@ -179,7 +200,8 @@ export default{
     },
     async infoFoto(photoID)
     {
-      this.salvaStato();
+      await this.salvaLike();
+      await this.salvaStato();
       var foto = this.profilo.fotoPubblicate.find(foto => Number(foto.PhotoID) === Number(photoID));
       localStorage.setItem('FotoAnalizzata', JSON.stringify(foto));
       this.$router.push({path: '/userProfile/' + this.profilo.ID + '/publishedPhotos/' + photoID});
@@ -241,6 +263,8 @@ export default{
           await this.$axios.post('/userProfile/' + this.visitor.visitorID + '/publishedPhotos/', READER.result, { headers: {Authorization: "Bearer " + this.visitor.visitorID} });
         };
         alert("Foto pubblicata!");
+        await this.salvaLike();
+        await this.salvaStato();
         this.refresh();
       }
       catch(e)
@@ -265,6 +289,8 @@ export default{
         await this.$axios.delete('/userProfile/' + this.profilo.ID + '/publishedPhotos/' + photoID,
         { headers: {Authorization: "Bearer " + this.profilo.ID} });
         alert("Foto cancellata");
+        await this.salvaLike();
+        await this.salvaStato();
         this.refresh();
       }
       catch(e)
@@ -322,9 +348,14 @@ export default{
         }
       }
     },
-    async controllaBannati(){ this.$router.push({path: '/userProfile/'+ this.profilo.ID + '/banList'});},
+    async controllaBannati(){
+      await this.salvaLike();
+      await this.salvaStato();
+      this.$router.push({path: '/userProfile/'+ this.profilo.ID + '/banList'});
+    },
     async tornaHomePage(){
-      this.salvaStato();
+      await this.salvaLike();
+      await this.salvaStato();
       localStorage.removeItem('IDCercato');
       this.$router.replace('/session');
     }

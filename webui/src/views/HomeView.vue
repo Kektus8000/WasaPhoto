@@ -71,7 +71,7 @@ export default{
     fotoPiaciuta(photoID)
     {
       var foto = this.stream.find(foto => foto.PhotoID === photoID);
-      return foto.isLiked ? STATOLIKE[1] : STATOLIKE[0]
+      return foto.isLiked ? STATOLIKE[1] : STATOLIKE[0];
     },
     likePhoto(photoID)
     {

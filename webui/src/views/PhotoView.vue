@@ -15,6 +15,8 @@ export default{
 
       comments: [],
 
+      likes : [],
+
       profilo : {
         ID : Number(localStorage.getItem('IDCercato')),
         foto: JSON.parse(localStorage.getItem('FotoAnalizzata'))
@@ -24,6 +26,7 @@ export default{
   methods: {
     async refresh(){
         this.retrievePhoto();
+        console.log(this.likes);
     },
     async retrievePhoto(){
       try
@@ -36,6 +39,7 @@ export default{
         this.profilo.foto.commentCount = this.profilo.foto.Comments != null ? this.profilo.foto.Comments.length : 0;
         this.profilo.foto.newComment = "";
         if (this.profilo.foto.Comments != null) {this.comments = this.profilo.foto.Comments;}
+        if (this.profilo.foto.Likes != null) {this.likes = this.profilo.foto.Likes;}
       }
       catch(e)
       {
@@ -143,8 +147,8 @@ export default{
 
         <div height = 400px class = statistiche-foto>
             <section class = sezione-like>
-                <h4 height = 40px style = "top: 0; padding-top: 5px; border-bottom: 1px solid black;"> Like Ricevuti : {{this.profilo.foto.Likes ? this.profilo.foto.Likes.length : 0}} </h4>
-                <div height = 400px style = "border-bottom: 1px solid black;" v-for = "like in this.profilo.foto.Likes" :key = like.UserID>
+                <h4 height = 40px style = "top: 0; padding-top: 5px; border-bottom: 1px solid black;"> Like Ricevuti : {{this.likes.length}} </h4>
+                <div height = 400px style = "border-bottom: 1px solid black;" v-for = "like in this.likes" :key = like.UserID>
                     <h3 class= like style = "font-weight: bold; padding-top: 5px; cursor: pointer;" height = 40px
                     @click = visitaProfilo(like.UserID)> {{like.Username}} </h3>
                 </div>
