@@ -85,7 +85,6 @@ export default{
           var foto = this.profilo.fotoPubblicate[i];
           if (foto.isLiked !== foto.initiallyLiked)
           {
-            console.log("Mi piace aggiornato");
             if (foto.isLiked) { await this.$axios.put('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.visitor.visitorID} });}
             else {await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', { headers: {Authorization: "Bearer " + this.visitor.visitorID} });}
           }

@@ -26,7 +26,6 @@ export default{
   methods: {
     async refresh(){
         this.retrievePhoto();
-        console.log(this.likes);
     },
     async retrievePhoto(){
       try
