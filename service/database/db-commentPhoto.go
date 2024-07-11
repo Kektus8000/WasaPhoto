@@ -6,7 +6,7 @@ func (db *appdbimpl) CommentPhoto(commentorID int, photoID int, comment string) 
 		return -1, errExec
 	}
 	ID, errID := query.LastInsertId()
-	if errID != nil{
+	if errID != nil {
 		return -1, errID
 	}
 	return int(ID), nil
