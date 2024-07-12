@@ -85,8 +85,22 @@ export default{
           var foto = this.profilo.fotoPubblicate[i];
           if (foto.isLiked !== foto.initiallyLiked)
           {
-            if (foto.isLiked) { await this.$axios.put('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.visitor.visitorID} });}
-            else {await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', { headers: {Authorization: "Bearer " + this.visitor.visitorID} });}
+            if (foto.isLiked) { 
+              await this.$axios.put('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', {}, { headers: {Authorization: "Bearer " + this.visitor.visitorID} });
+              //Questo serve per PhotoView principalmente
+              var newLike = {
+                UserID : this.visitor.visitorID,
+                Username : this.visitor.visitorNome
+              };
+              if (foto.Likes != null) {foto.Likes.push(newLike);}
+              else {foto.Likes = [newLike];}
+            }
+            else {
+              await this.$axios.delete('/userProfile/' + this.visitor.visitorID + '/stream/' + foto.PhotoID + '/likes/', { headers: {Authorization: "Bearer " + this.visitor.visitorID} });
+              //Questo serve per PhotoView principalmente
+              let indice = foto.Likes.map(user => user.UserID).indexOf(this.visitor.visitorID);
+              foto.Likes.splice(indice, 1);
+            }
           }
         }
       }
