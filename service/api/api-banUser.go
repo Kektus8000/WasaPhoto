@@ -60,4 +60,20 @@ func (rt *_router) BanUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	// Rimuove tutti i commenti pubblicate dal bannante alle foto dell'utente bannato,
+	// ritornando 500 se vi sono errori nella query
+	errRemove3 := rt.db.RemoveAllComments(bannedID, bannerID)
+	if errRemove3 != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// Rimuove tutti i mi piace pubblicate dal bannante alle foto dell'utente bannato,
+	// ritornando 500 se vi sono errori nella query
+	errRemove4 := rt.db.RemoveAllLikes(bannedID, bannerID)
+	if errRemove4 != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
