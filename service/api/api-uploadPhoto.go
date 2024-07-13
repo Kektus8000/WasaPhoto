@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"encoding/json"
 
 	"github.com/Kektus8000/WasaPhoto/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
@@ -41,6 +42,12 @@ func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// Aggiunge la foto nella cartella appena creata, sotto l'ID richiesto
 	_, errIO := io.Copy(path, r.Body)
 	if errIO != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	errEncode := json.NewEncoder(w).Encode(photoID)
+	if errEncode != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

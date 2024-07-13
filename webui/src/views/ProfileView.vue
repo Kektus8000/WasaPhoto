@@ -270,15 +270,33 @@ export default{
     async uploadPhoto(){
       try
       {
-        let foto = document.getElementById('upload');
-        READER.readAsArrayBuffer(foto.files[0]);
+        let img = document.getElementById('upload');
+        READER.readAsArrayBuffer(img.files[0]);
         READER.onload = async () => {
-          await this.$axios.post('/userProfile/' + this.visitor.visitorID + '/publishedPhotos/', READER.result, { headers: {Authorization: "Bearer " + this.visitor.visitorID} });
+          let response = await this.$axios.post('/userProfile/' + this.profilo.ID + '/publishedPhotos/', READER.result, { headers: {Authorization: "Bearer " + this.visitor.visitorID} });
+          
+          var foto = {
+            PhotoID : response.data,
+            PublisherID : this.profilo.ID,
+            PublisherName : this.profilo.nome,
+            File : "/tmp/userProfile/" + this.profilo.ID + "/publishedPhotos/" + response.data,
+            Comments : [],
+            Likes : [],
+            isLiked : false,
+            likeCount: 0
+          }
+          
+          let temp = await this.$axios.get('/userProfile/' + this.profilo.ID + '/publishedPhotos/' + foto.PhotoID, 
+          {responseType: 'blob',
+          headers: {Authorization: "Bearer " + this.visitor.visitorID}});
+          foto.Path = URL.createObjectURL(temp.data);
+
+          //La foto viene messa in cima alla lista di Foto pubblicate
+          if (this.profilo.fotoPubblicate) {this.profilo.fotoPubblicate.unshift(foto);}
+          else {this.profilo.fotoPubblicate = foto;}
         };
         alert("Foto pubblicata!");
-        await this.salvaLike();
-        await this.salvaStato();
-        this.refresh();
+
       }
       catch(e)
       {
