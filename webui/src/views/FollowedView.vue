@@ -18,13 +18,12 @@ export default{
         alert("Hai bloccato " + banned.Username);
         localStorage.setItem('SeguitiSessione', JSON.stringify(this.seguiti));
 
-        await this.$axios.put('/userProfile/' + this.ID + '/banList/' + banned.UserID, {}, {headers: {Authorization: "Bearer " + this.visitorID}} );
-
         var temp = {UserID : banned.UserID, Username: banned.Username};
-        if (this.bannati == null) {this.bannati = temp;}
+        if (this.bannati == null) {this.bannati = [temp];}
         else {this.bannati.push(temp);}
         localStorage.setItem('BannatiSessione', JSON.stringify(this.bannati));
-        this.refresh();
+
+        await this.$axios.put('/userProfile/' + this.ID + '/banList/' + banned.UserID, {}, {headers: {Authorization: "Bearer " + this.visitorID}} );
       }
       catch(e)
       {

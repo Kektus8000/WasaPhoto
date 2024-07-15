@@ -4,7 +4,8 @@ export default{
     return{
       visitorID : Number(localStorage.getItem('identifier')),
       ID : Number(localStorage.getItem('IDCercato')),
-      bannati : JSON.parse(localStorage.getItem('BannatiSessione'))
+      bannati : JSON.parse(localStorage.getItem('BannatiSessione')),
+      banCount : this.bannati ? this.bannati.length : 0
     }
   },
   methods:{
@@ -51,13 +52,13 @@ export default{
       <h2 style = "font-weight: bold; padding-left: 20px; cursor:pointer;"
       @click = "() => {this.$router.back();}"> Torna indietro </h2>
       <h1 style = "font-weight: bold;">Account Bannati</h1>
-      <h2 style = "padding-right: 20px;"> Bannati : {{this.bannati != null ? this.bannati.length : 0}}</h2>
+      <h2 style = "padding-right: 20px;"> Bannati : {{this.banCount}}</h2>
     </header>
 
     <section class = lista-bannati>
-      <div class = utente-bannato v-for = "utente in this.bannati" :key = "utente.UserID">
-        <h2 style = "cursor: pointer; font-weight: bold;" @click = visitaProfilo(utente.UserID)>{{utente.Username}}</h2>
-        <button class = blocca style = "color:red" @click = unBanUser(utente) show = "this.ID === Number(localStorage.getItem('identifier'))"> Unban </button>
+      <div class = utente-bannato v-for = "ban in this.bannati" :key = "ban.UserID">
+        <h2 style = "cursor: pointer; font-weight: bold;" @click = visitaProfilo(ban.UserID)>{{ban.Username}}</h2>
+        <button class = blocca style = "color:red" @click = unBanUser(ban) show = "this.ID === Number(localStorage.getItem('identifier'))"> Unban </button>
       </div>
     </section>
   </body>
